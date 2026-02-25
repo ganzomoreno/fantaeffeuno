@@ -10,60 +10,52 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Fetch sequentially to avoid circular refs
+  const { data: myTeam } = await supabase
+    .from('teams')
+    .select('*')
+    .eq('user_id', user!.id)
+    .single()
+
   const [
-    { data: team },
     { data: standings },
     { data: nextRace },
-    { data: myDrivers },
+    { data: teamDrivers },
     { data: currentAuction },
+    { data: recentScores },
   ] = await Promise.all([
-    supabase.from('teams').select('*').eq('user_id', user!.id).single(),
     supabase.from('season_standings').select('*'),
-    supabase.from('races')
+    supabase
+      .from('races')
       .select('*')
       .gte('date', new Date().toISOString().split('T')[0])
       .order('date', { ascending: true })
       .limit(1)
       .single(),
-    supabase.from('team_drivers')
+    supabase
+      .from('team_drivers')
       .select('*, driver:drivers(*)')
-      .eq('is_active', true)
-      .then(async ({ data }) => {
-        if (!data || !team) return { data: [] }
-        const myTeam = await supabase.from('teams').select('id').eq('user_id', user!.id).single()
-        return supabase.from('team_drivers')
-          .select('*, driver:drivers(*)')
-          .eq('team_id', myTeam.data?.id ?? '')
-          .eq('is_active', true)
-      }),
-    supabase.from('auctions')
+      .eq('team_id', myTeam?.id ?? '')
+      .eq('is_active', true),
+    supabase
+      .from('auctions')
       .select('*')
       .in('status', ['open', 'pending'])
       .order('created_at', { ascending: false })
       .limit(1)
       .single(),
+    supabase
+      .from('race_scores')
+      .select('*, race:races(*)')
+      .eq('team_id', myTeam?.id ?? '')
+      .order('created_at', { ascending: false })
+      .limit(3),
   ])
 
-  // Get my team id
-  const { data: myTeam } = await supabase.from('teams').select('*').eq('user_id', user!.id).single()
-
-  // Get my drivers
-  const { data: teamDrivers } = await supabase
-    .from('team_drivers')
-    .select('*, driver:drivers(*)')
-    .eq('team_id', myTeam?.id ?? '')
-    .eq('is_active', true)
-
-  // Get my recent scores
-  const { data: recentScores } = await supabase
-    .from('race_scores')
-    .select('*, race:races(*)')
-    .eq('team_id', myTeam?.id ?? '')
-    .order('created_at', { ascending: false })
-    .limit(3)
-
   const myStanding = standings?.find(s => s.team_id === myTeam?.id)
-  const myPosition = standings ? standings.findIndex(s => s.team_id === myTeam?.id) + 1 : '-'
+  const myPosition = standings
+    ? standings.findIndex(s => s.team_id === myTeam?.id) + 1
+    : 0
 
   return (
     <div className="space-y-6">
@@ -74,7 +66,9 @@ export default async function DashboardPage() {
           <p className="text-zinc-400 text-sm mt-1">Stagione 2026</p>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-black text-red-500">#{myPosition}</div>
+          <div className="text-2xl font-black text-red-500">
+            {myPosition > 0 ? `#${myPosition}` : '-'}
+          </div>
           <div className="text-xs text-zinc-400">in classifica</div>
         </div>
       </div>
@@ -155,13 +149,13 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Next Race + Auction */}
+        {/* Right column */}
         <div className="space-y-4">
           {/* Next Race */}
           {nextRace && (
             <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader className="pb-3">
-                <CardTitle className="text-white text-sm text-zinc-400 uppercase tracking-wider">
+                <CardTitle className="text-xs text-zinc-400 uppercase tracking-wider font-normal">
                   Prossima gara
                 </CardTitle>
               </CardHeader>
@@ -170,10 +164,10 @@ export default async function DashboardPage() {
                   <div>
                     <div className="font-black text-xl text-white">{nextRace.name}</div>
                     <div className="text-zinc-400 text-sm">{nextRace.circuit}</div>
-                    <div className="text-xs text-zinc-500 mt-1">
+                    <div className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
                       {format(new Date(nextRace.date), 'dd MMMM yyyy', { locale: it })}
                       {nextRace.is_sprint && (
-                        <Badge className="ml-2 bg-yellow-900 text-yellow-400 text-xs">SPRINT</Badge>
+                        <Badge className="bg-yellow-900 text-yellow-400 text-xs">SPRINT</Badge>
                       )}
                     </div>
                   </div>
@@ -189,7 +183,7 @@ export default async function DashboardPage() {
 
           {/* Auction status */}
           {currentAuction && (
-            <Card className="bg-zinc-900 border-zinc-800 border-red-900">
+            <Card className="bg-zinc-900 border-red-900/50 border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -225,11 +219,13 @@ export default async function DashboardPage() {
             </CardHeader>
             <CardContent>
               {standings && standings.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {standings.slice(0, 5).map((s, i) => (
                     <div
                       key={s.team_id}
-                      className={`flex items-center justify-between py-1.5 ${s.team_id === myTeam?.id ? 'text-red-400' : 'text-white'}`}
+                      className={`flex items-center justify-between py-1.5 ${
+                        s.team_id === myTeam?.id ? 'text-red-400' : 'text-white'
+                      }`}
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-zinc-500 font-mono text-sm w-4">{i + 1}</span>
