@@ -209,57 +209,63 @@ CREATE POLICY "users manage own trades" ON trades
 -- Seed: 2026 F1 Drivers
 -- ================================
 
+-- 22 piloti, 11 team (inc. Cadillac new entry 2026)
+-- Norris #1 come campione in carica, Verstappen #3
 INSERT INTO drivers (name, constructor, number, country) VALUES
-  ('Max Verstappen', 'Red Bull', 1, 'Netherlands'),
-  ('Liam Lawson', 'Red Bull', 30, 'New Zealand'),
-  ('Charles Leclerc', 'Ferrari', 16, 'Monaco'),
-  ('Lewis Hamilton', 'Ferrari', 44, 'United Kingdom'),
-  ('George Russell', 'Mercedes', 63, 'United Kingdom'),
-  ('Andrea Kimi Antonelli', 'Mercedes', 12, 'Italy'),
-  ('Lando Norris', 'McLaren', 4, 'United Kingdom'),
-  ('Oscar Piastri', 'McLaren', 81, 'Australia'),
-  ('Fernando Alonso', 'Aston Martin', 14, 'Spain'),
-  ('Lance Stroll', 'Aston Martin', 18, 'Canada'),
-  ('Pierre Gasly', 'Alpine', 10, 'France'),
-  ('Jack Doohan', 'Alpine', 7, 'Australia'),
-  ('Alex Albon', 'Williams', 23, 'Thailand'),
-  ('Carlos Sainz', 'Williams', 55, 'Spain'),
-  ('Yuki Tsunoda', 'RB', 22, 'Japan'),
-  ('Isack Hadjar', 'RB', 6, 'France'),
-  ('Esteban Ocon', 'Haas', 31, 'France'),
-  ('Oliver Bearman', 'Haas', 87, 'United Kingdom'),
-  ('Nico Hulkenberg', 'Sauber', 27, 'Germany'),
-  ('Gabriel Bortoleto', 'Sauber', 5, 'Brazil');
+  ('Lando Norris',          'McLaren',       1,  'United Kingdom'),
+  ('Oscar Piastri',         'McLaren',       81, 'Australia'),
+  ('Charles Leclerc',       'Ferrari',       16, 'Monaco'),
+  ('Lewis Hamilton',        'Ferrari',       44, 'United Kingdom'),
+  ('Max Verstappen',        'Red Bull',      3,  'Netherlands'),
+  ('Isack Hadjar',          'Red Bull',      6,  'France'),
+  ('George Russell',        'Mercedes',      63, 'United Kingdom'),
+  ('Andrea Kimi Antonelli', 'Mercedes',      12, 'Italy'),
+  ('Fernando Alonso',       'Aston Martin',  14, 'Spain'),
+  ('Lance Stroll',          'Aston Martin',  18, 'Canada'),
+  ('Pierre Gasly',          'Alpine',        10, 'France'),
+  ('Franco Colapinto',      'Alpine',        43, 'Argentina'),
+  ('Alexander Albon',       'Williams',      23, 'Thailand'),
+  ('Carlos Sainz',          'Williams',      55, 'Spain'),
+  ('Liam Lawson',           'Racing Bulls',  30, 'New Zealand'),
+  ('Arvid Lindblad',        'Racing Bulls',  41, 'United Kingdom'),
+  ('Esteban Ocon',          'Haas',          31, 'France'),
+  ('Oliver Bearman',        'Haas',          87, 'United Kingdom'),
+  ('Nico Hulkenberg',       'Audi',          27, 'Germany'),
+  ('Gabriel Bortoleto',     'Audi',          5,  'Brazil'),
+  ('Sergio Perez',          'Cadillac',      11, 'Mexico'),
+  ('Valtteri Bottas',       'Cadillac',      77, 'Finland');
 
 -- ================================
 -- Seed: 2026 F1 Calendar
 -- ================================
 
-INSERT INTO races (name, circuit, date, is_sprint, round) VALUES
-  ('Australia', 'Albert Park', '2026-03-16', false, 1),
-  ('China', 'Shanghai', '2026-03-23', true, 2),
-  ('Japan', 'Suzuka', '2026-04-06', false, 3),
-  ('Bahrain', 'Bahrain International', '2026-04-13', false, 4),
-  ('Arabia Saudita', 'Jeddah Corniche', '2026-04-20', false, 5),
-  ('Miami', 'Miami International', '2026-05-04', true, 6),
-  ('Emilia Romagna', 'Imola', '2026-05-18', false, 7),
-  ('Monaco', 'Circuit de Monaco', '2026-05-25', false, 8),
-  ('Spagna', 'Circuit de Barcelona', '2026-06-01', false, 9),
-  ('Canada', 'Circuit Gilles Villeneuve', '2026-06-15', false, 10),
-  ('Austria', 'Red Bull Ring', '2026-06-29', false, 11),
-  ('Gran Bretagna', 'Silverstone', '2026-07-06', false, 12),
-  ('Belgio', 'Spa-Francorchamps', '2026-07-27', true, 13),
-  ('Ungheria', 'Hungaroring', '2026-08-03', false, 14),
-  ('Olanda', 'Zandvoort', '2026-08-31', false, 15),
-  ('Italia', 'Monza', '2026-09-07', false, 16),
-  ('Azerbaijan', 'Baku City', '2026-09-21', false, 17),
-  ('Singapore', 'Marina Bay', '2026-10-05', false, 18),
-  ('Stati Uniti', 'COTA', '2026-10-19', true, 19),
-  ('Messico', 'Autodromo Hermanos Rodriguez', '2026-10-26', false, 20),
-  ('Brasile', 'Interlagos', '2026-11-09', true, 21),
-  ('Las Vegas', 'Las Vegas Strip', '2026-11-22', false, 22),
-  ('Qatar', 'Losail', '2026-11-30', true, 23),
-  ('Abu Dhabi', 'Yas Marina', '2026-12-07', false, 24);
+-- 24 gare, 6 sprint weekend
+-- Sprint: Cina, Miami, Belgio, Stati Uniti, Brasile, Qatar
+INSERT INTO races (name, circuit, date, is_sprint, round, season) VALUES
+  ('Australia',      'Albert Park, Melbourne',           '2026-03-16', false, 1,  2026),
+  ('Cina',           'Shanghai International Circuit',   '2026-03-23', true,  2,  2026),
+  ('Giappone',       'Suzuka Circuit',                   '2026-04-06', false, 3,  2026),
+  ('Bahrain',        'Bahrain International Circuit',    '2026-04-13', false, 4,  2026),
+  ('Arabia Saudita', 'Jeddah Corniche Circuit',          '2026-04-20', false, 5,  2026),
+  ('Miami',          'Miami International Autodrome',    '2026-05-04', true,  6,  2026),
+  ('Emilia Romagna', 'Autodromo Enzo e Dino Ferrari',    '2026-05-18', false, 7,  2026),
+  ('Monaco',         'Circuit de Monaco',                '2026-05-25', false, 8,  2026),
+  ('Spagna',         'Circuit de Barcelona-Catalunya',   '2026-06-01', false, 9,  2026),
+  ('Canada',         'Circuit Gilles Villeneuve',        '2026-06-15', false, 10, 2026),
+  ('Austria',        'Red Bull Ring',                    '2026-06-29', false, 11, 2026),
+  ('Gran Bretagna',  'Silverstone Circuit',              '2026-07-06', false, 12, 2026),
+  ('Belgio',         'Circuit de Spa-Francorchamps',     '2026-07-27', true,  13, 2026),
+  ('Ungheria',       'Hungaroring',                      '2026-08-03', false, 14, 2026),
+  ('Olanda',         'Circuit Zandvoort',                '2026-08-31', false, 15, 2026),
+  ('Italia',         'Autodromo Nazionale Monza',        '2026-09-07', false, 16, 2026),
+  ('Azerbaijan',     'Baku City Circuit',                '2026-09-21', false, 17, 2026),
+  ('Singapore',      'Marina Bay Street Circuit',        '2026-10-05', false, 18, 2026),
+  ('Stati Uniti',    'Circuit of the Americas',          '2026-10-19', true,  19, 2026),
+  ('Messico',        'Autodromo Hermanos Rodriguez',     '2026-10-26', false, 20, 2026),
+  ('Brasile',        'Autodromo Jose Carlos Pace',       '2026-11-09', true,  21, 2026),
+  ('Las Vegas',      'Las Vegas Strip Circuit',          '2026-11-22', false, 22, 2026),
+  ('Qatar',          'Lusail International Circuit',     '2026-11-30', true,  23, 2026),
+  ('Abu Dhabi',      'Yas Marina Circuit',               '2026-12-07', false, 24, 2026);
 
 -- ================================
 -- Seed: Teams (5 partecipanti)
