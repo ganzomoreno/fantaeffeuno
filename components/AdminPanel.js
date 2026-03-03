@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CALENDAR, F1_TEAM_COLORS } from '@/lib/data';
+import * as db from '@/lib/db';
 import { AdminCard, MiniInput, Chip, selectStyle, inputStyle, btnPrimary, btnSmall } from './ui';
 
 // ─── MAIN ADMIN PANEL ────────────────────────────────────────────────────────
-export default function AdminPanel({ teams, setTeams, pilots, setPilots, races, setRaces, lineups, setLineups, onClose }) {
+export default function AdminPanel({ teams, pilots, races, lineups, onRefresh, onClose }) {
   const [tab, setTab] = useState("asta");
 
   const tabs = [
@@ -23,14 +24,8 @@ export default function AdminPanel({ teams, setTeams, pilots, setPilots, races, 
       overflowY: "auto",
     }}>
       <div style={{ maxWidth: 900, margin: "0 auto", padding: 16 }}>
-        <div style={{
-          display: "flex", justifyContent: "space-between",
-          alignItems: "center", marginBottom: 16,
-        }}>
-          <h2 style={{
-            fontFamily: "'Orbitron'", fontSize: 20, fontWeight: 900,
-            color: "#e10600", margin: 0,
-          }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <h2 style={{ fontFamily: "'Orbitron'", fontSize: 20, fontWeight: 900, color: "#e10600", margin: 0 }}>
             ⚙ ADMIN PANEL
           </h2>
           <button onClick={onClose} style={{
@@ -53,48 +48,46 @@ export default function AdminPanel({ teams, setTeams, pilots, setPilots, races, 
           ))}
         </div>
 
-        {tab === "asta"      && <AdminAsta      teams={teams} setTeams={setTeams} pilots={pilots} setPilots={setPilots}/>}
-        {tab === "risultati" && <AdminRisultati  races={races} setRaces={setRaces} pilots={pilots} lineups={lineups} setLineups={setLineups} teams={teams}/>}
-        {tab === "teams"     && <AdminTeams      teams={teams} setTeams={setTeams}/>}
-        {tab === "piloti"    && <AdminPiloti     pilots={pilots} setPilots={setPilots} teams={teams}/>}
-        {tab === "budget"    && <AdminBudget     teams={teams} setTeams={setTeams}/>}
+        {tab === "asta"      && <AdminAsta      teams={teams} pilots={pilots} onRefresh={onRefresh}/>}
+        {tab === "risultati" && <AdminRisultati  races={races} pilots={pilots} lineups={lineups} teams={teams} onRefresh={onRefresh}/>}
+        {tab === "teams"     && <AdminTeams      teams={teams} onRefresh={onRefresh}/>}
+        {tab === "piloti"    && <AdminPiloti     pilots={pilots} teams={teams} onRefresh={onRefresh}/>}
+        {tab === "budget"    && <AdminBudget     teams={teams} onRefresh={onRefresh}/>}
       </div>
     </div>
   );
 }
 
-// ─── ASTA ────────────────────────────────────────────────────────────────────
-function AdminAsta({ teams, setTeams, pilots, setPilots }) {
+// ─── ASTA ─────────────────────────────────────────────────────────────────────
+function AdminAsta({ teams, pilots, onRefresh }) {
   const [selectedPilot, setSelectedPilot] = useState("");
-  const [selectedTeam, setSelectedTeam] = useState("");
-  const [price, setPrice] = useState(1);
+  const [selectedTeam, setSelectedTeam]   = useState("");
+  const [price, setPrice]                 = useState(1);
+  const [busy, setBusy]                   = useState(false);
 
   const freePilots = pilots.filter(p => !p.owner);
 
-  const assignPilot = () => {
+  const assignPilot = async () => {
     if (!selectedPilot || !selectedTeam || price < 1) return;
     const team = teams.find(t => t.id === selectedTeam);
     if (!team || team.budget < price) return alert("Budget insufficiente!");
 
-    setPilots(prev => prev.map(p =>
-      p.id === selectedPilot ? { ...p, owner: selectedTeam, price } : p
-    ));
-    setTeams(prev => prev.map(t =>
-      t.id === selectedTeam ? { ...t, budget: t.budget - price } : t
-    ));
-    setSelectedPilot("");
-    setPrice(1);
+    setBusy(true);
+    try {
+      await db.assignPilot(selectedPilot, selectedTeam, price);
+      await onRefresh();
+      setSelectedPilot(""); setPrice(1);
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
   };
 
-  const releasePilot = (pilotId) => {
-    const pilot = pilots.find(p => p.id === pilotId);
-    if (!pilot || !pilot.owner) return;
-    setPilots(prev => prev.map(p =>
-      p.id === pilotId ? { ...p, owner: null, price: 0 } : p
-    ));
-    setTeams(prev => prev.map(t =>
-      t.id === pilot.owner ? { ...t, budget: t.budget + pilot.price } : t
-    ));
+  const releasePilot = async (pilotId) => {
+    setBusy(true);
+    try {
+      await db.releasePilot(pilotId);
+      await onRefresh();
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
   };
 
   return (
@@ -118,10 +111,12 @@ function AdminAsta({ teams, setTeams, pilots, setPilots }) {
           </select>
 
           <label style={{ fontSize: 12, fontWeight: 600 }}>Prezzo (FantaMilioni)</label>
-          <input type="number" min="1" max="97" value={price}
+          <input type="number" min="1" value={price}
             onChange={e => setPrice(Number(e.target.value))} style={inputStyle}/>
 
-          <button onClick={assignPilot} style={btnPrimary}>Assegna Pilota</button>
+          <button onClick={assignPilot} disabled={busy} style={{ ...btnPrimary, opacity: busy ? 0.6 : 1 }}>
+            {busy ? "..." : "Assegna Pilota"}
+          </button>
         </div>
       </AdminCard>
 
@@ -133,14 +128,12 @@ function AdminAsta({ teams, setTeams, pilots, setPilots }) {
               display: "flex", alignItems: "center", gap: 10,
               padding: "6px 0", borderBottom: "1px solid #222",
             }}>
-              <div style={{
-                width: 6, height: 24, borderRadius: 3,
-                background: F1_TEAM_COLORS[p.team],
-              }}/>
+              <div style={{ width: 6, height: 24, borderRadius: 3, background: F1_TEAM_COLORS[p.team] }}/>
               <span style={{ flex: 1, fontSize: 13 }}>{p.name}</span>
               <Chip label={t?.name || "?"} color="#e10600"/>
               <span style={{ fontSize: 12, opacity: 0.6 }}>{p.price}M</span>
-              <button onClick={() => releasePilot(p.id)} style={{ ...btnSmall, color: "#ff4444" }}>
+              <button onClick={() => releasePilot(p.id)} disabled={busy}
+                style={{ ...btnSmall, color: "#ff4444" }}>
                 Rilascia
               </button>
             </div>
@@ -151,49 +144,48 @@ function AdminAsta({ teams, setTeams, pilots, setPilots }) {
   );
 }
 
-// ─── RISULTATI GARA ──────────────────────────────────────────────────────────
-function AdminRisultati({ races, setRaces, pilots }) {
+// ─── RISULTATI GARA ───────────────────────────────────────────────────────────
+function AdminRisultati({ races, pilots, onRefresh }) {
   const raceEvents = CALENDAR.map((ev, i) => ({ ...ev, index: i })).filter(ev => ev.type === "race");
   const [selectedRace, setSelectedRace] = useState("");
-  const [results, setResults] = useState([]);
-  const [editingRace, setEditingRace] = useState(null);
+  const [results, setResults]           = useState([]);
+  const [busy, setBusy]                 = useState(false);
 
   const initResults = (raceIdx) => {
     setSelectedRace(raceIdx);
     const existing = races.find(r => r.calendarIndex === Number(raceIdx));
     if (existing) {
       setResults(existing.results);
-      setEditingRace(existing);
     } else {
       setResults(pilots.map(p => ({
         pilotId: p.id, position: 0, dnf: false,
         overtakes: 0, fastestLap: false, dotdRank: 0,
       })));
-      setEditingRace(null);
     }
   };
 
   const updateResult = (pilotId, field, value) => {
-    setResults(prev => prev.map(r =>
-      r.pilotId === pilotId ? { ...r, [field]: value } : r
-    ));
+    setResults(prev => prev.map(r => r.pilotId === pilotId ? { ...r, [field]: value } : r));
   };
 
-  const saveResults = () => {
+  const saveResults = async () => {
     if (!selectedRace) return;
-    const raceData = { calendarIndex: Number(selectedRace), results };
-    if (editingRace) {
-      setRaces(prev => prev.map(r =>
-        r.calendarIndex === Number(selectedRace) ? raceData : r
-      ));
-    } else {
-      setRaces(prev => [...prev, raceData]);
-    }
-    alert("Risultati salvati!");
+    setBusy(true);
+    try {
+      await db.saveRaceResults(Number(selectedRace), results);
+      await onRefresh();
+      alert("Risultati salvati!");
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
   };
 
-  const deleteRace = (calIdx) => {
-    setRaces(prev => prev.filter(r => r.calendarIndex !== calIdx));
+  const deleteRace = async (calIdx) => {
+    setBusy(true);
+    try {
+      await db.deleteRace(calIdx);
+      await onRefresh();
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
   };
 
   return (
@@ -221,12 +213,9 @@ function AdminRisultati({ races, setRaces, pilots }) {
                     display: "flex", alignItems: "center", gap: 6,
                     padding: "6px 0", borderBottom: "1px solid #1a1a1a", flexWrap: "wrap",
                   }}>
-                    <div style={{
-                      width: 4, height: 20, borderRadius: 2,
-                      background: F1_TEAM_COLORS[p.team],
-                    }}/>
+                    <div style={{ width: 4, height: 20, borderRadius: 2, background: F1_TEAM_COLORS[p.team] }}/>
                     <span style={{ width: 130, fontSize: 12, fontWeight: 600 }}>{p.name}</span>
-                    <MiniInput label="Pos" type="number" value={res.position || 0}
+                    <MiniInput label="Pos"  type="number" value={res.position || 0}
                       onChange={v => updateResult(p.id, "position", Number(v))} width={50}/>
                     <MiniInput label="Sorp" type="number" value={res.overtakes || 0}
                       onChange={v => updateResult(p.id, "overtakes", Number(v))} width={50}/>
@@ -244,7 +233,10 @@ function AdminRisultati({ races, setRaces, pilots }) {
                 );
               })}
             </div>
-            <button onClick={saveResults} style={{ ...btnPrimary, marginTop: 12 }}>Salva Risultati</button>
+            <button onClick={saveResults} disabled={busy}
+              style={{ ...btnPrimary, marginTop: 12, opacity: busy ? 0.6 : 1 }}>
+              {busy ? "Salvataggio..." : "Salva Risultati"}
+            </button>
           </div>
         )}
       </AdminCard>
@@ -260,8 +252,13 @@ function AdminRisultati({ races, setRaces, pilots }) {
             }}>
               <span style={{ fontSize: 13 }}>🏁 {ev?.location} ({ev?.date})</span>
               <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={() => initResults(String(r.calendarIndex))} style={btnSmall}>Modifica</button>
-                <button onClick={() => deleteRace(r.calendarIndex)} style={{ ...btnSmall, color: "#ff4444" }}>Elimina</button>
+                <button onClick={() => initResults(String(r.calendarIndex))} style={btnSmall}>
+                  Modifica
+                </button>
+                <button onClick={() => deleteRace(r.calendarIndex)} disabled={busy}
+                  style={{ ...btnSmall, color: "#ff4444" }}>
+                  Elimina
+                </button>
               </div>
             </div>
           );
@@ -271,21 +268,43 @@ function AdminRisultati({ races, setRaces, pilots }) {
   );
 }
 
-// ─── TEAMS ───────────────────────────────────────────────────────────────────
-function AdminTeams({ teams, setTeams }) {
-  const updateTeam = (id, field, value) => {
-    setTeams(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
+// ─── TEAMS ────────────────────────────────────────────────────────────────────
+function AdminTeams({ teams, onRefresh }) {
+  const [localTeams, setLocalTeams] = useState(teams);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { setLocalTeams(teams); }, [teams]);
+
+  const updateLocal = (id, field, value) => {
+    setLocalTeams(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
+  };
+
+  const saveTeam = async (team) => {
+    setBusy(true);
+    try {
+      await db.updateTeam(team.id, {
+        name:          team.name,
+        owner_name:    team.owner,
+        switches_used: team.switchesUsed,
+      });
+      await onRefresh();
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
   };
 
   return (
     <AdminCard title="Gestione Squadre">
-      {teams.map(t => (
+      {localTeams.map(t => (
         <div key={t.id} style={{ padding: "10px 0", borderBottom: "1px solid #222" }}>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-            <MiniInput label="Nome" value={t.name} onChange={v => updateTeam(t.id, "name", v)} width={180}/>
-            <MiniInput label="Owner" value={t.owner} onChange={v => updateTeam(t.id, "owner", v)} width={150}/>
-            <MiniInput label="Switch" type="number" value={t.switchesUsed}
-              onChange={v => updateTeam(t.id, "switchesUsed", Number(v))} width={60}/>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
+            <MiniInput label="Nome"    value={t.name}         onChange={v => updateLocal(t.id, "name", v)}         width={180}/>
+            <MiniInput label="Owner"   value={t.owner}        onChange={v => updateLocal(t.id, "owner", v)}        width={150}/>
+            <MiniInput label="Switch"  type="number" value={t.switchesUsed}
+              onChange={v => updateLocal(t.id, "switchesUsed", Number(v))} width={60}/>
+            <button onClick={() => saveTeam(t)} disabled={busy}
+              style={{ ...btnPrimary, padding: "6px 14px", fontSize: 12 }}>
+              Salva
+            </button>
           </div>
         </div>
       ))}
@@ -293,41 +312,57 @@ function AdminTeams({ teams, setTeams }) {
   );
 }
 
-// ─── PILOTI ──────────────────────────────────────────────────────────────────
-function AdminPiloti({ pilots, setPilots, teams }) {
-  const updatePilot = (id, field, value) => {
-    setPilots(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+// ─── PILOTI ───────────────────────────────────────────────────────────────────
+function AdminPiloti({ pilots, teams, onRefresh }) {
+  const [localPilots, setLocalPilots] = useState(pilots);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { setLocalPilots(pilots); }, [pilots]);
+
+  const updateLocal = (id, field, value) => {
+    setLocalPilots(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  };
+
+  const savePilot = async (pilot) => {
+    setBusy(true);
+    try {
+      await db.updatePilotFields(pilot.id, {
+        name:           pilot.name,
+        f1_team:        pilot.team,
+        owner_team_id:  pilot.owner || null,
+        purchase_price: pilot.price,
+      });
+      await onRefresh();
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
   };
 
   return (
     <AdminCard title="Gestione Piloti">
       <div style={{ maxHeight: 500, overflowY: "auto" }}>
-        {pilots.map(p => (
+        {localPilots.map(p => (
           <div key={p.id} style={{
             display: "flex", gap: 6, padding: "6px 0",
-            borderBottom: "1px solid #1a1a1a", flexWrap: "wrap", alignItems: "center",
+            borderBottom: "1px solid #1a1a1a", flexWrap: "wrap", alignItems: "flex-end",
           }}>
-            <div style={{
-              width: 4, height: 20, borderRadius: 2,
-              background: F1_TEAM_COLORS[p.team],
-            }}/>
-            <MiniInput label="Nome" value={p.name}
-              onChange={v => updatePilot(p.id, "name", v)} width={140}/>
-            <MiniInput label="Scuderia" value={p.team}
-              onChange={v => updatePilot(p.id, "team", v)} width={120}/>
+            <div style={{ width: 4, height: 20, borderRadius: 2, background: F1_TEAM_COLORS[p.team], alignSelf: "center" }}/>
+            <MiniInput label="Nome"     value={p.name}  onChange={v => updateLocal(p.id, "name", v)}  width={140}/>
+            <MiniInput label="Scuderia" value={p.team}  onChange={v => updateLocal(p.id, "team", v)}  width={120}/>
             <div>
               <span style={{ fontSize: 10, opacity: 0.5 }}>Owner</span>
-              <select
-                value={p.owner || ""}
-                onChange={e => updatePilot(p.id, "owner", e.target.value || null)}
-                style={{ ...selectStyle, width: 130, padding: "4px 6px", fontSize: 11 }}
-              >
+              <select value={p.owner || ""}
+                onChange={e => updateLocal(p.id, "owner", e.target.value || null)}
+                style={{ ...selectStyle, width: 130, padding: "4px 6px", fontSize: 11 }}>
                 <option value="">Free Agent</option>
                 {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
             </div>
             <MiniInput label="Prezzo" type="number" value={p.price}
-              onChange={v => updatePilot(p.id, "price", Number(v))} width={60}/>
+              onChange={v => updateLocal(p.id, "price", Number(v))} width={60}/>
+            <button onClick={() => savePilot(p)} disabled={busy}
+              style={{ ...btnPrimary, padding: "6px 14px", fontSize: 12 }}>
+              Salva
+            </button>
           </div>
         ))}
       </div>
@@ -335,10 +370,37 @@ function AdminPiloti({ pilots, setPilots, teams }) {
   );
 }
 
-// ─── BUDGET ──────────────────────────────────────────────────────────────────
-function AdminBudget({ teams, setTeams }) {
-  const addBudgetAll = (amount) => {
-    setTeams(prev => prev.map(t => ({ ...t, budget: t.budget + amount })));
+// ─── BUDGET ───────────────────────────────────────────────────────────────────
+function AdminBudget({ teams, onRefresh }) {
+  const [busy, setBusy] = useState(false);
+
+  const adjustBudget = async (teamId, delta) => {
+    const team = teams.find(t => t.id === teamId);
+    if (!team) return;
+    setBusy(true);
+    try {
+      await db.updateTeam(teamId, { budget: team.budget + delta });
+      await onRefresh();
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
+  };
+
+  const setBudgetDirect = async (teamId, value) => {
+    setBusy(true);
+    try {
+      await db.updateTeam(teamId, { budget: Number(value) });
+      await onRefresh();
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
+  };
+
+  const addBudgetAll = async () => {
+    setBusy(true);
+    try {
+      await Promise.all(teams.map(t => db.updateTeam(t.id, { budget: t.budget + 100 })));
+      await onRefresh();
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
   };
 
   return (
@@ -346,7 +408,8 @@ function AdminBudget({ teams, setTeams }) {
       <p style={{ fontSize: 12, opacity: 0.5, marginBottom: 12 }}>
         Dopo ogni asta, aggiungi +100 FantaMilioni al budget residuo di ogni squadra.
       </p>
-      <button onClick={() => addBudgetAll(100)} style={{ ...btnPrimary, marginBottom: 16 }}>
+      <button onClick={addBudgetAll} disabled={busy}
+        style={{ ...btnPrimary, marginBottom: 16, opacity: busy ? 0.6 : 1 }}>
         +100M a tutte le squadre (Nuova Asta)
       </button>
       {teams.map(t => (
@@ -355,18 +418,13 @@ function AdminBudget({ teams, setTeams }) {
           padding: "8px 0", borderBottom: "1px solid #222",
         }}>
           <span style={{ flex: 1, fontSize: 13, fontWeight: 600 }}>{t.name}</span>
-          <span style={{
-            fontFamily: "'Orbitron'", fontSize: 16, fontWeight: 700, color: "#e10600",
-          }}>
+          <span style={{ fontFamily: "'Orbitron'", fontSize: 16, fontWeight: 700, color: "#e10600" }}>
             {t.budget}M
           </span>
-          <button onClick={() => setTeams(prev => prev.map(x =>
-            x.id === t.id ? { ...x, budget: x.budget + 10 } : x))} style={btnSmall}>+10</button>
-          <button onClick={() => setTeams(prev => prev.map(x =>
-            x.id === t.id ? { ...x, budget: x.budget - 10 } : x))} style={btnSmall}>-10</button>
+          <button onClick={() => adjustBudget(t.id, +10)} disabled={busy} style={btnSmall}>+10</button>
+          <button onClick={() => adjustBudget(t.id, -10)} disabled={busy} style={btnSmall}>-10</button>
           <MiniInput label="" type="number" value={t.budget}
-            onChange={v => setTeams(prev => prev.map(x =>
-              x.id === t.id ? { ...x, budget: Number(v) } : x))} width={70}/>
+            onChange={v => setBudgetDirect(t.id, v)} width={70}/>
         </div>
       ))}
     </AdminCard>

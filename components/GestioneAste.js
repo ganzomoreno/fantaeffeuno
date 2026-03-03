@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { F1_TEAM_COLORS } from '@/lib/data';
+import * as db from '@/lib/db';
 
 const AUCTION_PASSWORD = "wlf";
 
@@ -83,13 +84,14 @@ function PasswordScreen({ onAuth, onClose }) {
 }
 
 // ─── MAIN AUCTION PAGE ────────────────────────────────────────────────────────
-export default function GestioneAste({ teams, setTeams, pilots, setPilots, onClose }) {
+export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
   const [authed, setAuthed] = useState(false);
   const [spotNum, setSpotNum] = useState('');
   const [assignTeam, setAssignTeam] = useState('');
   const [assignPrice, setAssignPrice] = useState('');
   const [lastAssigned, setLastAssigned] = useState(null);
   const [confirmRelease, setConfirmRelease] = useState(null);
+  const [busy, setBusy] = useState(false);
   const spotInputRef = useRef(null);
   const pilotListRef = useRef(null);
 
@@ -105,7 +107,7 @@ export default function GestioneAste({ teams, setTeams, pilots, setPilots, onClo
     }
   }, [spotIndex, validSpot]);
 
-  const assignPilot = () => {
+  const assignPilot = async () => {
     if (!spotPilot || !assignTeam || !assignPrice) return;
     const price = parseInt(assignPrice);
     if (isNaN(price) || price < 1) return;
@@ -114,27 +116,27 @@ export default function GestioneAste({ teams, setTeams, pilots, setPilots, onClo
     if (team.budget < price) { alert(`Budget insufficiente! ${team.name} ha solo ${team.budget}M`); return; }
     if (spotPilot.owner) { alert("Pilota già assegnato!"); return; }
 
-    setPilots(prev => prev.map(p =>
-      p.id === spotPilot.id ? { ...p, owner: assignTeam, price } : p
-    ));
-    setTeams(prev => prev.map(t =>
-      t.id === assignTeam ? { ...t, budget: t.budget - price } : t
-    ));
-    setLastAssigned({ pilotName: spotPilot.name, teamName: team.name, price });
-    setSpotNum('');
-    setAssignTeam('');
-    setAssignPrice('');
-    setTimeout(() => spotInputRef.current?.focus(), 50);
+    setBusy(true);
+    try {
+      await db.assignPilot(spotPilot.id, assignTeam, price);
+      setLastAssigned({ pilotName: spotPilot.name, teamName: team.name, price });
+      setSpotNum('');
+      setAssignTeam('');
+      setAssignPrice('');
+      await onRefresh();
+      setTimeout(() => spotInputRef.current?.focus(), 50);
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
   };
 
-  const releasePilot = (pilotId) => {
-    const pilot = pilots.find(p => p.id === pilotId);
-    if (!pilot?.owner) return;
-    setPilots(prev => prev.map(p => p.id === pilotId ? { ...p, owner: null, price: 0 } : p));
-    setTeams(prev => prev.map(t =>
-      t.id === pilot.owner ? { ...t, budget: t.budget + pilot.price } : t
-    ));
-    setConfirmRelease(null);
+  const releasePilot = async (pilotId) => {
+    setBusy(true);
+    try {
+      await db.releasePilot(pilotId);
+      setConfirmRelease(null);
+      await onRefresh();
+    } catch(e) { alert("Errore: " + e.message); }
+    setBusy(false);
   };
 
   const assignedCount = pilots.filter(p => p.owner).length;

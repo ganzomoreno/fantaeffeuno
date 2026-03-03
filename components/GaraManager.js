@@ -3,7 +3,7 @@
 import { CALENDAR, POINTS_TABLE } from '@/lib/data';
 import { SectionTitle } from './ui';
 
-export default function GaraManager({ races, pilots, teams, lineups, setLineups, calendar, currentUser }) {
+export default function GaraManager({ races, pilots, teams, lineups, calendar, currentUser, onTogglePilot }) {
   const raceEvents = calendar.map((ev, i) => ({ ...ev, index: i })).filter(ev => ev.type === "race");
   const completedIndexes = new Set(races.map(r => r.calendarIndex));
   const nextRace = raceEvents.find(ev => !completedIndexes.has(ev.index));
@@ -21,18 +21,13 @@ export default function GaraManager({ races, pilots, teams, lineups, setLineups,
     );
   }
 
-  const togglePilot = (teamId, pilotId) => {
-    const rKey = `race_${nextRace.index}`;
-    const raceLineups = { ...(lineups[rKey] || {}) };
-    let tLineup = [...(raceLineups[teamId] || [])];
-    if (tLineup.includes(pilotId)) {
-      tLineup = tLineup.filter(x => x !== pilotId);
-    } else if (tLineup.length < 3) {
-      tLineup.push(pilotId);
-    }
-    raceLineups[teamId] = tLineup;
-    setLineups({ ...lineups, [rKey]: raceLineups });
+  const handleToggle = (teamId, pilotId) => {
+    onTogglePilot(nextRace.index, teamId, pilotId);
   };
+
+  const visibleTeams = currentUser?.isAdmin
+    ? teams
+    : teams.filter(t => t.id === currentUser?.id);
 
   return (
     <div>
@@ -42,9 +37,7 @@ export default function GaraManager({ races, pilots, teams, lineups, setLineups,
         marginBottom: 16, borderLeft: "3px solid #e10600",
       }}>
         <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 4 }}>{nextRace.date}</div>
-        <div style={{
-          fontWeight: 700, fontSize: 18, fontFamily: "'Orbitron'",
-        }}>
+        <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Orbitron'" }}>
           {nextRace.location}
         </div>
       </div>
@@ -54,11 +47,11 @@ export default function GaraManager({ races, pilots, teams, lineups, setLineups,
         Seleziona 3 piloti da schierare. Il 4° resta in panchina.
       </p>
 
-      {/* Show only own team unless admin */}
-      {(currentUser?.isAdmin ? teams : teams.filter(t => t.id === currentUser?.id)).map(t => {
+      {visibleTeams.map(t => {
         const teamPilots = pilots.filter(p => p.owner === t.id);
         const currentLineup = (lineups[`race_${nextRace.index}`] || {})[t.id] || [];
         const isOwnTeam = t.id === currentUser?.id;
+        const canEdit = isOwnTeam || currentUser?.isAdmin;
 
         return (
           <div key={t.id} style={{
@@ -72,13 +65,12 @@ export default function GaraManager({ races, pilots, teams, lineups, setLineups,
               <span>
                 {t.name}
                 {currentUser?.isAdmin && !isOwnTeam && (
-                  <span style={{ fontSize: 10, fontWeight: 400, color: "#555", marginLeft: 8 }}>({t.owner})</span>
+                  <span style={{ fontSize: 10, fontWeight: 400, color: "#555", marginLeft: 8 }}>
+                    ({t.owner})
+                  </span>
                 )}
               </span>
-              <span style={{
-                fontSize: 11,
-                color: currentLineup.length === 3 ? "#4ade80" : "#e10600",
-              }}>
+              <span style={{ fontSize: 11, color: currentLineup.length === 3 ? "#4ade80" : "#e10600" }}>
                 {currentLineup.length}/3
               </span>
             </div>
@@ -88,16 +80,16 @@ export default function GaraManager({ races, pilots, teams, lineups, setLineups,
                 return (
                   <button
                     key={p.id}
-                    onClick={() => isOwnTeam || currentUser?.isAdmin ? togglePilot(t.id, p.id) : null}
+                    onClick={() => canEdit && handleToggle(t.id, p.id)}
                     style={{
                       padding: "6px 12px", borderRadius: 20,
                       border: selected ? "1px solid #4ade80" : "1px solid #333",
                       background: selected ? "rgba(74,222,128,0.15)" : "#222",
                       color: selected ? "#4ade80" : "#aaa",
                       fontSize: 12, fontWeight: 600,
-                      cursor: (isOwnTeam || currentUser?.isAdmin) ? "pointer" : "default",
+                      cursor: canEdit ? "pointer" : "default",
+                      opacity: !canEdit ? 0.5 : 1,
                       transition: "all 0.2s",
-                      opacity: (!isOwnTeam && !currentUser?.isAdmin) ? 0.5 : 1,
                     }}
                   >
                     {selected && "✓ "}{p.name}
@@ -112,31 +104,23 @@ export default function GaraManager({ races, pilots, teams, lineups, setLineups,
         );
       })}
 
-      {/* If non-admin and team has no pilots yet */}
       {!currentUser?.isAdmin && pilots.filter(p => p.owner === currentUser?.id).length === 0 && (
         <div style={{
-          background: "rgba(225,6,0,0.05)",
-          border: "1px solid rgba(225,6,0,0.15)",
-          borderRadius: 10,
-          padding: 16,
-          fontSize: 12,
-          color: "#888",
-          textAlign: "center",
+          background: "rgba(225,6,0,0.05)", border: "1px solid rgba(225,6,0,0.15)",
+          borderRadius: 10, padding: 16, fontSize: 12, color: "#888", textAlign: "center",
         }}>
           Nessun pilota assegnato alla tua squadra. Attendi l&apos;asta!
         </div>
       )}
 
-      {/* Past results */}
+      {/* Risultati gare passate */}
       {races.length > 0 && (
         <div style={{ marginTop: 24 }}>
           <SectionTitle sub>Risultati Gare</SectionTitle>
           {races.map((r, i) => {
             const ev = calendar[r.calendarIndex];
             return (
-              <div key={i} style={{
-                background: "#161616", borderRadius: 10, padding: 12, marginBottom: 8,
-              }}>
+              <div key={i} style={{ background: "#161616", borderRadius: 10, padding: 12, marginBottom: 8 }}>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>🏁 {ev?.location || "Gara"}</div>
                 <div style={{ fontSize: 11, opacity: 0.5, marginBottom: 6 }}>{ev?.date}</div>
                 {r.results?.slice(0, 10).map((res, j) => {
