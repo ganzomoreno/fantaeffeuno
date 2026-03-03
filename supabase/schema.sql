@@ -5,6 +5,31 @@
 -- ============================================================
 
 
+-- ─── PULIZIA (drop in ordine inverso per rispettare le FK) ───────────────────
+DROP VIEW  IF EXISTS v_race_scores_detail  CASCADE;
+DROP VIEW  IF EXISTS v_team_roster         CASCADE;
+DROP VIEW  IF EXISTS v_pilots_with_owners  CASCADE;
+DROP VIEW  IF EXISTS v_leaderboard         CASCADE;
+
+DROP TABLE IF EXISTS team_race_scores  CASCADE;
+DROP TABLE IF EXISTS switches          CASCADE;
+DROP TABLE IF EXISTS auction_lots      CASCADE;
+DROP TABLE IF EXISTS auctions          CASCADE;
+DROP TABLE IF EXISTS lineups           CASCADE;
+DROP TABLE IF EXISTS race_results      CASCADE;
+DROP TABLE IF EXISTS races             CASCADE;
+DROP TABLE IF EXISTS calendar_events   CASCADE;
+DROP TABLE IF EXISTS pilots            CASCADE;
+DROP TABLE IF EXISTS teams             CASCADE;
+
+DROP FUNCTION IF EXISTS recompute_team_race_scores(UUID)  CASCADE;
+DROP FUNCTION IF EXISTS trg_set_race_result_points()      CASCADE;
+DROP FUNCTION IF EXISTS compute_pilot_points(INTEGER, INTEGER, BOOLEAN, INTEGER, BOOLEAN) CASCADE;
+
+DROP TYPE IF EXISTS switch_reason CASCADE;
+DROP TYPE IF EXISTS event_type    CASCADE;
+
+
 -- ─── EXTENSIONS ──────────────────────────────────────────────────────────────
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
