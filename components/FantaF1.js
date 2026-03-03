@@ -91,10 +91,6 @@ export default function FantaF1() {
   const handleLogin  = (team) => setCurrentUser(team);
   const handleLogout = () => { setCurrentUser(null); setShowAdmin(false); };
 
-  if (!currentUser) {
-    return <LoginPage teams={teams} onLogin={handleLogin} />;
-  }
-
   if (loading) {
     return (
       <div style={{
@@ -123,6 +119,10 @@ export default function FantaF1() {
         }}>Riprova</button>
       </div>
     );
+  }
+
+  if (!currentUser) {
+    return <LoginPage teams={teams} onLogin={handleLogin} />;
   }
 
   const nav = [
