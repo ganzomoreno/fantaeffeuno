@@ -5,6 +5,13 @@ import { CALENDAR, F1_TEAM_COLORS } from '@/lib/data';
 import * as db from '@/lib/db';
 import { AdminCard, MiniInput, Chip, selectStyle, inputStyle, btnPrimary, btnSmall } from './ui';
 
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const abbrevName = (name) => {
+  const parts = name.trim().split(/\s+/);
+  const initials = parts.slice(0, -1).map(p => p[0] + '.').join('');
+  return `${initials} ${parts[parts.length - 1]}`;
+};
+
 // ─── MAIN ADMIN PANEL ────────────────────────────────────────────────────────
 export default function AdminPanel({ teams, pilots, races, lineups, onRefresh, onClose }) {
   const [tab, setTab] = useState("asta");
@@ -124,18 +131,23 @@ function AdminAsta({ teams, pilots, onRefresh }) {
         {pilots.filter(p => p.owner).map(p => {
           const t = teams.find(t => t.id === p.owner);
           return (
-            <div key={p.id} style={{
-              display: "flex", alignItems: "center", gap: 10,
-              padding: "6px 0", borderBottom: "1px solid #222",
-            }}>
-              <div style={{ width: 6, height: 24, borderRadius: 3, background: F1_TEAM_COLORS[p.team] }}/>
-              <span style={{ flex: 1, fontSize: 13 }}>{p.name}</span>
-              <Chip label={t?.name || "?"} color="#e10600"/>
-              <span style={{ fontSize: 12, opacity: 0.6 }}>{p.price}M</span>
-              <button onClick={() => releasePilot(p.id)} disabled={busy}
-                style={{ ...btnSmall, color: "#ff4444" }}>
-                Rilascia
-              </button>
+            <div key={p.id} style={{ padding: "8px 0", borderBottom: "1px solid #222" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ width: 5, height: 22, borderRadius: 3, background: F1_TEAM_COLORS[p.team], flexShrink: 0 }}/>
+                <span style={{ flex: 1, fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {p.name}
+                </span>
+                <span style={{ fontSize: 12, fontFamily: "'Orbitron'", color: "#e10600", fontWeight: 700, flexShrink: 0 }}>
+                  {p.price}M
+                </span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5, paddingLeft: 13 }}>
+                <Chip label={t?.name || "?"} color="#e10600"/>
+                <button onClick={() => releasePilot(p.id)} disabled={busy}
+                  style={{ ...btnSmall, color: "#ff4444", marginLeft: "auto" }}>
+                  Rilascia
+                </button>
+              </div>
             </div>
           );
         })}
@@ -205,30 +217,38 @@ function AdminRisultati({ races, pilots, onRefresh }) {
             <p style={{ fontSize: 11, opacity: 0.5, marginBottom: 8 }}>
               Per ogni pilota: posizione (1-22), sorpassi, giro veloce, DOTD rank (1-3), DNF
             </p>
-            <div style={{ maxHeight: 400, overflowY: "auto" }}>
+            <div style={{ maxHeight: 440, overflowY: "auto" }}>
               {pilots.map(p => {
                 const res = results.find(r => r.pilotId === p.id) || {};
                 return (
-                  <div key={p.id} style={{
-                    display: "flex", alignItems: "center", gap: 6,
-                    padding: "6px 0", borderBottom: "1px solid #1a1a1a", flexWrap: "wrap",
-                  }}>
-                    <div style={{ width: 4, height: 20, borderRadius: 2, background: F1_TEAM_COLORS[p.team] }}/>
-                    <span style={{ width: 130, fontSize: 12, fontWeight: 600 }}>{p.name}</span>
-                    <MiniInput label="Pos"  type="number" value={res.position || 0}
-                      onChange={v => updateResult(p.id, "position", Number(v))} width={50}/>
-                    <MiniInput label="Sorp" type="number" value={res.overtakes || 0}
-                      onChange={v => updateResult(p.id, "overtakes", Number(v))} width={50}/>
-                    <MiniInput label="DOTD" type="number" value={res.dotdRank || 0}
-                      onChange={v => updateResult(p.id, "dotdRank", Number(v))} width={50}/>
-                    <label style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}>
-                      <input type="checkbox" checked={!!res.fastestLap}
-                        onChange={e => updateResult(p.id, "fastestLap", e.target.checked)}/> FL
-                    </label>
-                    <label style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 4, color: "#ff4444" }}>
-                      <input type="checkbox" checked={!!res.dnf}
-                        onChange={e => updateResult(p.id, "dnf", e.target.checked)}/> DNF
-                    </label>
+                  <div key={p.id} style={{ padding: "7px 0", borderBottom: "1px solid #1a1a1a" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
+                      <div style={{ width: 4, height: 18, borderRadius: 2, background: F1_TEAM_COLORS[p.team], flexShrink: 0 }}/>
+                      <span style={{ flex: 1, fontSize: 12, fontWeight: 700 }}>{abbrevName(p.name)}</span>
+                      <label style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 3, cursor: "pointer" }}>
+                        <input type="checkbox" checked={!!res.fastestLap}
+                          onChange={e => updateResult(p.id, "fastestLap", e.target.checked)}/>
+                        <span style={{ color: "#f0c040" }}>FL</span>
+                      </label>
+                      <label style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 3, color: "#ff4444", cursor: "pointer" }}>
+                        <input type="checkbox" checked={!!res.dnf}
+                          onChange={e => updateResult(p.id, "dnf", e.target.checked)}/> DNF
+                      </label>
+                    </div>
+                    <div style={{ display: "flex", gap: 6, paddingLeft: 10 }}>
+                      {[
+                        { label: "Pos",  field: "position",  val: res.position  || 0 },
+                        { label: "Sorp", field: "overtakes", val: res.overtakes || 0 },
+                        { label: "DOTD", field: "dotdRank",  val: res.dotdRank  || 0 },
+                      ].map(({ label, field, val }) => (
+                        <div key={field} style={{ flex: 1 }}>
+                          <span style={{ fontSize: 10, opacity: 0.5, display: "block", marginBottom: 2 }}>{label}</span>
+                          <input type="number" value={val}
+                            onChange={e => updateResult(p.id, field, Number(e.target.value))}
+                            style={{ ...inputStyle, width: "100%", boxSizing: "border-box", padding: "4px 6px", fontSize: 12 }}/>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 );
               })}
