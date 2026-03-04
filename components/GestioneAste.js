@@ -174,6 +174,13 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
           </div>
         ) : (
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
+            <input
+              id="price-input" type="number" min="1" value={assignPrice}
+              onChange={e => setAssignPrice(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && assignPilot()}
+              placeholder="FM"
+              style={{ width: 80, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, color: "#fff", padding: "10px 12px", fontSize: 18, fontFamily: "'Orbitron', monospace", fontWeight: 700, textAlign: "center", boxSizing: "border-box" }}
+            />
             <select
               value={assignTeam}
               onChange={e => setAssignTeam(e.target.value)}
@@ -184,13 +191,6 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                 <option key={t.id} value={t.id}>{t.name}  ({t.budget}M)</option>
               ))}
             </select>
-            <input
-              id="price-input" type="number" min="1" value={assignPrice}
-              onChange={e => setAssignPrice(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && assignPilot()}
-              placeholder="FM"
-              style={{ width: 80, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, color: "#fff", padding: "10px 12px", fontSize: 18, fontFamily: "'Orbitron', monospace", fontWeight: 700, textAlign: "center", boxSizing: "border-box" }}
-            />
             <button
               onClick={assignPilot}
               disabled={!assignTeam || !assignPrice || busy}
@@ -382,34 +382,29 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
               const budgetPct   = Math.min(100, (t.budget / 100) * 100);
               const budgetColor = t.budget >= 50 ? "#4ade80" : t.budget >= 20 ? "#facc15" : "#e10600";
               return (
-                <div key={t.id} style={{ padding: "14px 16px", borderBottom: "1px solid #0f0f0f" }}>
+                <div key={t.id} style={{ padding: "8px 14px", borderBottom: "1px solid #0f0f0f" }}>
                   {/* Team header */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}>{t.name}</div>
-                    <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 17, fontWeight: 900, color: budgetColor }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: "#e8e8e8" }}>{t.name}</div>
+                    <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 900, color: budgetColor }}>
                       {t.budget}M
                     </div>
                   </div>
                   {/* Budget bar */}
-                  <div style={{ height: 3, background: "#1a1a1a", borderRadius: 2, marginBottom: 6 }}>
-                    <div style={{ height: "100%", borderRadius: 2, background: budgetColor, width: `${budgetPct}%`, transition: "width 0.4s" }}/>
-                  </div>
-                  <div style={{ fontSize: 11, color: "#444", marginBottom: teamPilots.length > 0 ? 10 : 0 }}>
-                    {t.owner} · {teamPilots.length} piloti
+                  <div style={{ height: 2, background: "#1a1a1a", borderRadius: 1, marginBottom: teamPilots.length > 0 ? 6 : 0 }}>
+                    <div style={{ height: "100%", borderRadius: 1, background: budgetColor, width: `${budgetPct}%`, transition: "width 0.4s" }}/>
                   </div>
                   {/* Assigned pilots */}
-                  {teamPilots.length === 0 ? (
-                    <div style={{ fontSize: 12, color: "#222", fontStyle: "italic" }}>Nessun pilota</div>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {teamPilots.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       {teamPilots.map(p => {
                         const color = F1_TEAM_COLORS[p.team] || "#666";
                         return (
-                          <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 8, background: "#111", borderRadius: 7, padding: "6px 10px" }}>
-                            <div style={{ width: 3, height: 20, borderRadius: 1, background: color, flexShrink: 0 }}/>
-                            <span style={{ flex: 1, fontSize: 13, color: "#bbb" }}>{p.name}</span>
-                            <span style={{ fontSize: 12, color: "#555", fontFamily: "'Orbitron', monospace", fontWeight: 700 }}>{p.price}M</span>
-                            <button onClick={() => setConfirmRelease(p.id)} title="Rilascia" style={{ background: "none", border: "none", color: "#2a2a2a", cursor: "pointer", fontSize: 13, padding: "0 2px", lineHeight: 1, transition: "color 0.15s" }}
+                          <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 7, background: "#111", borderRadius: 5, padding: "4px 8px" }}>
+                            <div style={{ width: 2, height: 14, borderRadius: 1, background: color, flexShrink: 0 }}/>
+                            <span style={{ flex: 1, fontSize: 12, color: "#aaa" }}>{p.name}</span>
+                            <span style={{ fontSize: 11, color: "#555", fontFamily: "'Orbitron', monospace", fontWeight: 700 }}>{p.price}M</span>
+                            <button onClick={() => setConfirmRelease(p.id)} title="Rilascia" style={{ background: "none", border: "none", color: "#2a2a2a", cursor: "pointer", fontSize: 12, padding: "0 2px", lineHeight: 1, transition: "color 0.15s" }}
                               onMouseEnter={e => e.target.style.color = "#ff4444"}
                               onMouseLeave={e => e.target.style.color = "#2a2a2a"}
                             >✕</button>
