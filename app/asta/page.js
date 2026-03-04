@@ -7,15 +7,17 @@ import * as db from '@/lib/db';
 
 export default function AstaPage() {
   const router = useRouter();
-  const [teams, setTeams]   = useState([]);
-  const [pilots, setPilots] = useState([]);
+  const [teams, setTeams]     = useState([]);
+  const [pilots, setPilots]   = useState([]);
+  const [auction, setAuction] = useState(undefined); // undefined = loading
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
-      const [t, p] = await Promise.all([db.fetchTeams(), db.fetchPilots()]);
-      setTeams(t);
-      setPilots(p);
+      const [t, p, a] = await Promise.all([
+        db.fetchTeams(), db.fetchPilots(), db.fetchCurrentAuction(),
+      ]);
+      setTeams(t); setPilots(p); setAuction(a);
     } catch (e) {
       console.error(e);
     } finally {
@@ -41,6 +43,7 @@ export default function AstaPage() {
     <GestioneAste
       teams={teams}
       pilots={pilots}
+      auction={auction}
       onRefresh={load}
       onClose={() => router.push('/')}
     />

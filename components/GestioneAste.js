@@ -50,8 +50,11 @@ function PasswordScreen({ onAuth, onClose }) {
 }
 
 // ─── MAIN AUCTION PAGE ────────────────────────────────────────────────────────
-export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
+export default function GestioneAste({ teams, pilots, auction, onRefresh, onClose }) {
   const [authed, setAuthed]           = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const [showOpenNext, setShowOpenNext]         = useState(false);
+  const [auctionBusy, setAuctionBusy]           = useState(false);
   const [spotNum, setSpotNum]         = useState('');
   const [assignTeam, setAssignTeam]   = useState('');
   const [assignPrice, setAssignPrice] = useState('');
@@ -128,6 +131,29 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
     spin(0);
   };
 
+  const handleCloseAuction = async () => {
+    if (!auction?.id) return;
+    setAuctionBusy(true);
+    try {
+      await db.closeAuction(auction.id);
+      await onRefresh();
+      setShowCloseConfirm(false);
+    } catch(e) { alert("Errore chiusura asta: " + e.message); }
+    setAuctionBusy(false);
+  };
+
+  const handleOpenNextAuction = async () => {
+    setAuctionBusy(true);
+    try {
+      await db.openNextAuction(auction?.budgetAdded ?? 100);
+      await onRefresh();
+      setShowOpenNext(false);
+    } catch(e) { alert("Errore apertura asta: " + e.message); }
+    setAuctionBusy(false);
+  };
+
+  const isClosed = auction?.isCompleted === true;
+
   const releasePilot = async (pilotId) => {
     setBusy(true);
     try {
@@ -145,8 +171,8 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
 
   if (!authed) return <PasswordScreen onAuth={() => setAuthed(true)} onClose={onClose} />;
 
-  // ── Assignment panel (used in both layouts) ────────────────────────────────
-  const AssignmentPanel = spotPilot ? (() => {
+  // ── Assignment panel (used in both layouts) — hidden when auction closed ────
+  const AssignmentPanel = (!isClosed && spotPilot) ? (() => {
     const teamColor  = F1_TEAM_COLORS[spotPilot.team] || "#e10600";
     const isAssigned = !!spotPilot.owner;
     const ownerTeam  = isAssigned ? teams.find(t => t.id === spotPilot.owner) : null;
@@ -284,10 +310,57 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
             </div>
           )}
         </div>
-        <button onClick={onClose} style={{ background: "transparent", border: "1px solid #2a2a2a", borderRadius: 100, color: "#666", padding: isMobile ? "6px 12px" : "7px 18px", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
-          {isMobile ? "✕" : "✕ Chiudi"}
-        </button>
+        {/* Auction control buttons */}
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {auction && !isClosed && (
+            <button onClick={() => setShowCloseConfirm(true)} style={{
+              background: "linear-gradient(135deg, #1a0000, #2a0000)",
+              border: "1px solid #e10600", borderRadius: 100,
+              color: "#e10600", padding: "7px 16px", cursor: "pointer",
+              fontSize: 11, fontWeight: 700, letterSpacing: 1,
+            }}>
+              🔒 CHIUDI ASTA {auction.auctionNumber}
+            </button>
+          )}
+          {auction && isClosed && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.3)", borderRadius: 100, padding: "5px 14px", fontSize: 11, color: "#4ade80", fontWeight: 700 }}>
+                ✓ ASTA {auction.auctionNumber} CHIUSA
+              </div>
+              <button onClick={() => setShowOpenNext(true)} style={{
+                background: "linear-gradient(135deg, #001a00, #003000)",
+                border: "1px solid #4ade80", borderRadius: 100,
+                color: "#4ade80", padding: "7px 16px", cursor: "pointer",
+                fontSize: 11, fontWeight: 700, letterSpacing: 1,
+              }}>
+                ⚡ APRI ASTA {auction.auctionNumber + 1} (+{auction.budgetAdded}M)
+              </button>
+            </div>
+          )}
+          <button onClick={onClose} style={{ background: "transparent", border: "1px solid #2a2a2a", borderRadius: 100, color: "#666", padding: isMobile ? "6px 12px" : "7px 18px", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+            {isMobile ? "✕" : "✕ Chiudi"}
+          </button>
+        </div>
       </div>
+
+      {/* ── BANNER ASTA CHIUSA ── */}
+      {isClosed && (
+        <div style={{
+          flexShrink: 0, background: "rgba(74,222,128,0.06)",
+          borderBottom: "1px solid rgba(74,222,128,0.2)",
+          padding: "10px 24px", display: "flex", alignItems: "center", gap: 12,
+        }}>
+          <span style={{ fontSize: 18 }}>🔒</span>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#4ade80", letterSpacing: 1 }}>
+              ASTA {auction.auctionNumber} CHIUSA — SOLA LETTURA
+            </div>
+            <div style={{ fontSize: 11, color: "#555", marginTop: 1 }}>
+              Per modificare le rose aprire l&apos;asta successiva (+{auction.budgetAdded}M a ogni squadra)
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── BODY ── */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
@@ -504,6 +577,68 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
               {tab.label}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* ── MODAL: CHIUDI ASTA ── */}
+      {showCloseConfirm && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "#111", border: "1px solid #e10600", borderRadius: 16, padding: 28, width: 360, maxWidth: "calc(100vw - 32px)" }}>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 16, fontWeight: 900, color: "#e10600", marginBottom: 8 }}>🔒 CHIUDI ASTA {auction?.auctionNumber}?</div>
+            <div style={{ fontSize: 12, color: "#aaa", marginBottom: 16, lineHeight: 1.6 }}>
+              L&apos;asta verrà marcata come <strong style={{ color: "#fff" }}>chiusa</strong>. La rosa attuale di ogni squadra viene preservata come dato ufficiale.<br/><br/>
+              Potrai riaprire l&apos;asta successiva in qualsiasi momento (ogni squadra riceverà <strong style={{ color: "#4ade80" }}>+{auction?.budgetAdded ?? 100}M</strong>).
+            </div>
+            <div style={{ fontSize: 11, color: "#555", marginBottom: 20, background: "#0a0a0a", borderRadius: 8, padding: "10px 12px" }}>
+              {teams.map(t => {
+                const tPilots = pilots.filter(p => p.owner === t.id);
+                return (
+                  <div key={t.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ color: "#888" }}>{t.name}</span>
+                    <span style={{ color: "#4ade80", fontFamily: "'Orbitron', monospace", fontSize: 10 }}>{tPilots.length} piloti · {t.budget}M</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setShowCloseConfirm(false)} style={{ flex: 1, background: "transparent", border: "1px solid #333", borderRadius: 10, color: "#666", padding: "12px 0", cursor: "pointer", fontSize: 13 }}>
+                Annulla
+              </button>
+              <button onClick={handleCloseAuction} disabled={auctionBusy} style={{ flex: 1, background: "linear-gradient(135deg, #e10600, #a00)", border: "none", borderRadius: 10, color: "#fff", padding: "12px 0", cursor: auctionBusy ? "not-allowed" : "pointer", fontSize: 13, fontWeight: 700, opacity: auctionBusy ? 0.6 : 1 }}>
+                {auctionBusy ? "Chiusura…" : "✓ CONFERMA CHIUSURA"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: APRI ASTA SUCCESSIVA ── */}
+      {showOpenNext && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "#111", border: "1px solid #4ade80", borderRadius: 16, padding: 28, width: 360, maxWidth: "calc(100vw - 32px)" }}>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 16, fontWeight: 900, color: "#4ade80", marginBottom: 8 }}>⚡ APRI ASTA {(auction?.auctionNumber ?? 0) + 1}</div>
+            <div style={{ fontSize: 12, color: "#aaa", marginBottom: 16, lineHeight: 1.6 }}>
+              Ogni squadra riceverà <strong style={{ color: "#4ade80" }}>+{auction?.budgetAdded ?? 100}M</strong> di FantaMilioni aggiuntivi. I piloti in rosa restano invariati.
+            </div>
+            <div style={{ fontSize: 11, color: "#555", marginBottom: 20, background: "#0a0a0a", borderRadius: 8, padding: "10px 12px" }}>
+              {teams.map(t => (
+                <div key={t.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                  <span style={{ color: "#888" }}>{t.name}</span>
+                  <span style={{ color: "#555", fontFamily: "'Orbitron', monospace", fontSize: 10 }}>
+                    {t.budget}M → <strong style={{ color: "#4ade80" }}>{t.budget + (auction?.budgetAdded ?? 100)}M</strong>
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setShowOpenNext(false)} style={{ flex: 1, background: "transparent", border: "1px solid #333", borderRadius: 10, color: "#666", padding: "12px 0", cursor: "pointer", fontSize: 13 }}>
+                Annulla
+              </button>
+              <button onClick={handleOpenNextAuction} disabled={auctionBusy} style={{ flex: 1, background: "linear-gradient(135deg, #003300, #004400)", border: "1px solid #4ade80", borderRadius: 10, color: "#4ade80", padding: "12px 0", cursor: auctionBusy ? "not-allowed" : "pointer", fontSize: 13, fontWeight: 700, opacity: auctionBusy ? 0.6 : 1 }}>
+                {auctionBusy ? "Apertura…" : "⚡ CONFERMA APERTURA"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
