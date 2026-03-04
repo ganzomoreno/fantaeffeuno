@@ -64,6 +64,7 @@ COMMENT ON COLUMN teams.switches_used  IS 'Switch usati (max 5 a stagione)';
 CREATE TABLE pilots (
   id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   name            TEXT        NOT NULL,
+  abbreviation    CHAR(3)     NOT NULL,               -- 3-letter code, e.g. 'VER'
   f1_team         TEXT        NOT NULL,
   owner_team_id   UUID        REFERENCES teams(id) ON DELETE SET NULL,
   purchase_price  INTEGER     NOT NULL DEFAULT 0 CHECK (purchase_price >= 0),
@@ -436,29 +437,29 @@ INSERT INTO teams (name, owner_name, budget, switches_used, is_admin) VALUES
 
 
 -- ─── PILOTS ──────────────────────────────────────────────────────────────────
-INSERT INTO pilots (name, f1_team) VALUES
-  ('Lando Norris',           'McLaren'),
-  ('Oscar Piastri',          'McLaren'),
-  ('George Russell',         'Mercedes'),
-  ('Andrea Kimi Antonelli',  'Mercedes'),
-  ('Max Verstappen',         'Red Bull Racing'),
-  ('Isack Hadjar',           'Red Bull Racing'),
-  ('Charles Leclerc',        'Ferrari'),
-  ('Lewis Hamilton',         'Ferrari'),
-  ('Alexander Albon',        'Williams'),
-  ('Carlos Sainz',           'Williams'),
-  ('Arvid Lindblad',         'Racing Bulls'),
-  ('Liam Lawson',            'Racing Bulls'),
-  ('Fernando Alonso',        'Aston Martin'),
-  ('Lance Stroll',           'Aston Martin'),
-  ('Esteban Ocon',           'Haas'),
-  ('Oliver Bearman',         'Haas'),
-  ('Nico Hülkenberg',        'Audi'),
-  ('Gabriel Bortoleto',      'Audi'),
-  ('Pierre Gasly',           'Alpine'),
-  ('Franco Colapinto',       'Alpine'),
-  ('Sergio Pérez',           'Cadillac'),
-  ('Valtteri Bottas',        'Cadillac');
+INSERT INTO pilots (name, abbreviation, f1_team) VALUES
+  ('Lando Norris',           'NOR', 'McLaren'),
+  ('Oscar Piastri',          'PIA', 'McLaren'),
+  ('George Russell',         'RUS', 'Mercedes'),
+  ('Andrea Kimi Antonelli',  'ANT', 'Mercedes'),
+  ('Max Verstappen',         'VER', 'Red Bull Racing'),
+  ('Isack Hadjar',           'HAD', 'Red Bull Racing'),
+  ('Charles Leclerc',        'LEC', 'Ferrari'),
+  ('Lewis Hamilton',         'HAM', 'Ferrari'),
+  ('Alexander Albon',        'ALB', 'Williams'),
+  ('Carlos Sainz',           'SAI', 'Williams'),
+  ('Arvid Lindblad',         'LIN', 'Racing Bulls'),
+  ('Liam Lawson',            'LAW', 'Racing Bulls'),
+  ('Fernando Alonso',        'ALO', 'Aston Martin'),
+  ('Lance Stroll',           'STR', 'Aston Martin'),
+  ('Esteban Ocon',           'OCO', 'Haas'),
+  ('Oliver Bearman',         'BEA', 'Haas'),
+  ('Nico Hülkenberg',        'HUL', 'Audi'),
+  ('Gabriel Bortoleto',      'BOR', 'Audi'),
+  ('Pierre Gasly',           'GAS', 'Alpine'),
+  ('Franco Colapinto',       'COL', 'Alpine'),
+  ('Sergio Pérez',           'PER', 'Cadillac'),
+  ('Valtteri Bottas',        'BOT', 'Cadillac');
 
 
 -- ─── CALENDAR EVENTS ─────────────────────────────────────────────────────────

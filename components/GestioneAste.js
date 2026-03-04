@@ -142,11 +142,16 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
           <div style={{ width: 4, height: 44, borderRadius: 2, background: teamColor, flexShrink: 0 }}/>
           <div>
-            <div style={{ fontSize: 11, color: teamColor, letterSpacing: 2, textTransform: "uppercase", marginBottom: 2 }}>
+            <div style={{ fontSize: 11, color: teamColor, letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>
               {spotPilot.team}
             </div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: isAssigned ? "#555" : "#fff", lineHeight: 1 }}>
-              {spotPilot.name}
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 28, fontWeight: 900, letterSpacing: 2, color: isAssigned ? "#444" : teamColor, lineHeight: 1 }}>
+                {spotPilot.abbreviation}
+              </span>
+              <span style={{ fontSize: 15, fontWeight: 600, color: isAssigned ? "#555" : "#aaa", lineHeight: 1 }}>
+                {spotPilot.name}
+              </span>
             </div>
           </div>
           {isAssigned && (
@@ -284,9 +289,14 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                 />
                 {spotPilot ? (
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 11, color: "#555", letterSpacing: 1 }}>{spotPilot.team}</div>
-                    <div style={{ fontSize: 18, fontWeight: 700, color: spotPilot.owner ? "#444" : "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {spotPilot.name}
+                    <div style={{ fontSize: 10, color: "#555", letterSpacing: 1 }}>{spotPilot.team}</div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+                      <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 16, fontWeight: 900, color: spotPilot.owner ? "#444" : "#e10600", letterSpacing: 1 }}>
+                        {spotPilot.abbreviation}
+                      </span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: spotPilot.owner ? "#444" : "#ccc", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {spotPilot.name}
+                      </span>
                     </div>
                   </div>
                 ) : (
@@ -334,10 +344,15 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                     </span>
                     <div style={{ width: 3, height: 20, borderRadius: 2, background: teamColor, flexShrink: 0 }}/>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: isAssigned ? "#3a3a3a" : "#e8e8e8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.2 }}>
-                        {p.name}
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+                        <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 12, fontWeight: 900, color: isAssigned ? "#2a2a2a" : isHighlighted ? "#e10600" : "#888", letterSpacing: 1, flexShrink: 0 }}>
+                          {p.abbreviation}
+                        </span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: isAssigned ? "#3a3a3a" : "#c0c0c0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {p.name}
+                        </span>
                       </div>
-                      <div style={{ fontSize: 11, color: isAssigned ? "#2a2a2a" : "#555", lineHeight: 1.1 }}>{p.team}</div>
+                      <div style={{ fontSize: 10, color: isAssigned ? "#2a2a2a" : "#4a4a4a", lineHeight: 1.1 }}>{p.team}</div>
                     </div>
                     {isAssigned ? (
                       <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#2a2a2a", flexShrink: 0 }}/>
