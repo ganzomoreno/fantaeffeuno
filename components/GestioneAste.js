@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { F1_TEAM_COLORS } from '@/lib/data';
+import { F1_TEAM_COLORS, F1_PILOT_NUMBERS } from '@/lib/data';
 import * as db from '@/lib/db';
 
 const AUCTION_PASSWORD = "wlf";
@@ -163,7 +163,7 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
           fontFamily: "'Orbitron', monospace", fontSize: 72, fontWeight: 900,
           color: teamColor, opacity: 0.07, lineHeight: 1, userSelect: "none", pointerEvents: "none",
         }}>
-          {String(spotIndex).padStart(2, '0')}
+          {F1_PILOT_NUMBERS[spotPilot?.abbreviation] ?? spotIndex}
         </div>
 
         {/* Pilot identity */}
