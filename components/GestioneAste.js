@@ -454,7 +454,7 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                     {/* Assigned pilots */}
                     {teamPilots.length > 0 && (
                       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                        {teamPilots.map(p => {
+                        {[...teamPilots].sort((a, b) => b.price - a.price).map(p => {
                           const color    = F1_TEAM_COLORS[p.team] || "#666";
                           const pricePct = Math.round((p.price / maxPrice) * 100);
                           return (
