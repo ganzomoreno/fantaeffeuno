@@ -60,6 +60,8 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
   const [busy, setBusy]               = useState(false);
   const [isMobile, setIsMobile]       = useState(false);
   const [mobileTab, setMobileTab]     = useState('piloti');
+  const [extracting, setExtracting]   = useState(false);
+  const extractIntervalRef            = useRef(null);
   const spotInputRef  = useRef(null);
   const pilotListRef  = useRef(null);
 
@@ -98,6 +100,32 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
       setTimeout(() => spotInputRef.current?.focus(), 50);
     } catch(e) { alert("Errore: " + e.message); }
     setBusy(false);
+  };
+
+  const extractPilot = () => {
+    const free = pilots.map((p, i) => ({ ...p, idx: i + 1 })).filter(p => !p.owner);
+    if (free.length === 0) return;
+    setExtracting(true);
+    setAssignTeam(''); setAssignPrice('');
+    let ticks = 0;
+    const totalTicks = 24;
+    // Speed: starts fast, slows down (ease-out)
+    const delays = Array.from({ length: totalTicks }, (_, i) =>
+      40 + Math.floor((i / totalTicks) ** 2 * 320)
+    );
+    const spin = (tick) => {
+      if (tick >= totalTicks) {
+        // Final pick
+        const winner = free[Math.floor(Math.random() * free.length)];
+        setSpotNum(String(winner.idx));
+        setExtracting(false);
+        return;
+      }
+      const random = free[Math.floor(Math.random() * free.length)];
+      setSpotNum(String(random.idx));
+      extractIntervalRef.current = setTimeout(() => spin(tick + 1), delays[tick]);
+    };
+    spin(0);
   };
 
   const releasePilot = async (pilotId) => {
@@ -217,6 +245,12 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
       display: "flex", flexDirection: "column", fontFamily: "'Titillium Web', sans-serif",
       color: "#e8e8e8", overflow: "hidden",
     }}>
+      <style>{`
+        @keyframes extractPulse {
+          from { box-shadow: 0 0 10px rgba(225,6,0,0.5), 0 0 20px rgba(225,6,0,0.3); }
+          to   { box-shadow: 0 0 24px rgba(225,6,0,1),   0 0 48px rgba(225,6,0,0.6); }
+        }
+      `}</style>
 
       {/* ── HEADER ── */}
       <div style={{
@@ -266,6 +300,27 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
             <div style={{ flexShrink: 0, background: "#0c0c0c", borderBottom: "1px solid #141414", padding: "12px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
               {/* Pilot selector row */}
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                {/* Extract button */}
+                <button
+                  onClick={extractPilot}
+                  disabled={extracting || pilots.filter(p => !p.owner).length === 0}
+                  title="Estrai pilota casuale"
+                  style={{
+                    flexShrink: 0,
+                    background: extracting
+                      ? "linear-gradient(135deg, #ff6b00, #e10600)"
+                      : "linear-gradient(135deg, #1a1a1a, #222)",
+                    border: `1px solid ${extracting ? "#e10600" : "#333"}`,
+                    borderRadius: 8, color: extracting ? "#fff" : "#888",
+                    padding: "8px 12px", cursor: extracting ? "not-allowed" : "pointer",
+                    fontSize: 16, lineHeight: 1,
+                    boxShadow: extracting ? "0 0 16px rgba(225,6,0,0.6)" : "none",
+                    animation: extracting ? "extractPulse 0.4s ease-in-out infinite alternate" : "none",
+                    transition: "box-shadow 0.2s, border-color 0.2s",
+                  }}
+                >
+                  🎲
+                </button>
                 <span style={{ fontSize: 11, color: "#555", letterSpacing: 1, whiteSpace: "nowrap" }}>PILOTA N°</span>
                 <input
                   ref={spotInputRef}
