@@ -1,151 +1,281 @@
 'use client';
 
-import { CALENDAR, POINTS_TABLE } from '@/lib/data';
-import { SectionTitle } from './ui';
+import { useState, useMemo } from 'react';
+import { calculatePilotPoints, calculateRaceTeamScore, getRaceBreakdown } from '@/lib/scoring';
+import { F1_TEAM_COLORS, POINTS_TABLE } from '@/lib/data';
 
-export default function GaraManager({ races, pilots, teams, lineups, calendar, currentUser, onTogglePilot }) {
-  const raceEvents = calendar.map((ev, i) => ({ ...ev, index: i })).filter(ev => ev.type === "race");
-  const completedIndexes = new Set(races.map(r => r.calendarIndex));
-  const nextRace = raceEvents.find(ev => !completedIndexes.has(ev.index));
+const C = {
+  surface:  '#14151C',
+  surface2: '#1A1B24',
+  border:   '#2A2D3A',
+  textPri:  '#EDEEF3',
+  textSec:  '#A9ABBA',
+  red:      '#E10600',
+  green:    '#00FF41',
+  amber:    '#FFB700',
+};
 
-  if (!nextRace) {
+const MEDALS = ['#FFD700', '#C0C0C0', '#CD7F32'];
+
+export default function GaraManager({ races, pilots, teams, lineups, calendar, currentUser }) {
+  const [selectedRaceIdx, setSelectedRaceIdx] = useState(() => races.length > 0 ? races.length - 1 : 0);
+  const [view, setView]             = useState('squadre'); // 'squadre' | 'piloti'
+  const [expandedTeam, setExpandedTeam] = useState(null);
+
+  const selectedRace = races[selectedRaceIdx] ?? null;
+  const selectedEvent = selectedRace ? calendar[selectedRace.calendarIndex] : null;
+
+  // Per-race team leaderboard
+  const raceLeaderboard = useMemo(() => {
+    if (!selectedRace) return [];
+    return teams
+      .map(t => ({ team: t, score: calculateRaceTeamScore(selectedRace, lineups, pilots, t.id) }))
+      .sort((a, b) => b.score - a.score);
+  }, [selectedRace, teams, lineups, pilots]);
+
+  // Total scores for delta column
+  const totalScores = useMemo(() => {
+    const s = {};
+    teams.forEach(t => { s[t.id] = 0; });
+    races.forEach(r => { teams.forEach(t => { s[t.id] += calculateRaceTeamScore(r, lineups, pilots, t.id); }); });
+    return s;
+  }, [races, teams, lineups, pilots]);
+
+  // Pilot leaderboard for selected race
+  const pilotLeaderboard = useMemo(() => {
+    if (!selectedRace) return [];
+    return getRaceBreakdown(selectedRace, pilots).filter(p => p.points > 0 || p.dnf);
+  }, [selectedRace, pilots]);
+
+  if (races.length === 0) {
     return (
-      <div>
-        <SectionTitle>Gara</SectionTitle>
-        <div style={{ textAlign: "center", padding: 40, opacity: 0.4 }}>
-          {races.length === 0
-            ? "Nessuna gara disponibile. Usa il pannello Admin per gestire."
-            : "Tutte le gare sono state completate!"}
-        </div>
+      <div style={{ textAlign: 'center', padding: 60, color: C.textSec, fontSize: 13 }}>
+        <div style={{ fontSize: 40, marginBottom: 12 }}>🏁</div>
+        Nessuna gara ancora disputata.
+        <br />
+        <span style={{ fontSize: 11 }}>Inserisci i risultati dal pannello Admin.</span>
       </div>
     );
   }
 
-  const handleToggle = (teamId, pilotId) => {
-    onTogglePilot(nextRace.index, teamId, pilotId);
-  };
-
-  const visibleTeams = currentUser?.isAdmin
-    ? teams
-    : teams.filter(t => t.id === currentUser?.id);
-
   return (
-    <div>
-      <SectionTitle>Prossima Gara: {nextRace.location}</SectionTitle>
-      <div style={{
-        background: "#161616", borderRadius: 12, padding: 16,
-        marginBottom: 16, borderLeft: "3px solid #e10600",
-      }}>
-        <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 4 }}>{nextRace.date}</div>
-        <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Orbitron'" }}>
-          {nextRace.location}
-        </div>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-      <SectionTitle sub>La Tua Formazione</SectionTitle>
-      <p style={{ fontSize: 12, opacity: 0.5, marginBottom: 12 }}>
-        Seleziona 3 piloti da schierare. Il 4° resta in panchina.
-      </p>
-
-      {visibleTeams.map(t => {
-        const teamPilots = pilots.filter(p => p.owner === t.id);
-        const currentLineup = (lineups[`race_${nextRace.index}`] || {})[t.id] || [];
-        const isOwnTeam = t.id === currentUser?.id;
-        const canEdit = isOwnTeam || currentUser?.isAdmin;
-
-        return (
-          <div key={t.id} style={{
-            background: "#161616", borderRadius: 10, padding: 12, marginBottom: 8,
-            border: currentLineup.length === 3 ? "1px solid #2a6e2a" : "1px solid #333",
-          }}>
-            <div style={{
-              fontWeight: 700, fontSize: 13, marginBottom: 8,
-              display: "flex", justifyContent: "space-between",
-            }}>
-              <span>
-                {t.name}
-                {currentUser?.isAdmin && !isOwnTeam && (
-                  <span style={{ fontSize: 10, fontWeight: 400, color: "#555", marginLeft: 8 }}>
-                    ({t.owner})
-                  </span>
-                )}
-              </span>
-              <span style={{ fontSize: 11, color: currentLineup.length === 3 ? "#4ade80" : "#e10600" }}>
-                {currentLineup.length}/3
-              </span>
-            </div>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              {teamPilots.map(p => {
-                const selected = currentLineup.includes(p.id);
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => canEdit && handleToggle(t.id, p.id)}
-                    style={{
-                      padding: "6px 12px", borderRadius: 20,
-                      border: selected ? "1px solid #4ade80" : "1px solid #333",
-                      background: selected ? "rgba(74,222,128,0.15)" : "#222",
-                      color: selected ? "#4ade80" : "#aaa",
-                      fontSize: 12, fontWeight: 600,
-                      cursor: canEdit ? "pointer" : "default",
-                      opacity: !canEdit ? 0.5 : 1,
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    {selected && "✓ "}{p.name}
-                  </button>
-                );
-              })}
-              {teamPilots.length === 0 && (
-                <span style={{ fontSize: 12, opacity: 0.3 }}>Nessun pilota assegnato</span>
-              )}
-            </div>
-          </div>
-        );
-      })}
-
-      {!currentUser?.isAdmin && pilots.filter(p => p.owner === currentUser?.id).length === 0 && (
-        <div style={{
-          background: "rgba(225,6,0,0.05)", border: "1px solid rgba(225,6,0,0.15)",
-          borderRadius: 10, padding: 16, fontSize: 12, color: "#888", textAlign: "center",
-        }}>
-          Nessun pilota assegnato alla tua squadra. Attendi l&apos;asta!
-        </div>
-      )}
-
-      {/* Risultati gare passate */}
-      {races.length > 0 && (
-        <div style={{ marginTop: 24 }}>
-          <SectionTitle sub>Risultati Gare</SectionTitle>
+      {/* ── TOP CONTROLS ──────────────────────────────────────────────────────── */}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Race selector */}
+        <select
+          value={selectedRaceIdx}
+          onChange={e => { setSelectedRaceIdx(Number(e.target.value)); setExpandedTeam(null); }}
+          style={{
+            flex: 1, minWidth: 160,
+            background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8,
+            color: C.textPri, padding: '9px 12px', fontSize: 13,
+          }}
+        >
           {races.map((r, i) => {
             const ev = calendar[r.calendarIndex];
             return (
-              <div key={i} style={{ background: "#161616", borderRadius: 10, padding: 12, marginBottom: 8 }}>
-                <div style={{ fontWeight: 700, fontSize: 14 }}>🏁 {ev?.location || "Gara"}</div>
-                <div style={{ fontSize: 11, opacity: 0.5, marginBottom: 6 }}>{ev?.date}</div>
-                {r.results?.slice(0, 10).map((res, j) => {
-                  const pilot = pilots.find(p => p.id === res.pilotId);
-                  return (
-                    <div key={j} style={{
-                      display: "flex", alignItems: "center", gap: 8,
-                      padding: "3px 0", fontSize: 12,
-                    }}>
-                      <span style={{
-                        fontFamily: "'Orbitron'", fontWeight: 700,
-                        width: 24, color: j < 3 ? "#FFD700" : "#888",
-                      }}>
-                        P{res.position}
-                      </span>
-                      <span style={{ flex: 1 }}>{pilot?.name || "?"}</span>
-                      <span style={{ opacity: 0.5 }}>{POINTS_TABLE[res.position] || 0} pts</span>
+              <option key={i} value={i}>
+                🏁 {ev?.location || `Gara ${r.calendarIndex}`} — {ev?.date || ''}
+              </option>
+            );
+          })}
+        </select>
+
+        {/* View toggle */}
+        <div style={{ display: 'flex', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, overflow: 'hidden', flexShrink: 0 }}>
+          {['squadre', 'piloti'].map(v => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              style={{
+                padding: '8px 14px', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: 1,
+                background: view === v ? C.red : 'transparent',
+                color: view === v ? '#fff' : C.textSec,
+              }}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Race info banner */}
+      {selectedEvent && (
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.red}`, borderRadius: 10, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec }}>GARA SELEZIONATA</div>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, fontSize: 16, color: C.textPri }}>
+              {selectedEvent.location}
+            </div>
+          </div>
+          <div style={{ marginLeft: 'auto', fontSize: 11, color: C.textSec }}>{selectedEvent.date}</div>
+          <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: C.green + '22', color: C.green, border: `1px solid ${C.green}44` }}>
+            UFFICIALE
+          </span>
+        </div>
+      )}
+
+      {/* ── VISTA SQUADRE ─────────────────────────────────────────────────────── */}
+      {view === 'squadre' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {raceLeaderboard.map(({ team: t, score }, i) => {
+            const isMe   = t.id === currentUser?.id;
+            const isOpen = expandedTeam === t.id;
+            // Build team pilot breakdown for selected race
+            const raceKey    = selectedRace ? `race_${selectedRace.calendarIndex}` : null;
+            const teamLineup = raceKey ? (lineups[raceKey] || {})[t.id] || [] : [];
+            const pilotDetails = teamLineup.map(pid => {
+              const pilot  = pilots.find(p => p.id === pid);
+              const result = selectedRace?.results?.find(r => r.pilotId === pid);
+              const pts    = result ? calculatePilotPoints(result) : 0;
+              return { pilot, result, pts };
+            });
+
+            return (
+              <div key={t.id} style={{
+                background: isMe ? `linear-gradient(135deg, rgba(225,6,0,0.15), rgba(225,6,0,0.05))` : C.surface,
+                border: `1px solid ${isMe ? C.red + '66' : i < 3 ? MEDALS[i] + '44' : C.border}`,
+                borderRadius: 10, overflow: 'hidden',
+              }}>
+                {/* Row */}
+                <div
+                  onClick={() => setExpandedTeam(isOpen ? null : t.id)}
+                  style={{ padding: '12px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}
+                >
+                  <div style={{
+                    width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                    background: i < 3 ? MEDALS[i] : C.surface2,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: "'Orbitron', monospace", fontWeight: 900, fontSize: 12,
+                    color: i < 3 ? '#000' : C.textSec,
+                  }}>
+                    {i + 1}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {t.name}
+                      {isMe && <span style={{ fontSize: 9, color: C.red, marginLeft: 6 }}>← TU</span>}
                     </div>
-                  );
-                })}
+                    <div style={{ fontSize: 10, color: C.textSec }}>{t.owner}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 18, fontWeight: 900, color: i === 0 ? C.red : C.textPri }}>
+                        {score.toFixed(1)}
+                      </div>
+                      <div style={{ fontSize: 9, color: C.textSec }}>Tot: {(totalScores[t.id] || 0).toFixed(1)}</div>
+                    </div>
+                    <span style={{ fontSize: 16, color: C.textSec, transition: '0.2s', transform: isOpen ? 'rotate(180deg)' : 'none' }}>▾</span>
+                  </div>
+                </div>
+
+                {/* Expanded detail */}
+                {isOpen && (
+                  <div style={{ borderTop: `1px solid ${C.border}`, padding: '12px 14px' }}>
+                    {pilotDetails.length === 0 ? (
+                      <div style={{ color: C.textSec, fontSize: 12 }}>Nessuna formazione impostata per questa gara.</div>
+                    ) : (
+                      <div>
+                        {/* Header */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 50px 50px 50px 50px 60px', gap: 6, marginBottom: 6 }}>
+                          {['PILOTA', 'POS', 'OVT', 'DOTD', 'FL', 'TOT'].map(h => (
+                            <div key={h} style={{ fontSize: 9, textTransform: 'uppercase', color: C.textSec, textAlign: h !== 'PILOTA' ? 'center' : 'left' }}>{h}</div>
+                          ))}
+                        </div>
+                        {pilotDetails.map(({ pilot, result, pts }, j) => (
+                          <div key={j} style={{
+                            display: 'grid', gridTemplateColumns: '1fr 50px 50px 50px 50px 60px',
+                            gap: 6, padding: '6px 0', borderTop: `1px solid ${C.surface2}`, alignItems: 'center',
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <div style={{ width: 3, height: 20, borderRadius: 1, background: F1_TEAM_COLORS[pilot?.team] || '#555', flexShrink: 0 }}/>
+                              <div>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: C.textPri }}>{pilot?.name || '?'}</div>
+                                {result?.dnf && <span style={{ fontSize: 9, color: C.red }}>DNF</span>}
+                              </div>
+                            </div>
+                            <div style={{ textAlign: 'center', fontSize: 12, color: result?.dnf ? C.red : C.textPri, fontWeight: 700 }}>
+                              {result?.dnf ? 'DNF' : result?.position ? `P${result.position}` : '—'}
+                            </div>
+                            <div style={{ textAlign: 'center', fontSize: 12, color: C.textSec }}>{result?.overtakes || 0}</div>
+                            <div style={{ textAlign: 'center', fontSize: 12, color: result?.dotdRank === 1 ? '#FFD700' : C.textSec }}>
+                              {result?.dotdRank ? `#${result.dotdRank}` : '—'}
+                            </div>
+                            <div style={{ textAlign: 'center', fontSize: 12, color: result?.fastestLap ? '#B87AF7' : C.textSec }}>
+                              {result?.fastestLap ? 'FL' : '—'}
+                            </div>
+                            <div style={{ textAlign: 'center', fontFamily: "'Orbitron', monospace", fontSize: 13, fontWeight: 700, color: C.green }}>
+                              {pts.toFixed(1)}
+                            </div>
+                          </div>
+                        ))}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
+                          <span style={{ fontSize: 11, color: C.textSec, marginRight: 12 }}>TOTALE GARA</span>
+                          <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, color: C.red }}>{score.toFixed(1)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
       )}
+
+      {/* ── VISTA PILOTI ──────────────────────────────────────────────────────── */}
+      {view === 'piloti' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {pilotLeaderboard.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 32, color: C.textSec, fontSize: 13 }}>
+              Nessun risultato disponibile.
+            </div>
+          ) : pilotLeaderboard.map((entry, i) => {
+            const teamColor = F1_TEAM_COLORS[entry.f1Team] || '#555';
+            const isMyPilot = pilots.find(p => p.id === entry.pilotId)?.owner === currentUser?.id;
+            return (
+              <div key={entry.pilotId} style={{
+                background: isMyPilot ? C.green + '10' : C.surface,
+                border: `1px solid ${isMyPilot ? C.green + '44' : i < 3 ? MEDALS[i] + '44' : C.border}`,
+                borderRadius: 10, padding: '10px 14px',
+                display: 'flex', alignItems: 'center', gap: 12,
+              }}>
+                <div style={{
+                  width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+                  background: i < 3 ? MEDALS[i] : C.surface2,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 900, color: i < 3 ? '#000' : C.textSec,
+                }}>
+                  {i + 1}
+                </div>
+                <div style={{ width: 4, height: 30, borderRadius: 2, background: teamColor, flexShrink: 0 }}/>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri }}>
+                    {entry.pilotName}
+                    {isMyPilot && <span style={{ fontSize: 9, color: C.green, marginLeft: 6 }}>★ MIO</span>}
+                  </div>
+                  <div style={{ fontSize: 10, color: C.textSec }}>
+                    {entry.f1Team}
+                    {entry.position > 0 && ` · P${entry.position}`}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexShrink: 0 }}>
+                  {entry.fastestLap && <span style={{ fontSize: 9, padding: '2px 5px', borderRadius: 8, background: '#B87AF722', color: '#B87AF7', border: '1px solid #B87AF744' }}>FL</span>}
+                  {entry.dotdRank === 1 && <span style={{ fontSize: 9, padding: '2px 5px', borderRadius: 8, background: '#FFD70022', color: '#FFD700', border: '1px solid #FFD70044' }}>DOTD</span>}
+                  {entry.dnf && <span style={{ fontSize: 9, padding: '2px 5px', borderRadius: 8, background: C.red + '22', color: C.red, border: `1px solid ${C.red}44` }}>DNF</span>}
+                  <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 16, fontWeight: 900, color: entry.dnf ? C.textSec : C.red }}>
+                    {entry.points.toFixed(1)}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
     </div>
   );
 }
