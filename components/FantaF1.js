@@ -12,12 +12,11 @@ import Calendario from './Calendario';
 import GaraManager from './GaraManager';
 import AdminPanel from './AdminPanel';
 import LoginPage from './LoginPage';
-import GestioneAste from './GestioneAste';
 
 export default function FantaF1() {
   const [page, setPage] = useState("classifica");
   const [showAdmin, setShowAdmin] = useState(false);
-  const [showAste, setShowAste] = useState(false);
+
   const [currentUser, setCurrentUser] = useLocalStorage("ff1_current_user", null);
 
   const [teams, setTeams] = useState([]);
@@ -149,7 +148,7 @@ export default function FantaF1() {
             {/* Admin buttons */}
             {currentTeam?.isAdmin && (
               <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={() => setShowAste(true)} style={{
+                <button onClick={() => window.location.href = '/asta'} style={{
                   background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
                   borderRadius: 100, color: "#fff", padding: "5px 12px", cursor: "pointer",
                   fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 5,
@@ -246,9 +245,6 @@ export default function FantaF1() {
       {/* ── ADMIN PANEL ─────────────────────────────────────────────────────── */}
       {showAdmin && (
         <AdminPanel teams={teams} pilots={pilots} races={races} lineups={lineups} onRefresh={refresh} onClose={() => setShowAdmin(false)}/>
-      )}
-      {showAste && (
-        <GestioneAste teams={teams} pilots={pilots} onRefresh={refresh} onClose={() => setShowAste(false)}/>
       )}
     </div>
   );
