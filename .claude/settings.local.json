@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(gh repo:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git push -u origin master)",
+      "Bash(gh pr:*)",
+      "Bash(git add components/Classifica.js)",
+      "Bash(git commit -m \"Integrate DevelopmentPlan tracker into home \\(Classifica\\):*)",
+      "Bash(git commit -m \"Remove DevelopmentPlan from home/Classifica:*)",
+      "Bash(git add DEVELOPMENTPLAN.md)",
+      "Bash(git commit -m \"Add DEVELOPMENTPLAN.md tracker for MVP progress:*)",
+      "Bash(npm run:*)",
+      "Bash(rm:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(npx supabase:*)"
+    ]
+  }
+}

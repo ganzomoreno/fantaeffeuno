@@ -2,159 +2,159 @@
 
 **Current Date**: 2026-03-04
 **Target**: Q1 2026
-**Overall Progress**: 0% (0 / 84 tasks)
+**Overall Progress**: 100% (84 / 84 tasks)
 
 ---
 
 ## 📋 HOME — Dashboard Giocatore
 
 **File**: `components/Classifica.js` + new `components/Home.js`
-**Progress**: 0% (0 / 10)
+**Progress**: 100% (10 / 10)
 
-- [ ] **Section A: Hero KPI** (3 cards layout)
-  - [ ] Posizione: "#2 / 6" + delta vs gara precedente
-  - [ ] Punti totali: "187.5" + delta ultima gara
-  - [ ] Prossima Gara: "Bahrain GP" + countdown + lock status
-  - [ ] CTA primaria: "SCHIERA ORA" (if not confirmed or deadline)
+- [x] **Section A: Hero KPI** (3 cards layout)
+  - [x] Posizione: "#2 / 6" + delta vs gara precedente
+  - [x] Punti totali: "187.5" + delta ultima gara
+  - [x] Prossima Gara: "Bahrain GP" + countdown + lock status
+  - [x] CTA primaria: "SCHIERA ORA" (if not confirmed or deadline)
 
-- [ ] **Section B: Race Readiness**
-  - [ ] Card formazione prossima gara
-  - [ ] Status: "Confermata ✅" / "Non impostata ⚠️" / "LOCKED 🔒"
-  - [ ] Timestamp ultimo salvataggio
-  - [ ] Mini preview: 3 titolari + panchina
-  - [ ] CTAs: "Modifica formazione" + "Vedi scuderia"
+- [x] **Section B: Race Readiness**
+  - [x] Card formazione prossima gara
+  - [x] Status: "Confermata ✅" / "Non impostata ⚠️" / "LOCKED 🔒"
+  - [x] Timestamp ultimo salvataggio
+  - [x] Mini preview: 3 titolari + panchina
+  - [x] CTAs: "Modifica formazione" + "Vedi scuderia"
 
-- [ ] **Section C: Trend** (ultime 5 gare)
-  - [ ] Grafico line/area minimal
-  - [ ] Tooltip su gara
+- [x] **Section C: Trend** (ultime 5 gare)
+  - [x] Grafico line/area minimal
+  - [x] Tooltip su gara
 
-- [ ] **Section D: Ultima Gara** (recap veloce)
-  - [ ] Card con punti fatti
-  - [ ] Top driver della squadra
-  - [ ] Badge: DOTD / FL / DNF
-  - [ ] CTA: "Apri dettagli gara"
+- [x] **Section D: Ultima Gara** (recap veloce)
+  - [x] Card con punti fatti
+  - [x] Top driver della squadra
+  - [x] Badge: DOTD / FL / DNF
+  - [x] CTA: "Apri dettagli gara"
 
-- [ ] **Header Sticky**
-  - [ ] Titolo: FANTA F1 / STAGIONE 2026
-  - [ ] Avatar team (destra)
-  - [ ] Chip: "Switch: 3/5"
-  - [ ] Chip stato formazione
+- [x] **Header Sticky**
+  - [x] Titolo: FANTA F1 / STAGIONE 2026
+  - [x] Avatar team (destra)
+  - [x] Chip: "Switch: 3/5"
+  - [x] Chip stato formazione
 
 ---
 
 ## 🏎️ GARA — Risultati e Breakdown
 
 **File**: `components/GaraManager.js` (refactor) + new `components/Gara.js`
-**Progress**: 0% (0 / 18)
+**Progress**: 100% (18 / 18)
 
 ### Top Controls
-- [ ] Race selector (dropdown, default ultima gara)
-- [ ] Pill: "Risultati ufficiali" / "Provvisori"
-- [ ] Toggle: "Vista: Squadre / Piloti"
+- [x] Race selector (dropdown, default ultima gara)
+- [x] Pill: "Risultati ufficiali" / "Provvisori"
+- [x] Toggle: "Vista: Squadre / Piloti"
 
 ### 2A: Vista Squadre (default)
-- [ ] Leaderboard table (6 righe squadre)
-  - [ ] Colonne: Pos | Squadra | Punti gara | Punti totali | Delta
-  - [ ] Righe hover highlight + clickable
-- [ ] Team detail drawer (side panel / bottom sheet mobile)
-  - [ ] Header: nome squadra + posizione
-  - [ ] Lineup della gara (3 titolari + panchina)
-  - [ ] Breakdown punti (tabella: Piazzamento | Sorpassi | DOTD | FL | Totale)
-  - [ ] Badge DNF (se applicabile)
-  - [ ] Nota: "Panchinaro entrato per DNF"
-  - [ ] CTA: "Confronta con me" (highlight tua squadra)
-- [ ] Link "Come si calcola?" → modal con regole punteggio (10 righe)
+- [x] Leaderboard table (6 righe squadre)
+  - [x] Colonne: Pos | Squadra | Punti gara | Punti totali | Delta
+  - [x] Righe hover highlight + clickable
+- [x] Team detail drawer (side panel / bottom sheet mobile)
+  - [x] Header: nome squadra + posizione
+  - [x] Lineup della gara (3 titolari + panchina)
+  - [x] Breakdown punti (tabella: Piazzamento | Sorpassi | DOTD | FL | Totale)
+  - [x] Badge DNF (se applicabile)
+  - [x] Nota: "Panchinaro entrato per DNF"
+  - [x] CTA: "Confronta con me" (highlight tua squadra)
+- [x] Link "Come si calcola?" → modal con regole punteggio (10 righe)
 
 ### 2B: Vista Piloti (optional ma MVP-safe)
-- [ ] Lista piloti ordinata per punteggio gara
-- [ ] Filtri chip:
-  - [ ] Team F1 (McLaren, Ferrari…)
-  - [ ] "Solo miei"
-  - [ ] "Con DOTD / FL / DNF"
-- [ ] Driver drawer:
-  - [ ] Punti piazzamento + spiegazione
-  - [ ] Sorpassi (cap raggiunto)
-  - [ ] DOTD position (1/2/3)
-  - [ ] Giro veloce sì/no
+- [x] Lista piloti ordinata per punteggio gara
+- [x] Filtri chip:
+  - [x] Team F1 (McLaren, Ferrari…)
+  - [x] "Solo miei"
+  - [x] "Con DOTD / FL / DNF"
+- [x] Driver drawer:
+  - [x] Punti piazzamento + spiegazione
+  - [x] Sorpassi (cap raggiunto)
+  - [x] DOTD position (1/2/3)
+  - [x] Giro veloce sì/no
 
 ---
 
 ## 🏁 SCUDERIA — Rosa, Stats e Schieramento
 
 **File**: `components/Squadre.js` (refactor) + new `components/Scuderia.js`
-**Progress**: 0% (0 / 19)
+**Progress**: 100% (19 / 19)
 
 ### Header
-- [ ] Nome squadra
-- [ ] Chip: "Switch rimanenti 2/5"
-- [ ] Chip stato: "Formazione confermata / da confermare / locked"
+- [x] Nome squadra
+- [x] Chip: "Switch rimanenti 2/5"
+- [x] Chip stato: "Formazione confermata / da confermare / locked"
 
 ### 3A: Lineup Builder
-- [ ] Card: "SCHIERAMENTO PROSSIMA GARA"
-- [ ] 3 slot "TITOLARE" (drag & drop desktop, tap-select mobile)
-- [ ] 1 slot "PANCHINA" (se rosa=4, altrimenti nascosto)
-- [ ] Regole inline:
-  - [ ] "Se DNF → entra panchina automaticamente"
-  - [ ] "Se non schieri → -5"
-- [ ] Validazioni UX:
-  - [ ] Max 3 titolari
-  - [ ] Se rosa=3, no panchina
-  - [ ] Bottone "Salva" disabilitato se incomplete
-- [ ] CTAs:
-  - [ ] Primaria: "SALVA FORMAZIONE"
-  - [ ] Secondaria: "RESET / Ripristina precedente"
-- [ ] Feedback: toast "Formazione salvata ✅"
-- [ ] Se locked: UI read-only + label
+- [x] Card: "SCHIERAMENTO PROSSIMA GARA"
+- [x] 3 slot "TITOLARE" (drag & drop desktop, tap-select mobile)
+- [x] 1 slot "PANCHINA" (se rosa=4, altrimenti nascosto)
+- [x] Regole inline:
+  - [x] "Se DNF → entra panchina automaticamente"
+  - [x] "Se non schieri → -5"
+- [x] Validazioni UX:
+  - [x] Max 3 titolari
+  - [x] Se rosa=3, no panchina
+  - [x] Bottone "Salva" disabilitato se incomplete
+- [x] CTAs:
+  - [x] Primaria: "SALVA FORMAZIONE"
+  - [x] Secondaria: "RESET / Ripristina precedente"
+- [x] Feedback: toast "Formazione salvata ✅"
+- [x] Se locked: UI read-only + label
 
 ### 3B: Lista Piloti (Rosa)
-- [ ] Driver cards (vertical list)
-  - [ ] Nome + team F1 + costo
-  - [ ] Mini stats: media punti ultime 3 gare, #DNF stagionali
-  - [ ] Pulsante rapido: "Metti titolare" / "Metti panchina"
-  - [ ] Badge: "IN LINEUP" (accent) / "BENCH" (secondary)
-- [ ] Driver detail drawer:
-  - [ ] Storico punti per gara (mini chart)
-  - [ ] Breakdown ultime gare
-  - [ ] "Best finish" / "DOTD count"
+- [x] Driver cards (vertical list)
+  - [x] Nome + team F1 + costo
+  - [x] Mini stats: media punti ultime 3 gare, #DNF stagionali
+  - [x] Pulsante rapido: "Metti titolare" / "Metti panchina"
+  - [x] Badge: "IN LINEUP" (accent) / "BENCH" (secondary)
+- [x] Driver detail drawer:
+  - [x] Storico punti per gara (mini chart)
+  - [x] Breakdown ultime gare
+  - [x] "Best finish" / "DOTD count"
 
 ---
 
 ## 📅 CALENDARIO — Gare + Aste
 
 **File**: `components/Calendario.js` (refactor)
-**Progress**: 0% (0 / 11)
+**Progress**: 100% (11 / 11)
 
-- [ ] Toggle: "Gare" / "Aste" / "Tutto"
-- [ ] Lista cronologica
-- [ ] Ogni item:
-  - [ ] Data + nome evento (GP / Asta)
-  - [ ] Badge stato: "Prossimo" / "Oggi" / "Completato"
-  - [ ] CTA contestuale:
-    - [ ] Gara prossima → "Vai a Scuderia"
-    - [ ] Asta prossima → "Dettagli asta"
-- [ ] Dettagli evento (sheet):
-  - [ ] GP: sessioni/nota deadline
-  - [ ] Asta: regole rapide + "inizia alle …"
+- [x] Toggle: "Gare" / "Aste" / "Tutto"
+- [x] Lista cronologica
+- [x] Ogni item:
+  - [x] Data + nome evento (GP / Asta)
+  - [x] Badge stato: "Prossimo" / "Oggi" / "Completato"
+  - [x] CTA contestuale:
+    - [x] Gara prossima → "Vai a Scuderia"
+    - [x] Asta prossima → "Dettagli asta"
+- [x] Dettagli evento (sheet):
+  - [x] GP: sessioni/nota deadline
+  - [x] Asta: regole rapide + "inizia alle …"
 
 ---
 
 ## 🧩 Core UI Components
 
 **Location**: `lib/ui.js` + `components/ui/`
-**Progress**: 0% (0 / 12)
+**Progress**: 100% (12 / 12)
 
-- [ ] **AppShell** — Header + Nav (Tab/Sidebar)
-- [ ] **KpiTile** — numero + label + delta
-- [ ] **StatusPill** — LOCKED, DEADLINE, SWITCH RIMASTI
-- [ ] **RaceSelector** — dropdown races
-- [ ] **LeaderboardTable** — 6 squadre, sortable
-- [ ] **TeamDetailDrawer** — side panel / bottom sheet mobile
-- [ ] **DriverCard** — piccola card pilota
-- [ ] **DriverDetailDrawer** — side panel / bottom sheet mobile
-- [ ] **LineupBuilder** — 3 slot titolari + 1 panchina
-- [ ] **CalendarList** — cronologica gare + aste
-- [ ] **RulesModal** — help "Come si calcola?"
-- [ ] **ToastSystem** — notifiche toast
+- [x] **AppShell** — Header + Nav (Tab/Sidebar)
+- [x] **KpiTile** — numero + label + delta
+- [x] **StatusPill** — LOCKED, DEADLINE, SWITCH RIMASTI
+- [x] **RaceSelector** — dropdown races
+- [x] **LeaderboardTable** — 6 squadre, sortable
+- [x] **TeamDetailDrawer** — side panel / bottom sheet mobile
+- [x] **DriverCard** — piccola card pilota
+- [x] **DriverDetailDrawer** — side panel / bottom sheet mobile
+- [x] **LineupBuilder** — 3 slot titolari + 1 panchina
+- [x] **CalendarList** — cronologica gare + aste
+- [x] **RulesModal** — help "Come si calcola?"
+- [x] **ToastSystem** — notifiche toast
 
 ---
 
@@ -162,12 +162,12 @@
 
 | Section | Progress | Tasks | Completed |
 |---------|----------|-------|-----------|
-| HOME | 0% | 10 | 0 |
-| GARA | 0% | 18 | 0 |
-| SCUDERIA | 0% | 19 | 0 |
-| CALENDARIO | 0% | 11 | 0 |
-| COMPONENTS | 0% | 12 | 0 |
-| **TOTAL** | **0%** | **84** | **0** |
+| HOME | 100% | 10 | 10 |
+| GARA | 100% | 18 | 18 |
+| SCUDERIA | 100% | 19 | 19 |
+| CALENDARIO | 100% | 11 | 11 |
+| COMPONENTS | 100% | 12 | 12 |
+| **TOTAL** | **100%** | **84** | **84** |
 
 ---
 

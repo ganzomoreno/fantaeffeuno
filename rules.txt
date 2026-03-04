@@ -1,0 +1,618 @@
+
+
+
+
+FANTA FORMULA 1
+
+
+
+
+
+"Un gioco che causer� litigi, rabbia e bestemmie"
+
+.e ora che c'� Charles Mary ancora di pi�!!!
+
+
+
+
+Premesse
+
+Se non ami la formula uno, non continuare a leggere. 
+
+Se hai paura di perdere, non continuare a leggere.
+
+Se sei astemio, siamo tutti molto tristi per te.
+
+Se sei Dario, non ti arrabbiare.
+
+Se sei Charles, le F1 sono quelle macchine che fanno brum 
+brum
+.
+
+
+Premesse 2.0
+
+Fanta Formula 1 � un gioco che ricalca le logiche del Fantacalcio, riproposte nel mondo della Formula1.
+
+Obiettivo del gioco � acquistare in logica "asta", i migliori piloti e schierarli nella maniera pi� efficace al fine di ottenere il punteggio pi� elevato rispetto ai competitor.
+
+Lo schema dei punteggi � pensato per minimizzare il rischio "se non prendo Verstappen o Leclerc sicuramente perdo". Vengono premiate le scelte dei piloti da piazzamenti intermedi, ossia dove la classifica tende a muoversi di pi� e quindi la conoscenza del mondo F1 e del relativo "
+momentum
+" dei vari piloti premia i pi� caparbi (ed informati).
+
+Per tenere movimentata l'attenzione (e l'hype), ogni gara i partecipanti dovranno scegliere la squadra da schierare in partenza, e dovranno scommettere su alcune "mini-sfide" accessorie (come, ad esempio, il driver of the day).
+
+Curioso? Ottimo, prepara il 
+cash
+ e continua a leggere.
+
+
+Regolamento
+Ogni partecipante dovr� avere una rosa di tre (3,00) o quattro (4,00) piloti, in base a quanto dice la matematica (e il roster reale): in totale i piloti sono 22, quindi 4 squadre avranno 4 piloti e 2 squadre ne avranno 3. I piloti verranno acquistati al momento 
+dell' "
+Asta Piloti Iniziale".
+ Si aggiunge una squadra: 
+Scudemaria
+ Ferrari, capitanata da Carlo Maria Ferrari (s�, � tutto vero).
+ Asta ogni 
+2
+ gare. L'onere di organizzare le aste sta al rookie Carlo Maria Ferrari, in quanto new entry: imparare soffrendo � il modo migliore.
+ Punteggio nuovo: vedi tabella sotto. Bonus sorpassi: max 3 punti a gara. Confermato: nessun 
+malus
+ per sorpassi subiti (non siamo qui per umiliare ulteriormente nessuno).
+ Meccanismo aste invariato: 
+Fainz
+ estrae un numero a caso (compito importantissimo che certifica la sua intelligenza) e si procede a chiamata.
+ Rosa complessiva: 6 squadre. In ogni asta, per dinamica standard, 4 squadre finiranno con 4 piloti e 2 con 3 piloti (totale 22 piloti complessivi). S�, pu� cambiare da un'asta all'altra: dipende da strategia, budget e voglia di fare i fenomeni.
+ 5 switch totali a stagione (non fate i trader di Wall Street, grazie - gli switch sono in ogni caso cedibili in cambio di 
+FantaMilioni
+).
+
+Ogni partecipante dovr� avere quattro (4,00) o tre (3,00) piloti ciascuno che verranno acquistati al momento 
+dell' "
+Asta Piloti Iniziale".
+
+
+
+
+Asta Piloti Iniziale e seguenti
+
+
+L'asta piloti avverr� il 4 marzo 26 alle ore 21.15. (se si riesce, si organizza in presenza a Milano per 
+gli etero
+, in Lux e a Londra a distanza per i gay);
+
+
+Ad ogni concorrente vengono assegnati 100 
+
+FantaMilioni
+
+ che verranno usati per acquistare i piloti del 
+circuit
+ F1;
+
+
+La metodologia di acquisto dei piloti � asta libera; 
+
+
+
+Fainz
+ estrarr� dal pool piloti un pilota in maniera casuale (es: Fernando Alonso). A quel momento l'asta, libera ed aperta, ha inizio; in maniera randomica, a incrementi di min 1 
+
+FantaMilione
+
+, i concorrenti competono per l'acquisto del pilota; (S�, l'estrazione randomica � una mansione chiave: trattatela con il rispetto che merita.)
+
+
+Ogni 2 gare verr� aperto il mercato piloti (con asta), secondo calendario comunicato dall'organizzatore (Carlo) con un preavviso decente (o almeno ci prova): 
+
+
+Le aste successive alla prima funzionano esattamente come la prima: stesso circo, stessi rilanci, stesso "numero a caso" di 
+Fainz
+ che certifica la sua intelligenza superiore.
+
+
+L'unica differenza � che non riparti da 100 crediti, ma ti porti dietro il credito residuo dell'asta precedente aumentato di 100 fantamilioni (quindi se alla prima asta hai avanzato esempio 23 fantamilioni, alla seconda asta ti presenterai con 123 fantamilioni): se hai buttato via tutto per sentirti Verstappen al mercato del pesce, problemi tuoi. Se hai risparmiato, hai pi� margine (e pi� responsabilit� quando poi sbagli comunque).
+Lista scuderie (ordine Costruttori 2025) e piloti 2025 - giusto per litigare con cognizione di causa:
+
+
+
+McLaren - Lando Norris, Oscar 
+Piastri
+
+
+
+
+Mercedes - George Russell, Andrea Kimi Antonelli
+
+
+
+Red Bull Racing - Max Verstappen, Isack Hadjar
+
+
+
+Ferrari - Charles Leclerc, Lewis Hamilton
+
+
+
+Williams - Alexander Albon, Carlos Sainz
+
+
+
+Racing Bulls - Arvid Lindblad, Liam Lawson
+
+
+
+Aston Martin - Fernando Alonso, Lance Stroll
+
+
+
+Haas - Esteban Ocon, Oliver Bearman
+
+
+
+Audi - Nico H�lkenberg, Gabriel Bortoleto
+
+
+
+Alpine - Pierre Gasly, Franco Colapinto
+
+
+
+Cadillac - Sergio P�rez, Valtteri Bottas
+
+
+Deciso il prezzo e assegnato (o scartato), il primo pilota, vi sar� una seconda estrazione casuale ed il processo sopra descritto si ripeter� per tutti i 22 piloti del 
+rooster
+ totale;
+
+
+Il prezzo minimo di acquisto per i piloti � di 1 milione, il prezzo massimo � di 97 milioni (perch� i 3 milioni restanti servono necessariamente per acquistare almeno altri 3 piloti). Se due concorrenti offrono la stessa cifra per lo stesso pilota (es 97), tale pilota verr� scartato dal giro iniziale per poi tornare nel pool ed essere acquistato alla fine del giro;
+
+
+I prezzi dovranno mantenere la logica di "somma cento". Se acquisto un pilota a 95 
+
+FantaMilioni
+
+, il prezzo massimo per il secondo pilota dovr� necessariamente non essere superiore a 3 
+FantaMilioni
+. A quel punto gli ultimi 2 piloti verranno acquistati a 1 
+
+FantaMilione
+
+ l'uno, non eccedendo mai la somma iniziale imposta di 100 
+FantaMilioni
+; i concorrenti, in fase d'asta, staranno attenti ai bastardi che provano a barare e gli taglieranno le mani.
+
+� importante puntare a finire l'asta cercando di massimizzare certo l'abilit� dei piloti acquistati, ma allo stesso tempo avendo anche l'obiettivo secondario di tenere il pi� possibile una cassa liquida di 
+
+FantaMilioni
+
+ a disposizione. L'asta iniziale non � infatti l'unico momento in cui si possono acquistare e scambiare i piloti.
+
+
+Calendario (con aste):
+
+
+I piloti potranno essere scambiati tra i partecipanti nella combo di regole "pilota per pilota pi� denaro". Necessariamente un pilota dovr� essere scambiato per un altro pilota (per mantenere la regola dei 
+4
+ piloti a testa), ma per facilitare le contrattazioni, sar� possibile aggiungere 
+
+FantaMilioni
+
+ alle proposte di acquisto. In questo modo la liquidit� in 
+
+FantaMilioni
+
+ sar� molto importante per essere sempre nella posizione di favore di poter scambiare piloti di qualit� inferiore contro piloti con 
+momentum
+ migliori.
+
+
+Data (tipo)
+
+
+
+Location
+
+
+
+08/03/2026 (Gara)
+
+
+Australia
+
+
+15/03/2026 (Gara)
+
+
+Cina
+
+
+16/03/2026 (Asta)
+
+
+
+
+
+29/03/2026 (Gara)
+
+
+Giappone
+
+
+12/04/2026 (Gara)
+
+
+Bahrain
+
+
+13/04/2026 (Asta)
+
+
+
+
+
+19/04/2026 (Gara)
+
+
+Arabia Saudita
+
+
+03/05/2026 (Gara)
+
+
+Miami
+
+
+04/05/2026 (Asta)
+
+
+
+
+
+24/05/2026 (Gara)
+
+
+Canada
+
+
+07/06/2026 (Gara)
+
+
+Monaco
+
+
+08/06/2026 (Asta)
+
+
+
+
+
+14/06/2026 (Gara)
+
+
+Spagna (Barcellona-Catalogna)
+
+
+28/06/2026 (Gara)
+
+
+Austria
+
+
+29/06/2026 (Asta)
+
+
+
+
+
+05/07/2026 (Gara)
+
+
+Gran Bretagna
+
+
+19/07/2026 (Gara)
+
+
+Belgio
+
+
+20/07/2026 (Asta)
+
+
+
+
+
+26/07/2026 (Gara)
+
+
+Ungheria
+
+
+23/08/2026 (Gara)
+
+
+Paesi Bassi
+
+
+24/08/2026 (Asta)
+
+
+
+
+
+06/09/2026 (Gara)
+
+
+Italia
+
+
+13/09/2026 (Gara)
+
+
+Spagna
+
+
+14/09/2026 (Asta)
+
+
+
+
+
+26/09/2026 (Gara)
+
+
+Azerbaijan
+
+
+11/10/2026 (Gara)
+
+
+Singapore
+
+
+12/10/2026 (Asta)
+
+
+
+
+
+25/10/2026 (Gara)
+
+
+Stati Uniti
+
+
+01/11/2026 (Gara)
+
+
+Messico
+
+
+02/11/2026 (Asta)
+
+
+
+
+
+08/11/2026 (Gara)
+
+
+Brasile
+
+
+21/11/2026 (Gara)
+
+
+Las Vegas
+
+
+23/11/2026 (Asta)
+
+
+
+
+
+29/11/2026 (Gara)
+
+
+Qatar
+
+
+06/12/2026 (Gara)
+
+
+Abu Dhabi
+
+
+
+
+
+
+
+Punteggi e regole della competizione
+
+
+Ogni concorrente deve schierare 
+3
+ piloti entro l'inizio del giro di formazione della gara, escludendone uno. La formazione pu� essere modificata dopo le qualifiche fino alla partenza del giro di formazione
+
+
+La scala punteggi associata ai vari piloti sar� la seguente:
+
+
+1�: 25
+
+
+2�: 22
+
+
+3�: 20
+
+
+4�: 18
+
+
+5�: 16
+
+
+6�: 15
+
+
+7�: 14
+
+
+8�: 13
+
+
+9�: 12
+
+
+10�: 11
+
+
+11�: 10
+
+
+12�: 9
+
+
+13�: 8
+
+
+14�: 7
+
+
+15�: 6
+
+
+16�: 5
+
+
+17�: 4
+
+
+18�: 3
+
+
+19�: 2
+
+
+20�: 1
+
+
+21�: 0
+
+
+22�: 0
+
+
+
+
+
+
+Viene riconosciuto un bonus di 0,5 per ogni sorpasso eseguito durante la gara, fino a un massimo di 3 punti totali (quindi massimo 6 sorpassi conteggiati). Confermato: nessun 
+malus
+ per sorpassi subiti
+
+
+Ai piloti DNF (do 
+not
+ finish, piloti che non concludono la gara) non verranno assegnati punteggi;
+
+
+Al pool di piloti che finiscono in lizza per il "Driver of the Day" verranno riconosciuti punti incrementali. 
+3
+ punti per il driver of the day. 2 punti per il secondo classificato e 1 punto per il terzo classificato, sempre in relazione alla classifica del driver of the day;
+
+
+Giro veloce. Avere il pilota che determina il giro veloce della gara garantisce 1 punto aggiuntivo.
+
+
+Ogni partecipante dispone di un massimo di 
+5
+ switch per l'intera stagione, utilizzabili liberamente a propria discrezione. In caso di DNF (Do Not Finish), il pilota ritirato pu� essere automaticamente sostituito dal pilota di riserva (il panchinaro) senza alcun costo aggiuntivo
+
+
+In caso di sostituzione forzata di un pilota per infortunio, lo switch � obbligatorio ma avviene senza alcun costo
+
+Penalit� per mancato schieramento: 5 punti di penalit� per gara, 2 per sprint. In assenza di una nuova formazione, verr� automaticamente mantenuta quella della gara precedente
+
+
+
+
+Iscrizione e premi
+
+
+L'iscrizione al campionato di "
+FantaFormula
+ 1" ha un costo di 50?; i partecipanti saranno i seguenti (non � concesso non partecipare):
+
+
+Alessandro Zanin: Team "
+ZetaRacing
+"
+
+
+Alessandro Fainelli: Team "SF - Scuderia Fainelli"
+
+
+Leonardo Cedaro: Team "
+Ranocchiettos
+"
+
+
+Dario Mazzanti: Team "Abdull Mazzar"
+
+
+Andrea Chirizzi: Team "Alpha Chiro Racing"
+
+
+Carlo Maria Ferrari: Team "
+Scudemaria
+ Ferrari"
+
+
+Le vincite verranno suddivise nella maniera seguente:
+
+
+0? al sesto arrivato, che sar� obbligato oltretutto al pagamento di un aperitivo in luogo TBD a tutta la restante parte dei partecipanti (risolto il pagamento dell'edizione 2023, ancora 
+pending
+ il pagamento dell'edizione 2024 / 2025.);
+
+
+0? al quinto arrivato;
+
+
+0? al quarto arrivato;
+
+
+0? al terzo arrivato;
+
+
+50? al secondo arrivato, che giocher� quindi gratuitamente;
+
+
+250? al vincitore della competizione.
+
+
+I partecipanti concordano nel nominare "
+SuperAdmin
+" il partecipante Alessandro Zanin. A carico del 
+SuperAdmin
+ vi sar� la gestione ordinaria dei punteggi, una c.d. "comunicazione efficace" nel ricordare le scadenze 
+pre
+-gara nello schieramento 
+dei vari team
+. I partecipanti concordano che, dato lo 
+sbatty
+ sopra, riconoscono al 
+SuperAdmin
+ il rispetto massimo e la nomina accessoria di "persona magnifica e super top".
+
+
+
+
+
