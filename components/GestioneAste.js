@@ -314,8 +314,8 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
 
             {/* Pilot scrollable list */}
             <div ref={pilotListRef} style={{ flex: 1, overflowY: "auto", background: "#0a0a0a" }}>
-              <div style={{ padding: "8px 14px", fontSize: 11, letterSpacing: 2, color: "#555", textTransform: "uppercase", borderBottom: "1px solid #111", position: "sticky", top: 0, background: "#0a0a0a", zIndex: 1 }}>
-                {isMobile ? "Seleziona un pilota" : "Lista piloti — clicca per selezionare"}
+              <div style={{ padding: "5px 12px", fontSize: 9, letterSpacing: 2, color: "#444", textTransform: "uppercase", borderBottom: "1px solid #111", position: "sticky", top: 0, background: "#0a0a0a", zIndex: 1 }}>
+                Lista piloti
               </div>
               {pilots.map((p, i) => {
                 const isAssigned    = !!p.owner;
@@ -331,33 +331,37 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                       if (isMobile) setMobileTab('piloti');
                     }}
                     style={{
-                      display: "flex", alignItems: "center", gap: 10,
-                      padding: "7px 14px",
+                      display: "flex", alignItems: "center", gap: 8,
+                      padding: "3px 12px",
                       background: isHighlighted ? "rgba(225,6,0,0.12)" : "transparent",
                       borderLeft: isHighlighted ? "3px solid #e10600" : "3px solid transparent",
-                      borderBottom: "1px solid #0f0f0f",
+                      borderBottom: "1px solid #0d0d0d",
                       cursor: "pointer", transition: "background 0.1s",
+                      minHeight: 28,
                     }}
                   >
-                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 11, fontWeight: 700, color: isHighlighted ? "#e10600" : "#3a3a3a", width: 22, textAlign: "right", flexShrink: 0 }}>
+                    {/* Number */}
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 9, fontWeight: 700, color: isHighlighted ? "#e10600" : "#333", width: 18, textAlign: "right", flexShrink: 0 }}>
                       {String(i + 1).padStart(2, '0')}
                     </span>
-                    <div style={{ width: 3, height: 20, borderRadius: 2, background: teamColor, flexShrink: 0 }}/>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-                        <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 12, fontWeight: 900, color: isAssigned ? "#2a2a2a" : isHighlighted ? "#e10600" : "#888", letterSpacing: 1, flexShrink: 0 }}>
-                          {p.abbreviation}
-                        </span>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: isAssigned ? "#3a3a3a" : "#c0c0c0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {p.name}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: 10, color: isAssigned ? "#2a2a2a" : "#4a4a4a", lineHeight: 1.1 }}>{p.team}</div>
-                    </div>
+                    {/* Team color bar */}
+                    <div style={{ width: 2, height: 16, borderRadius: 1, background: teamColor, flexShrink: 0 }}/>
+                    {/* Abbreviation */}
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 11, fontWeight: 900, color: isAssigned ? "#2a2a2a" : isHighlighted ? "#e10600" : "#777", letterSpacing: 0.5, width: 30, flexShrink: 0 }}>
+                      {p.abbreviation}
+                    </span>
+                    {/* Name + team inline */}
+                    <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: isAssigned ? "#333" : "#bbb", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {p.name}
+                    </span>
+                    <span style={{ fontSize: 9, color: isAssigned ? "#252525" : "#3a3a3a", flexShrink: 0, whiteSpace: "nowrap" }}>
+                      {p.team.replace('Red Bull Racing','RBR').replace('Racing Bulls','RB').replace('Aston Martin','AM')}
+                    </span>
+                    {/* Status dot */}
                     {isAssigned ? (
-                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#2a2a2a", flexShrink: 0 }}/>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#252525", flexShrink: 0 }}/>
                     ) : (
-                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ade80", flexShrink: 0, boxShadow: "0 0 5px #4ade80" }}/>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", flexShrink: 0, boxShadow: "0 0 4px #4ade8088" }}/>
                     )}
                   </div>
                 );
