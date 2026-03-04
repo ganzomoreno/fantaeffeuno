@@ -63,7 +63,8 @@ export default function FantaF1() {
     db.saveLineup(calendarIndex, teamId, tLineup).catch(err => console.error(err));
   }, [lineups]);
 
-  const currentTeam = currentUser ? teams.find(t => t.id === currentUser.id) || currentUser : null;
+  // Se currentUser è stale (UUID non corrisponde a nessun team DB) → forza re-login
+  const currentTeam = currentUser ? teams.find(t => t.id === currentUser.id) : null;
   const handleLogin  = (team) => setCurrentUser(team);
   const handleLogout = () => { setCurrentUser(null); setShowAdmin(false); };
 
@@ -85,7 +86,8 @@ export default function FantaF1() {
     );
   }
 
-  if (!currentUser) return <LoginPage teams={teams} onLogin={handleLogin} />;
+  // currentUser stale (es. vecchio ID localStorage prima di Supabase) → re-login
+  if (!currentUser || !currentTeam) return <LoginPage teams={teams} onLogin={handleLogin} />;
 
   const nav = [
     { id: "classifica", label: "Home",       icon: "trophy"    },
