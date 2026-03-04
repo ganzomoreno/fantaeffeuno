@@ -1,12 +1,14 @@
 'use client';
 
 import { SectionTitle } from './ui';
+import DevelopmentPlan from './DevelopmentPlan';
 
 const MEDALS = ["#FFD700", "#C0C0C0", "#CD7F32"];
 
 export default function Classifica({ teams, scores, races }) {
   return (
     <div>
+      <DevelopmentPlan />
       <SectionTitle>Classifica Generale</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {teams.map((t, i) => (
