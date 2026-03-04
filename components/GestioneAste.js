@@ -207,12 +207,12 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
         {/* ── PILOT LIST ── */}
         {(!isMobile || mobileTab === 'piloti') && (
           <div ref={pilotListRef} style={{
-            width: isMobile ? "100%" : 230,
+            width: isMobile ? "100%" : 250,
             borderRight: isMobile ? "none" : "1px solid #141414",
             overflowY: "auto", background: "#0a0a0a", flexShrink: 0,
           }}>
             <div style={{
-              padding: "8px 12px", fontSize: 9, letterSpacing: 3, color: "#333",
+              padding: "10px 14px", fontSize: 11, letterSpacing: 2, color: "#555",
               textTransform: "uppercase", borderBottom: "1px solid #111",
               position: "sticky", top: 0, background: "#0a0a0a", zIndex: 1,
             }}>
@@ -231,8 +231,8 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                     if (isMobile) setMobileTab('asta');
                   }}
                   style={{
-                    display: "flex", alignItems: "center", gap: isMobile ? 8 : 6,
-                    padding: isMobile ? "5px 12px" : "3px 10px",
+                    display: "flex", alignItems: "center", gap: isMobile ? 8 : 8,
+                    padding: isMobile ? "5px 12px" : "5px 12px",
                     background: isHighlighted ? "rgba(225,6,0,0.15)" : "transparent",
                     borderLeft: isHighlighted ? "3px solid #e10600" : "3px solid transparent",
                     borderBottom: "1px solid #0f0f0f",
@@ -240,22 +240,22 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                   }}
                 >
                   <span style={{
-                    fontFamily: "'Orbitron', monospace", fontSize: 9, fontWeight: 700,
-                    color: isHighlighted ? "#e10600" : "#333", width: 18, textAlign: "right", flexShrink: 0,
+                    fontFamily: "'Orbitron', monospace", fontSize: isMobile ? 10 : 11, fontWeight: 700,
+                    color: isHighlighted ? "#e10600" : "#444", width: 22, textAlign: "right", flexShrink: 0,
                   }}>
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <div style={{ width: 3, height: 16, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
+                  <div style={{ width: 3, height: 18, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
-                      fontSize: isMobile ? 14 : 11, fontWeight: 700,
+                      fontSize: isMobile ? 14 : 13, fontWeight: 700,
                       color: isAssigned ? "#444" : "#e8e8e8",
                       whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                      lineHeight: 1.1,
+                      lineHeight: 1.2,
                     }}>
                       {p.name}
                     </div>
-                    <div style={{ fontSize: isMobile ? 11 : 9, color: isAssigned ? "#333" : "#555", lineHeight: 1.0 }}>
+                    <div style={{ fontSize: isMobile ? 11 : 11, color: isAssigned ? "#333" : "#555", lineHeight: 1.1 }}>
                       {p.team}
                     </div>
                   </div>
@@ -515,12 +515,12 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
         {/* ── RIGHT: TEAMS ── */}
         {(!isMobile || mobileTab === 'squadre') && (
           <div style={{
-            width: isMobile ? "100%" : 280,
+            width: isMobile ? "100%" : 300,
             borderLeft: isMobile ? "none" : "1px solid #141414",
             overflowY: "auto", background: "#0a0a0a", flexShrink: 0,
           }}>
             <div style={{
-              padding: "8px 12px", fontSize: 9, letterSpacing: 3, color: "#333",
+              padding: "10px 14px", fontSize: 11, letterSpacing: 2, color: "#555",
               textTransform: "uppercase", borderBottom: "1px solid #111",
               position: "sticky", top: 0, background: "#0a0a0a", zIndex: 1,
             }}>
@@ -534,11 +534,11 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                 <div key={t.id} style={{ padding: isMobile ? "14px 16px" : "12px", borderBottom: "1px solid #0f0f0f" }}>
                   <div style={{ marginBottom: 8 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                      <div style={{ fontSize: isMobile ? 14 : 12, fontWeight: 700, color: "#e8e8e8" }}>
+                      <div style={{ fontSize: isMobile ? 14 : 14, fontWeight: 700, color: "#e8e8e8" }}>
                         {t.name}
                       </div>
                       <div style={{
-                        fontFamily: "'Orbitron', monospace", fontSize: isMobile ? 16 : 15,
+                        fontFamily: "'Orbitron', monospace", fontSize: isMobile ? 16 : 16,
                         fontWeight: 900, color: budgetColor,
                       }}>
                         {t.budget}M
@@ -550,12 +550,12 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                         width: `${budgetPct}%`, transition: "width 0.3s",
                       }} />
                     </div>
-                    <div style={{ fontSize: 9, color: "#333", marginTop: 3 }}>
+                    <div style={{ fontSize: 11, color: "#444", marginTop: 4 }}>
                       {t.owner} · {teamPilots.length} piloti
                     </div>
                   </div>
                   {teamPilots.length === 0 ? (
-                    <div style={{ fontSize: 11, color: "#222", fontStyle: "italic" }}>Nessun pilota</div>
+                    <div style={{ fontSize: 12, color: "#333", fontStyle: "italic" }}>Nessun pilota</div>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 5 : 3 }}>
                       {teamPilots.map(p => {
@@ -566,9 +566,9 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                             background: "#111", borderRadius: 6, padding: isMobile ? "6px 10px" : "4px 8px",
                           }}>
                             <div style={{ width: 3, height: 18, borderRadius: 1, background: color, flexShrink: 0 }} />
-                            <span style={{ flex: 1, fontSize: isMobile ? 13 : 11, color: "#bbb" }}>{p.name}</span>
+                            <span style={{ flex: 1, fontSize: isMobile ? 13 : 13, color: "#bbb" }}>{p.name}</span>
                             <span style={{
-                              fontSize: 10, color: "#555",
+                              fontSize: 12, color: "#666",
                               fontFamily: "'Orbitron', monospace", fontWeight: 700,
                             }}>
                               {p.price}M
