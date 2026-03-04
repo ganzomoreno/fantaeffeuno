@@ -173,13 +173,13 @@ export default function Classifica({ teams, scores, races, pilots, lineups, cale
                 </div>
               );
             })}
-            {/* Panchina (solo se 4 piloti) */}
-            {myPilots.length === 4 && (
+            {/* Panchina: solo se 4 piloti E lineup già confermata */}
+            {myPilots.length === 4 && lineupConfirmed && benchPilots[0] && (
               <div style={{
                 padding: '5px 10px', borderRadius: 8, fontSize: 11,
                 background: C.surface2, color: C.textSec, border: `1px solid ${C.border}`,
               }}>
-                🪑 {benchPilots[0]?.name || '—'}
+                🪑 {benchPilots[0].name}
               </div>
             )}
           </div>

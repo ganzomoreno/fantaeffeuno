@@ -110,9 +110,10 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, c
           })}
         </div>
 
-        {/* Panchina slot (solo se 4 piloti) */}
-        {myPilots.length === 4 && (() => {
+        {/* Panchina slot: solo se 4 piloti E 3 titolari già impostati */}
+        {myPilots.length === 4 && lineupConfirmed && (() => {
           const benchPilot = myPilots.find(p => !myLineup.includes(p.id));
+          if (!benchPilot) return null;
           return (
             <div style={{
               borderRadius: 10, padding: '8px 12px', marginBottom: 12,
@@ -120,12 +121,10 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, c
               display: 'flex', alignItems: 'center', gap: 10,
             }}>
               <span style={{ fontSize: 11, color: C.textSec }}>🪑 PANCHINA:</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: benchPilot ? C.textPri : C.border }}>
-                {benchPilot?.name || '—'}
+              <span style={{ fontSize: 13, fontWeight: 600, color: C.textPri }}>
+                {benchPilot.name}
               </span>
-              {benchPilot && (
-                <span style={{ fontSize: 10, color: C.textSec }}>{benchPilot.team}</span>
-              )}
+              <span style={{ fontSize: 10, color: C.textSec }}>{benchPilot.team}</span>
               <span style={{ marginLeft: 'auto', fontSize: 10, color: C.textSec }}>
                 Auto-entra in caso di DNF
               </span>
