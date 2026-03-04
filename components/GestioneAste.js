@@ -432,45 +432,60 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
               <span>Squadre</span>
               <span style={{ fontSize: 10, color: "#333" }}>↓ budget</span>
             </div>
-            {sortedTeams.map(t => {
-              const teamPilots  = pilots.filter(p => p.owner === t.id);
-              const budgetPct   = Math.min(100, (t.budget / 100) * 100);
-              const budgetColor = t.budget >= 50 ? "#4ade80" : t.budget >= 20 ? "#facc15" : "#e10600";
-              return (
-                <div key={t.id} style={{ padding: "8px 14px", borderBottom: "1px solid #0f0f0f" }}>
-                  {/* Team header */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: "#e8e8e8" }}>{t.name}</div>
-                    <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 900, color: budgetColor }}>
-                      {t.budget}M
+            {(() => {
+              // Max price across all assigned pilots for relative bar scaling
+              const maxPrice = Math.max(1, ...pilots.filter(p => p.owner && p.price > 0).map(p => p.price));
+              return sortedTeams.map(t => {
+                const teamPilots  = pilots.filter(p => p.owner === t.id);
+                const budgetPct   = Math.min(100, (t.budget / 100) * 100);
+                const budgetColor = t.budget >= 50 ? "#4ade80" : t.budget >= 20 ? "#facc15" : "#e10600";
+                return (
+                  <div key={t.id} style={{ padding: "8px 14px", borderBottom: "1px solid #0f0f0f" }}>
+                    {/* Team header */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                      <div style={{ fontWeight: 700, fontSize: 13, color: "#e8e8e8" }}>{t.name}</div>
+                      <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 900, color: budgetColor }}>
+                        {t.budget}M
+                      </div>
                     </div>
-                  </div>
-                  {/* Budget bar */}
-                  <div style={{ height: 2, background: "#1a1a1a", borderRadius: 1, marginBottom: teamPilots.length > 0 ? 6 : 0 }}>
-                    <div style={{ height: "100%", borderRadius: 1, background: budgetColor, width: `${budgetPct}%`, transition: "width 0.4s" }}/>
-                  </div>
-                  {/* Assigned pilots */}
-                  {teamPilots.length > 0 && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                      {teamPilots.map(p => {
-                        const color = F1_TEAM_COLORS[p.team] || "#666";
-                        return (
-                          <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 7, background: "#111", borderRadius: 5, padding: "4px 8px" }}>
-                            <div style={{ width: 2, height: 14, borderRadius: 1, background: color, flexShrink: 0 }}/>
-                            <span style={{ flex: 1, fontSize: 12, color: "#aaa" }}>{p.name}</span>
-                            <span style={{ fontSize: 11, color: "#555", fontFamily: "'Orbitron', monospace", fontWeight: 700 }}>{p.price}M</span>
-                            <button onClick={() => setConfirmRelease(p.id)} title="Rilascia" style={{ background: "none", border: "none", color: "#2a2a2a", cursor: "pointer", fontSize: 12, padding: "0 2px", lineHeight: 1, transition: "color 0.15s" }}
-                              onMouseEnter={e => e.target.style.color = "#ff4444"}
-                              onMouseLeave={e => e.target.style.color = "#2a2a2a"}
-                            >✕</button>
-                          </div>
-                        );
-                      })}
+                    {/* Budget bar */}
+                    <div style={{ height: 2, background: "#1a1a1a", borderRadius: 1, marginBottom: teamPilots.length > 0 ? 6 : 0 }}>
+                      <div style={{ height: "100%", borderRadius: 1, background: budgetColor, width: `${budgetPct}%`, transition: "width 0.4s" }}/>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                    {/* Assigned pilots */}
+                    {teamPilots.length > 0 && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                        {teamPilots.map(p => {
+                          const color    = F1_TEAM_COLORS[p.team] || "#666";
+                          const pricePct = Math.round((p.price / maxPrice) * 100);
+                          return (
+                            <div key={p.id} style={{ background: "#111", borderRadius: 5, padding: "5px 8px" }}>
+                              {/* Top row: color bar | abbrev | price | ✕ */}
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <div style={{ width: 2, height: 14, borderRadius: 1, background: color, flexShrink: 0 }}/>
+                                <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 700, fontSize: 11, color: "#e8e8e8", letterSpacing: 1, flex: 1 }}>
+                                  {p.abbreviation || p.name.split(' ').pop().slice(0, 3).toUpperCase()}
+                                </span>
+                                <span style={{ fontSize: 10, color: "#666", fontFamily: "'Orbitron', monospace", fontWeight: 700 }}>{p.price}M</span>
+                                <button onClick={() => setConfirmRelease(p.id)} title="Rilascia"
+                                  style={{ background: "none", border: "none", color: "#2a2a2a", cursor: "pointer", fontSize: 11, padding: "0 1px", lineHeight: 1, transition: "color 0.15s" }}
+                                  onMouseEnter={e => e.target.style.color = "#ff4444"}
+                                  onMouseLeave={e => e.target.style.color = "#2a2a2a"}
+                                >✕</button>
+                              </div>
+                              {/* Price bar */}
+                              <div style={{ marginTop: 3, height: 2, background: "#1c1c1c", borderRadius: 1 }}>
+                                <div style={{ height: "100%", borderRadius: 1, background: color, width: `${pricePct}%`, opacity: 0.75, transition: "width 0.5s" }}/>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            })()}
           </div>
         )}
       </div>
