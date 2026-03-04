@@ -231,8 +231,8 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                     if (isMobile) setMobileTab('asta');
                   }}
                   style={{
-                    display: "flex", alignItems: "center", gap: isMobile ? 10 : 8,
-                    padding: isMobile ? "11px 14px" : "7px 12px",
+                    display: "flex", alignItems: "center", gap: isMobile ? 8 : 6,
+                    padding: isMobile ? "5px 12px" : "3px 10px",
                     background: isHighlighted ? "rgba(225,6,0,0.15)" : "transparent",
                     borderLeft: isHighlighted ? "3px solid #e10600" : "3px solid transparent",
                     borderBottom: "1px solid #0f0f0f",
@@ -240,21 +240,22 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
                   }}
                 >
                   <span style={{
-                    fontFamily: "'Orbitron', monospace", fontSize: 10, fontWeight: 700,
-                    color: isHighlighted ? "#e10600" : "#333", width: 20, textAlign: "right", flexShrink: 0,
+                    fontFamily: "'Orbitron', monospace", fontSize: 9, fontWeight: 700,
+                    color: isHighlighted ? "#e10600" : "#333", width: 18, textAlign: "right", flexShrink: 0,
                   }}>
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <div style={{ width: 3, height: 28, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
+                  <div style={{ width: 3, height: 16, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
-                      fontSize: isMobile ? 14 : 12, fontWeight: 700,
+                      fontSize: isMobile ? 14 : 11, fontWeight: 700,
                       color: isAssigned ? "#444" : "#e8e8e8",
                       whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                      lineHeight: 1.1,
                     }}>
                       {p.name}
                     </div>
-                    <div style={{ fontSize: isMobile ? 11 : 9, color: isAssigned ? "#333" : "#555", marginTop: 1 }}>
+                    <div style={{ fontSize: isMobile ? 11 : 9, color: isAssigned ? "#333" : "#555", lineHeight: 1.0 }}>
                       {p.team}
                     </div>
                   </div>
