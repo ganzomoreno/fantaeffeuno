@@ -433,49 +433,48 @@ export default function GestioneAste({ teams, pilots, onRefresh, onClose }) {
               <span style={{ fontSize: 10, color: "#333" }}>↓ budget</span>
             </div>
             {(() => {
-              // Max price across all assigned pilots for relative bar scaling
               const maxPrice = Math.max(1, ...pilots.filter(p => p.owner && p.price > 0).map(p => p.price));
               return sortedTeams.map(t => {
                 const teamPilots  = pilots.filter(p => p.owner === t.id);
                 const budgetPct   = Math.min(100, (t.budget / 100) * 100);
                 const budgetColor = t.budget >= 50 ? "#4ade80" : t.budget >= 20 ? "#facc15" : "#e10600";
                 return (
-                  <div key={t.id} style={{ padding: "8px 14px", borderBottom: "1px solid #0f0f0f" }}>
+                  <div key={t.id} style={{ padding: "5px 10px", borderBottom: "1px solid #0f0f0f" }}>
                     {/* Team header */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                      <div style={{ fontWeight: 700, fontSize: 13, color: "#e8e8e8" }}>{t.name}</div>
-                      <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 900, color: budgetColor }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                      <div style={{ fontWeight: 700, fontSize: 12, color: "#e8e8e8" }}>{t.name}</div>
+                      <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 12, fontWeight: 900, color: budgetColor }}>
                         {t.budget}M
                       </div>
                     </div>
                     {/* Budget bar */}
-                    <div style={{ height: 2, background: "#1a1a1a", borderRadius: 1, marginBottom: teamPilots.length > 0 ? 6 : 0 }}>
+                    <div style={{ height: 1, background: "#1a1a1a", borderRadius: 1, marginBottom: teamPilots.length > 0 ? 3 : 0 }}>
                       <div style={{ height: "100%", borderRadius: 1, background: budgetColor, width: `${budgetPct}%`, transition: "width 0.4s" }}/>
                     </div>
                     {/* Assigned pilots */}
                     {teamPilots.length > 0 && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
                         {teamPilots.map(p => {
                           const color    = F1_TEAM_COLORS[p.team] || "#666";
                           const pricePct = Math.round((p.price / maxPrice) * 100);
                           return (
-                            <div key={p.id} style={{ background: "#111", borderRadius: 5, padding: "5px 8px" }}>
-                              {/* Top row: color bar | abbrev | price | ✕ */}
-                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                <div style={{ width: 2, height: 14, borderRadius: 1, background: color, flexShrink: 0 }}/>
-                                <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 700, fontSize: 11, color: "#e8e8e8", letterSpacing: 1, flex: 1 }}>
+                            <div key={p.id} style={{ borderRadius: 3, padding: "2px 5px" }}>
+                              {/* Row: color bar | abbrev | price bar | price | ✕ */}
+                              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                                <div style={{ width: 2, height: 12, borderRadius: 1, background: color, flexShrink: 0 }}/>
+                                <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 700, fontSize: 10, color: "#e0e0e0", letterSpacing: 0.5, width: 28, flexShrink: 0 }}>
                                   {p.abbreviation || p.name.split(' ').pop().slice(0, 3).toUpperCase()}
                                 </span>
-                                <span style={{ fontSize: 10, color: "#666", fontFamily: "'Orbitron', monospace", fontWeight: 700 }}>{p.price}M</span>
+                                {/* Inline price bar */}
+                                <div style={{ flex: 1, height: 2, background: "#1c1c1c", borderRadius: 1 }}>
+                                  <div style={{ height: "100%", borderRadius: 1, background: color, width: `${pricePct}%`, opacity: 0.8, transition: "width 0.5s" }}/>
+                                </div>
+                                <span style={{ fontSize: 9, color: "#555", fontFamily: "'Orbitron', monospace", fontWeight: 700, flexShrink: 0 }}>{p.price}M</span>
                                 <button onClick={() => setConfirmRelease(p.id)} title="Rilascia"
-                                  style={{ background: "none", border: "none", color: "#2a2a2a", cursor: "pointer", fontSize: 11, padding: "0 1px", lineHeight: 1, transition: "color 0.15s" }}
+                                  style={{ background: "none", border: "none", color: "#2a2a2a", cursor: "pointer", fontSize: 10, padding: "0", lineHeight: 1, transition: "color 0.15s", flexShrink: 0 }}
                                   onMouseEnter={e => e.target.style.color = "#ff4444"}
                                   onMouseLeave={e => e.target.style.color = "#2a2a2a"}
                                 >✕</button>
-                              </div>
-                              {/* Price bar */}
-                              <div style={{ marginTop: 3, height: 2, background: "#1c1c1c", borderRadius: 1 }}>
-                                <div style={{ height: "100%", borderRadius: 1, background: color, width: `${pricePct}%`, opacity: 0.75, transition: "width 0.5s" }}/>
                               </div>
                             </div>
                           );
