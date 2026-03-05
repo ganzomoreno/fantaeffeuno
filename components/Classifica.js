@@ -111,228 +111,270 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
     return prevRank - myRank;
   }, [races, teams, lineups, pilots, currentUser, myRank]);
 
+  // Next 3 Events (from SIMULATED_TODAY)
+  const nextEvents = useMemo(() => {
+    return calendar.filter(ev => {
+      const d = parseDate(ev.date);
+      return d >= SIMULATED_TODAY || (d.getUTCDate() === SIMULATED_TODAY.getUTCDate() && d.getUTCMonth() === SIMULATED_TODAY.getUTCMonth());
+    }).slice(0, 3);
+  }, [calendar]);
+
+  // Next Auction
+  const nextAuction = useMemo(() => {
+    return calendar.find(ev => ev.type === 'auction' && parseDate(ev.date) >= SIMULATED_TODAY);
+  }, [calendar]);
+
+  // Top 3 Leaderboard
+  const top3Teams = useMemo(() => {
+    return teams.slice(0, 3).map((t, i) => ({ ...t, rank: i + 1, score: scores[t.id] || 0 }));
+  }, [teams, scores]);
+
+  // Points breakdown for last race
+  const lastRaceMyBreakdown = useMemo(() => {
+    if (!lastRace || !currentUser) return [];
+    const lineup = (lineups[`race_${lastRace.calendarIndex}`] || {})[currentUser.id] || [];
+    const reserveId = (reserves[`race_${lastRace.calendarIndex}`] || {})[currentUser.id];
+
+    let dnfCount = 0;
+    const resData = (lastRace.results || []).filter(r => lineup.includes(r.pilotId));
+    resData.forEach(r => { if (r.dnf) dnfCount++; });
+
+    let drivers = resData.map(r => ({
+      ...r,
+      pilot: pilots.find(p => p.id === r.pilotId),
+      pts: calculatePilotPoints(r)
+    }));
+
+    if (dnfCount > 0 && reserveId) {
+      const resResult = (lastRace.results || []).find(r => r.pilotId === reserveId);
+      if (resResult && !resResult.dnf) {
+        drivers.push({
+          ...resResult,
+          pilot: pilots.find(p => p.id === reserveId),
+          pts: calculatePilotPoints(resResult),
+          subbedIn: true
+        });
+      }
+    }
+
+    return drivers;
+  }, [lastRace, currentUser, lineups, reserves, pilots]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-      {/* ── SECTION A: Hero KPI ─────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+      {/* 1) Header “Race Week” */}
+      <div style={{
+        background: `linear-gradient(135deg, ${C.surface2} 0%, #0B0B0F 100%)`,
+        border: `1px solid ${C.border}`,
+        borderRadius: 16,
+        padding: 20,
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.03, background: 'repeating-linear-gradient(45deg, #FFF 25%, transparent 25%, transparent 75%, #FFF 75%, #FFF), repeating-linear-gradient(45deg, #FFF 25%, transparent 25%, transparent 75%, #FFF 75%, #FFF)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px', pointerEvents: 'none' }} />
 
-        {/* Posizione */}
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 10px' }}>
-          <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec, marginBottom: 6 }}>POSIZIONE</div>
-          <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, lineHeight: 1, color: C.textPri }}>
-            <span style={{ fontSize: 24 }}>#{myRank}</span>
-            <span style={{ fontSize: 12, color: C.textSec }}>/{teams.length}</span>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: C.red, fontWeight: 900, marginBottom: 4 }}>RACE WEEK</div>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 22, fontWeight: 900, color: C.textPri, lineHeight: 1.1 }}>{nextRaceEvent?.location || '?'}</div>
+            <div style={{ fontSize: 12, color: C.textSec, marginTop: 4 }}>{nextRaceEvent?.date}</div>
           </div>
-          {rankDelta !== null && (
-            <div style={{ fontSize: 10, marginTop: 5, color: rankDelta > 0 ? C.green : rankDelta < 0 ? C.red : C.textSec }}>
-              {rankDelta > 0 ? `▲ +${rankDelta}` : rankDelta < 0 ? `▼ ${rankDelta}` : '— stabile'}
-            </div>
-          )}
-        </div>
-
-        {/* Punti */}
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 10px' }}>
-          <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec, marginBottom: 6 }}>PUNTI TOT</div>
-          <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 24, fontWeight: 900, color: C.red, lineHeight: 1 }}>
-            {myScore.toFixed(1)}
-          </div>
-          {lastRaceScore > 0 && (
-            <div style={{ fontSize: 10, marginTop: 5, color: C.green }}>+{lastRaceScore.toFixed(1)} ultima</div>
-          )}
-        </div>
-
-        {/* Prossima gara */}
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 10px' }}>
-          <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec, marginBottom: 6 }}>PROSSIMA</div>
-          {nextRaceEvent ? (
-            <>
-              <div style={{ fontWeight: 700, fontSize: 12, color: C.textPri, lineHeight: 1.3 }}>{nextRaceEvent.location}</div>
-              <div style={{ fontSize: 10, marginTop: 5, color: daysUntil != null && daysUntil <= 3 ? C.amber : C.textSec }}>
-                {daysUntil == null ? '' : daysUntil === 0 ? 'OGGI' : daysUntil < 0 ? 'IN CORSO' : `tra ${daysUntil}g`}
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 10, textTransform: 'uppercase', color: C.textSec, marginBottom: 4 }}>SCHIERAMENTO</div>
+            {daysUntil !== null ? (
+              <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 24, fontWeight: 900, color: daysUntil <= 1 ? C.amber : C.textPri, lineHeight: 1 }}>
+                {daysUntil === 0 ? 'OGGI' : daysUntil < 0 ? 'IN CORSO' : `-${daysUntil}g`}
               </div>
-            </>
-          ) : (
-            <div style={{ fontSize: 12, color: C.textSec }}>Fine stagione</div>
-          )}
+            ) : null}
+          </div>
+        </div>
+
+        <div style={{ position: 'relative', zIndex: 1, marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'rgba(0,0,0,0.4)', borderRadius: 10, border: `1px solid ${lineupConfirmed && !activeRaceInfo?.timeLocked ? C.green + '44' : C.border}` }}>
+          <span style={{ fontSize: 16 }}>{lineupConfirmed ? '✅' : '⚠️'}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: lineupConfirmed ? C.green : C.amber }}>
+            {activeRaceInfo?.timeLocked ? 'Formazione Bloccata (In Gara)' : lineupConfirmed ? 'Formazione inviata e pronta' : 'Formazione da inviare!'}
+          </span>
         </div>
       </div>
 
-      {/* ── SECTION B: Race Readiness ────────────────────────────────────────── */}
-      {nextRaceEvent && (
-        <div style={{
-          background: C.surface,
-          border: `1px solid ${lineupConfirmed ? C.green + '44' : C.amber + '55'}`,
-          borderRadius: 12, padding: 16,
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>
-                FORMAZIONE — {nextRaceEvent.location}
-              </div>
-              <div style={{ fontSize: 11, color: C.textSec, marginTop: 2 }}>{nextRaceEvent.date}</div>
-            </div>
-            <span style={{
-              padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700,
-              background: lineupConfirmed ? C.green + '22' : C.amber + '22',
-              color: lineupConfirmed ? C.green : C.amber,
-              border: `1px solid ${lineupConfirmed ? C.green + '55' : C.amber + '55'}`,
-              flexShrink: 0,
-            }}>
-              {lineupConfirmed ? '✓ CONFERMATA' : '⚠ DA IMPOSTARE'}
-            </span>
-          </div>
+      {/* 2) Card “La tua formazione” */}
+      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>LA TUA FORMAZIONE</div>
+          <button onClick={() => onNavigate?.('squadre')} style={{ background: C.red, color: '#fff', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', cursor: 'pointer' }}>
+            {activeRaceInfo?.timeLocked ? 'Vedi →' : lineupConfirmed ? 'Modifica →' : 'Schiera →'}
+          </button>
+        </div>
 
-          {/* Mini preview */}
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-            {/* Titolari */}
-            {[0, 1, 2].map(i => {
-              const p = lineupPilots[i];
-              return (
-                <div key={i} style={{
-                  padding: '5px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600,
-                  background: p ? C.green + '18' : C.surface2,
-                  color: p ? C.green : C.textSec,
-                  border: `1px solid ${p ? C.green + '44' : C.border}`,
-                  borderStyle: p ? 'solid' : 'dashed',
-                }}>
-                  {p ? p.name : 'SLOT VUOTO'}
-                </div>
-              );
-            })}
-            {/* Panchina: solo se 4 piloti E lineup già confermata */}
-            {myPilots.length === 4 && lineupConfirmed && benchPilots[0] && (
-              <div style={{
-                padding: '5px 10px', borderRadius: 8, fontSize: 11,
-                background: C.surface2, color: C.textSec, border: `1px solid ${C.border}`,
-              }}>
-                🪑 {benchPilots[0].name}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+          {/* Titolari */}
+          {[0, 1, 2].map(i => {
+            const p = lineupPilots[i];
+            return (
+              <div key={i} style={{ background: C.surface2, border: `1px solid ${p ? (F1_TEAM_COLORS[p.team] || '#555') + '55' : C.border}`, borderRadius: 10, padding: '12px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                {p ? (
+                  <>
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: F1_TEAM_COLORS[p.team] || '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#fff', boxShadow: 'inset 0 0 10px rgba(0,0,0,0.2)' }}>
+                      {p.abbreviation}
+                    </div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: C.textPri, textAlign: 'center', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{p.name.split(' ').slice(-1)[0]}</div>
+                  </>
+                ) : (
+                  <div style={{ color: C.textSec, fontSize: 10, textAlign: 'center', marginTop: 10 }}>SLOT<br />VUOTO</div>
+                )}
               </div>
+            );
+          })}
+          {/* Panchinaro */}
+          <div style={{ background: C.surface2, border: `1px dashed ${C.border}`, borderRadius: 10, padding: '12px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, opacity: 0.7 }}>
+            {benchPilots[0] ? (
+              <>
+                <div style={{ width: 34, height: 34, borderRadius: '50%', background: C.surface, border: `2px solid ${F1_TEAM_COLORS[benchPilots[0].team] || '#555'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: C.textSec }}>
+                  {benchPilots[0].abbreviation}
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.textSec, textAlign: 'center', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{benchPilots[0].name.split(' ').slice(-1)[0]}</div>
+                <div style={{ fontSize: 9, background: C.surface, color: C.textSec, padding: '2px 6px', borderRadius: 4, marginTop: -2 }}>SUB</div>
+              </>
+            ) : (
+              <div style={{ color: C.textSec, fontSize: 10, textAlign: 'center', marginTop: 10 }}>NESSUN<br />SUB</div>
             )}
           </div>
-
-          {myPilots.length === 0 ? (
-            <div style={{ fontSize: 12, color: C.textSec }}>Nessun pilota — attendi l&apos;asta!</div>
-          ) : (
-            <button
-              onClick={() => onNavigate?.('squadre')}
-              style={{
-                background: lineupConfirmed ? 'transparent' : C.red,
-                border: `1px solid ${lineupConfirmed ? C.border : C.red}`,
-                borderRadius: 8, color: lineupConfirmed ? C.textSec : '#fff',
-                padding: '8px 16px', cursor: 'pointer', fontSize: 11,
-                fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1,
-              }}
-            >
-              {activeRaceInfo?.timeLocked ? 'Vedi Formazione' : lineupConfirmed ? 'Modifica formazione' : 'SCHIERA ORA →'}
-            </button>
-          )}
         </div>
-      )}
+      </div>
 
-      {/* ── SECTION C: Trend ultime gare ─────────────────────────────────────── */}
-      {trendData.length > 0 && (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 14 }}>
-            TREND ULTIME {trendData.length} GARE
+      {/* 3) Card “Punti” & 4) Leaderboard */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+            <div>
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 2 }}>ULTIMO GP</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.textPri }}>{lastRaceEvent?.location || '—'}</div>
+            </div>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 22, fontWeight: 900, color: C.red, textAlign: 'right', lineHeight: 1 }}>
+              {lastRaceScore.toFixed(1)}
+              <span style={{ fontSize: 10, fontWeight: 400, color: C.textSec, display: 'block' }}>PUNTI TEAM</span>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 68 }}>
-            {trendData.map((d, i) => (
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ fontSize: 9, color: C.textSec }}>{d.pts.toFixed(0)}</div>
-                <div style={{
-                  width: '100%', borderRadius: 4,
-                  background: i === trendData.length - 1 ? C.red : C.surface2,
-                  border: `1px solid ${i === trendData.length - 1 ? C.red : C.border}`,
-                  height: `${Math.max((d.pts / maxTrend) * 46, 4)}px`,
-                  transition: 'height 0.3s ease',
-                }} />
-                <div style={{ fontSize: 9, color: C.textSec, textTransform: 'uppercase', textAlign: 'center' }}>{d.label}</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {lastRaceMyBreakdown.map((r, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, background: C.surface2, padding: '8px 12px', borderRadius: 10 }}>
+                <div style={{ width: 3, height: 26, background: F1_TEAM_COLORS[r.pilot?.team] || '#555', borderRadius: 2 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.textPri }}>{r.pilot?.abbreviation} <span style={{ color: C.textSec, fontWeight: 500, fontSize: 11 }}>{r.pilot?.name.split(' ').slice(-1)[0]}</span></div>
+                  <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
+                    {r.subbedIn && <span style={{ fontSize: 9, padding: '2px 6px', background: C.amber + '22', color: C.amber, borderRadius: 10, fontWeight: 700 }}>SUB IN ⇡</span>}
+                    {r.dnf && !r.subbedIn && <span style={{ fontSize: 9, padding: '2px 6px', background: C.red + '22', color: C.red, borderRadius: 10, fontWeight: 700 }}>DNF</span>}
+                    {!r.dnf && <span style={{ fontSize: 9, padding: '2px 6px', background: C.surface, color: C.textSec, borderRadius: 10 }}>P{r.position}</span>}
+                    {r.overtakes > 0 && <span style={{ fontSize: 9, padding: '2px 6px', background: C.surface, color: C.textSec, borderRadius: 10 }}>OVT +{r.overtakes}</span>}
+                    {r.dotdRank && <span style={{ fontSize: 9, padding: '2px 6px', background: '#FFD70022', color: '#FFD700', borderRadius: 10, fontWeight: 700 }}>DOTD</span>}
+                  </div>
+                </div>
+                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 15, fontWeight: 900, color: C.green }}>
+                  +{r.pts.total.toFixed(1)}
+                </div>
+              </div>
+            ))}
+            {lastRaceMyBreakdown.length === 0 && (
+              <div style={{ fontSize: 11, color: C.textSec, textAlign: 'center', padding: '10px 0' }}>Nessun dato per l'ultima corsa.</div>
+            )}
+          </div>
+        </div>
+
+        {/* CLASSIFICA COMPATTA */}
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>CLASSIFICA</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {top3Teams.map(t => (
+              <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: t.id === currentUser?.id ? C.surface2 : 'transparent', border: t.id === currentUser?.id ? `1px solid ${C.red}44` : 'none', padding: '6px 8px', borderRadius: 8 }}>
+                <div style={{ width: 18, fontSize: 12, fontWeight: 900, color: t.rank === 1 ? MEDALS[0] : t.rank === 2 ? MEDALS[1] : MEDALS[2], textAlign: 'center' }}>{t.rank}</div>
+                <div style={{ flex: 1, fontSize: 12, fontWeight: t.id === currentUser?.id ? 700 : 500, color: t.id === currentUser?.id ? C.textPri : C.textSec }}>{t.name}</div>
+                <div style={{ fontSize: 12, fontFamily: "'Orbitron', monospace", fontWeight: 700, color: C.textPri }}>{t.score.toFixed(1)}</div>
+              </div>
+            ))}
+            {myRank > 3 && (
+              <>
+                <div style={{ textAlign: 'center', color: C.textSec, fontSize: 10, margin: '2px 0' }}>•••</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: C.surface2, border: `1px solid ${C.red}44`, padding: '6px 8px', borderRadius: 8 }}>
+                  <div style={{ width: 18, fontSize: 12, fontWeight: 900, color: C.textSec, textAlign: 'center' }}>{myRank}</div>
+                  <div style={{ flex: 1, fontSize: 12, fontWeight: 700, color: C.textPri }}>TU ({currentUser?.name})</div>
+                  <div style={{ fontSize: 12, fontFamily: "'Orbitron', monospace", fontWeight: 700, color: C.textPri }}>{myScore.toFixed(1)}</div>
+                  <div style={{ fontSize: 10, color: C.textSec }}>(-{(top3Teams[0]?.score - myScore).toFixed(1)})</div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 5) Wallet + mercato e 6) Timeline */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        {/* Wallet */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <span style={{ fontSize: 14 }}>💰</span>
+              <span style={{ fontSize: 10, textTransform: 'uppercase', color: C.textSec, fontWeight: 700 }}>Budget</span>
+            </div>
+            <div style={{ fontSize: 20, fontFamily: "'Orbitron', monospace", fontWeight: 900, color: '#FFD700' }}>{currentUser?.budget} M</div>
+          </div>
+          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <span style={{ fontSize: 14 }}>🔄</span>
+              <span style={{ fontSize: 10, textTransform: 'uppercase', color: C.textSec, fontWeight: 700 }}>Switch</span>
+            </div>
+            <div style={{ fontSize: 20, fontFamily: "'Orbitron', monospace", fontWeight: 900, color: C.textPri }}>
+              {MAX_SWITCHES - (currentUser?.switchesUsed || 0)}<span style={{ fontSize: 12, color: C.textSec }}>/5</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Timeline */}
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: '14px 14px 14px 20px' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: C.textSec, marginBottom: 14 }}>PROSSIMI EVENTI</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative' }}>
+            <div style={{ position: 'absolute', left: 4, top: 6, bottom: 6, width: 2, background: C.border }} />
+            {nextEvents.map((ev, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 1 }}>
+                <div style={{ width: 10, height: 10, borderRadius: ev.type === 'auction' ? 2 : '50%', background: ev.type === 'auction' ? C.amber : C.red, border: `2px solid ${C.surface}` }} />
+                <div style={{ transform: 'translateY(-2px)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: ev.type === 'auction' ? C.amber : C.textPri, lineHeight: 1.1 }}>{ev.location}</div>
+                  <div style={{ fontSize: 10, color: C.textSec, marginTop: 3 }}>{ev.date}</div>
+                </div>
               </div>
             ))}
           </div>
         </div>
-      )}
+      </div>
 
-      {/* ── SECTION D: Ultima gara recap ──────────────────────────────────────── */}
-      {lastRace && lastRaceEvent && (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-            <div>
-              <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec, marginBottom: 4 }}>ULTIMA GARA</div>
-              <div style={{ fontWeight: 700, fontSize: 15, color: C.textPri }}>🏁 {lastRaceEvent.location}</div>
-              <div style={{ fontSize: 11, color: C.textSec, marginTop: 2 }}>{lastRaceEvent.date}</div>
-            </div>
-            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 28, fontWeight: 900, color: C.red }}>
-              {lastRaceScore.toFixed(1)}
-              <span style={{ fontSize: 11, fontWeight: 400, color: C.textSec, display: 'block', textAlign: 'right' }}>punti</span>
-            </div>
+      {/* 7) Notifiche intelligenti */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {daysUntil !== null && daysUntil <= 1 && !activeRaceInfo?.timeLocked && (
+          <div style={{ background: C.amber + '15', border: `1px solid ${C.amber}44`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.amber, fontSize: 12, fontWeight: 600 }}>
+            <span style={{ fontSize: 16 }}>⏱️</span>
+            <div>Mancano poche ore alla chiusura schieramento!</div>
           </div>
-
-          {lastTopDriver && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: C.surface2, borderRadius: 8 }}>
-              <div style={{ fontSize: 11, color: C.textSec }}>TOP DRIVER</div>
-              <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri }}>{lastTopDriver.pilot?.name}</div>
-              <div style={{ marginLeft: 'auto', display: 'flex', gap: 5, alignItems: 'center' }}>
-                {lastTopDriver.fastestLap && (
-                  <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 10, background: '#9B59B622', color: '#B87AF7', border: '1px solid #9B59B644' }}>FL</span>
-                )}
-                {lastTopDriver.dotdRank === 1 && (
-                  <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 10, background: '#FFD70022', color: '#FFD700', border: '1px solid #FFD70044' }}>DOTD</span>
-                )}
-                {lastTopDriver.dnf && (
-                  <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 10, background: C.red + '22', color: C.red, border: `1px solid ${C.red}44` }}>DNF</span>
-                )}
-                <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>{lastTopDriver.pts.toFixed(1)} pts</span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── CLASSIFICA GENERALE ───────────────────────────────────────────────── */}
-      <div>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec, marginBottom: 10 }}>
-          CLASSIFICA GENERALE
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {teams.map((t, i) => {
-            const isMe = t.id === currentUser?.id;
+        )}
+        {nextAuction && (() => {
+          const aucD = parseDate(nextAuction.date);
+          const diff = Math.ceil((aucD - SIMULATED_TODAY.getTime()) / 86400000);
+          if (diff <= 3 && diff >= 0) {
             return (
-              <div key={t.id} style={{
-                background: isMe
-                  ? `linear-gradient(135deg, rgba(225,6,0,0.18), rgba(225,6,0,0.06))`
-                  : C.surface,
-                border: `1px solid ${isMe ? C.red + '66' : i < 3 ? MEDALS[i] + '44' : C.border}`,
-                borderRadius: 10, padding: '11px 14px',
-                display: 'flex', alignItems: 'center', gap: 12,
-              }}>
-                <div style={{
-                  width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-                  background: i < 3 ? MEDALS[i] : C.surface2,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: "'Orbitron', monospace", fontWeight: 900, fontSize: 13,
-                  color: i < 3 ? '#000' : C.textSec,
-                }}>
-                  {i + 1}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {t.name}
-                    {isMe && <span style={{ fontSize: 9, color: C.red, marginLeft: 6 }}>← TU</span>}
-                  </div>
-                  <div style={{ fontSize: 11, color: C.textSec }}>{t.owner}</div>
-                </div>
-                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 19, fontWeight: 900, color: i === 0 ? C.red : C.textPri, flexShrink: 0 }}>
-                  {(scores[t.id] || 0).toFixed(1)}
-                </div>
+              <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.textPri, fontSize: 12, fontWeight: 600 }}>
+                <span style={{ fontSize: 16 }}>💰</span>
+                <div>Asta {diff === 0 ? 'OGGI' : `tra ${diff} giorni`}: prepara il budget!</div>
               </div>
             );
-          })}
-        </div>
-        {races.length === 0 && (
-          <div style={{ textAlign: 'center', padding: 40, color: C.textSec, fontSize: 13 }}>
-            Nessuna gara disputata. Inserisci i risultati dal pannello Admin.
+          }
+          return null;
+        })()}
+        {(MAX_SWITCHES - (currentUser?.switchesUsed || 0)) <= 1 && (
+          <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.textSec, fontSize: 12, fontWeight: 600 }}>
+            <span style={{ fontSize: 16 }}>⚠️</span>
+            <div>Attenzione: ti restano pochissimi Switch stagionali.</div>
           </div>
         )}
       </div>

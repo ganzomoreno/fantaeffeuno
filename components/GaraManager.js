@@ -208,8 +208,8 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                               <div style={{ width: 3, height: 20, borderRadius: 1, background: F1_TEAM_COLORS[pilot?.team] || '#555', flexShrink: 0 }} />
                               <div>
-                                <div style={{ fontSize: 13, fontWeight: 600, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                  {pilot?.name ? `${pilot.name} [${pilot.abbreviation}]` : '?'}
+                                <div style={{ fontSize: 13, fontWeight: 600, color: result?.dnf ? '#555' : C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {pilot?.abbreviation || pilot?.name?.substring(0, 3).toUpperCase() || '?'}
                                 </div>
                                 <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
                                   {result?.dnf && <span style={{ fontSize: 9, color: C.red, fontWeight: 700 }}>DNF</span>}
@@ -219,37 +219,37 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                             </div>
 
                             {/* START POS */}
-                            <div style={{ textAlign: 'center', fontSize: 13, color: C.textSec }}>
+                            <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textSec }}>
                               {result?.gridPosition ? `P${result.gridPosition}` : '—'}
                             </div>
 
                             {/* FINISH POS */}
-                            <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? C.red : C.textPri, fontWeight: 700 }}>
+                            <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textPri, fontWeight: 700 }}>
                               {result?.dnf ? '—' : result?.position ? `P${result.position}` : '—'}
                             </div>
 
                             {/* PT POS */}
-                            <div style={{ textAlign: 'center', fontSize: 13, color: C.textPri }}>
+                            <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textPri }}>
                               {pts.base > 0 ? `+${pts.base}` : '—'}
                             </div>
 
                             {/* OVT COUNT */}
-                            <div style={{ textAlign: 'center', fontSize: 13, color: result?.overtakes > 0 ? C.textSec : C.textSec }}>
+                            <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (result?.overtakes > 0 ? C.textSec : C.textSec) }}>
                               {result?.overtakes || '—'}
                             </div>
 
                             {/* PT OVT */}
-                            <div style={{ textAlign: 'center', fontSize: 13, color: pts.overtakes > 0 ? C.green : C.textSec }}>
+                            <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (pts.overtakes > 0 ? C.green : C.textSec) }}>
                               {pts.overtakes > 0 ? `+${pts.overtakes}` : '—'}
                             </div>
 
                             {/* DOTD ROW */}
-                            <div style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, color: result?.dotdRank ? '#FFD700' : C.textSec }}>
+                            <div style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, color: result?.dnf ? '#555' : (result?.dotdRank ? '#FFD700' : C.textSec) }}>
                               {result?.dotdRank ? `#${result.dotdRank}` : '—'}
                             </div>
 
                             {/* PT DOTD */}
-                            <div style={{ textAlign: 'center', fontSize: 13, color: pts.dotd > 0 ? '#FFD700' : C.textSec }}>
+                            <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (pts.dotd > 0 ? '#FFD700' : C.textSec) }}>
                               {pts.dotd > 0 ? `+${pts.dotd}` : '—'}
                             </div>
 
@@ -259,9 +259,21 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                             </div>
                           </div>
                         ))}
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
-                          <span style={{ fontSize: 11, color: C.textSec, marginRight: 12 }}>TOTALE GARA</span>
-                          <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, color: C.red }}>{score.toFixed(1)}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 10, background: C.surface2, color: C.textSec, border: `1px solid ${C.border}` }}>
+                              Switches: {t.switchesUsed || 0}/5
+                            </span>
+                            {dnfCount > 0 && teamReserve && (
+                              <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 10, background: C.amber + '22', color: C.amber, border: `1px solid ${C.amber}44` }}>
+                                1 Switch Usato per DNF
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <span style={{ fontSize: 11, color: C.textSec, marginRight: 12 }}>TOTALE GARA</span>
+                            <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, color: C.red }}>{score.toFixed(1)}</span>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -301,7 +313,7 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                 <div style={{ width: 4, height: 30, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri }}>
-                    {entry.pilotName} [{pilots.find(p => p.id === entry.pilotId)?.abbreviation}]
+                    {pilots.find(p => p.id === entry.pilotId)?.abbreviation || entry.pilotName?.substring(0, 3).toUpperCase() || '?'}
                     {isMyPilot && <span style={{ fontSize: 9, color: C.green, marginLeft: 6 }}>★ MIO</span>}
                   </div>
                   <div style={{ fontSize: 10, color: C.textSec }}>
