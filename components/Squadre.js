@@ -4,37 +4,45 @@ import { useState, useMemo } from 'react';
 import { MAX_SWITCHES, F1_TEAM_COLORS } from '@/lib/data';
 
 const C = {
-  surface:  '#14151C',
+  surface: '#14151C',
   surface2: '#1A1B24',
-  border:   '#2A2D3A',
-  textPri:  '#EDEEF3',
-  textSec:  '#A9ABBA',
-  red:      '#E10600',
-  green:    '#00FF41',
-  amber:    '#FFB700',
+  border: '#2A2D3A',
+  textPri: '#EDEEF3',
+  textSec: '#A9ABBA',
+  red: '#E10600',
+  green: '#00FF41',
+  amber: '#FFB700',
 };
 
-export default function Squadre({ teams, pilots, scores, currentUser, lineups, calendar, races, onTogglePilot }) {
+export default function Squadre({ teams, pilots, scores, currentUser, lineups, dbLineups, calendar, races, onTogglePilot, onSaveLineup }) {
   const [expandedTeam, setExpandedTeam] = useState(null);
 
   // Determine next race
   const completedSet = useMemo(() => new Set(races.map(r => r.calendarIndex)), [races]);
-  const nextRaceIdx  = useMemo(
+  const nextRaceIdx = useMemo(
     () => calendar.findIndex((ev, i) => ev.type === 'race' && !completedSet.has(i)),
     [calendar, completedSet]
   );
   const nextRaceEvent = nextRaceIdx >= 0 ? calendar[nextRaceIdx] : null;
 
   // My team data
-  const myTeam   = useMemo(() => teams.find(t => t.id === currentUser?.id), [teams, currentUser]);
+  const myTeam = useMemo(() => teams.find(t => t.id === currentUser?.id), [teams, currentUser]);
   const myPilots = useMemo(() => pilots.filter(p => p.owner === currentUser?.id), [pilots, currentUser]);
   const myLineup = nextRaceIdx >= 0 ? (lineups[`race_${nextRaceIdx}`] || {})[currentUser?.id] || [] : [];
+  const myDbLineup = nextRaceIdx >= 0 ? (dbLineups[`race_${nextRaceIdx}`] || {})[currentUser?.id] || [] : [];
+
   const lineupConfirmed = myLineup.length === 3;
-  const isLocked = nextRaceIdx >= 0 && completedSet.has(nextRaceIdx);
+  const isDBConfirmed = myDbLineup.length === 3;
+  const isLocked = (nextRaceIdx >= 0 && completedSet.has(nextRaceIdx)) || isDBConfirmed;
 
   const handleToggle = (pilotId) => {
     if (isLocked || nextRaceIdx < 0) return;
     onTogglePilot?.(nextRaceIdx, currentUser.id, pilotId);
+  };
+
+  const handleSave = () => {
+    if (isLocked || !lineupConfirmed) return;
+    onSaveLineup?.(nextRaceIdx, currentUser.id);
   };
 
   // Other teams (for the secondary list)
@@ -83,9 +91,9 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, c
 
         {/* 3 titolare slots */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
-          {[0,1,2].map(i => {
+          {[0, 1, 2].map(i => {
             const pilotId = myLineup[i];
-            const pilot   = pilotId ? pilots.find(p => p.id === pilotId) : null;
+            const pilot = pilotId ? pilots.find(p => p.id === pilotId) : null;
             return (
               <div key={i} style={{
                 borderRadius: 10, padding: '10px 8px', textAlign: 'center',
@@ -95,7 +103,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, c
                 minHeight: 64,
               }}>
                 <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 6 }}>
-                  TITOLARE {i+1}
+                  TITOLARE {i + 1}
                 </div>
                 {pilot ? (
                   <>
@@ -137,7 +145,26 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, c
           ⚡ 3 titolari obbligatori · DNF → entra panchina · Mancato schieramento = −5 punti
         </div>
 
-        {isLocked && (
+        {lineupConfirmed && !isDBConfirmed && !isLocked && (
+          <button
+            onClick={handleSave}
+            style={{
+              width: '100%', padding: '12px', background: C.green, borderRadius: 8,
+              border: 'none', color: '#000', fontWeight: 900, cursor: 'pointer',
+              fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12
+            }}
+          >
+            SALVA E CONFERMA FORMAZIONE
+          </button>
+        )}
+
+        {isDBConfirmed && (
+          <div style={{ textAlign: 'center', padding: '10px', background: C.green + '15', borderRadius: 8, border: `1px solid ${C.green}33`, fontSize: 12, color: C.green }}>
+            ✓ Formazione salvata e confermata per questa gara.
+          </div>
+        )}
+
+        {isLocked && !isDBConfirmed && (
           <div style={{ textAlign: 'center', padding: '10px', background: C.red + '15', borderRadius: 8, border: `1px solid ${C.red}33`, fontSize: 12, color: C.red }}>
             🔒 Formazione bloccata — gara completata
           </div>
@@ -158,8 +185,8 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, c
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {myPilots.map(p => {
               const inLineup = myLineup.includes(p.id);
-              const isBench  = myPilots.length === 4 && !inLineup && myLineup.length === 3;
-              const canAdd   = !inLineup && myLineup.length < 3 && !isLocked && nextRaceIdx >= 0;
+              const isBench = myPilots.length === 4 && !inLineup && myLineup.length === 3;
+              const canAdd = !inLineup && myLineup.length < 3 && !isLocked && nextRaceIdx >= 0;
               const canRemove = inLineup && !isLocked && nextRaceIdx >= 0;
               const teamColor = F1_TEAM_COLORS[p.team] || '#555';
 
@@ -177,7 +204,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, c
                     transition: 'all 0.15s',
                   }}
                 >
-                  <div style={{ width: 4, height: 36, borderRadius: 2, background: teamColor, flexShrink: 0 }}/>
+                  <div style={{ width: 4, height: 36, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri }}>{p.name}</div>
                     <div style={{ fontSize: 11, color: C.textSec }}>{p.team} · {p.price}M</div>
@@ -214,7 +241,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, c
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {otherTeams.map(t => {
             const tPilots = pilots.filter(p => p.owner === t.id);
-            const open    = expandedTeam === t.id;
+            const open = expandedTeam === t.id;
             return (
               <div key={t.id} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden' }}>
                 <div
@@ -246,7 +273,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, c
                       <p style={{ color: C.textSec, fontSize: 12, margin: '10px 0' }}>Nessun pilota assegnato</p>
                     ) : tPilots.map(p => (
                       <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${C.surface2}` }}>
-                        <div style={{ width: 4, height: 26, borderRadius: 2, background: F1_TEAM_COLORS[p.team] || '#555', flexShrink: 0 }}/>
+                        <div style={{ width: 4, height: 26, borderRadius: 2, background: F1_TEAM_COLORS[p.team] || '#555', flexShrink: 0 }} />
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 600, fontSize: 12, color: C.textPri }}>{p.name}</div>
                           <div style={{ fontSize: 10, color: C.textSec }}>{p.team} · {p.price}M</div>

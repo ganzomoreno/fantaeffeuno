@@ -23,11 +23,31 @@ async function simulate() {
 
     const { data: pilotsWithOwners } = await supabase.from('v_pilots_with_owners').select('*');
 
-    console.log('1. Inserting lineups (all 3 drivers starting for each team)...');
+    console.log('1. Inserting lineups (3 starters, 1 reserve for each team)...');
     await supabase.from('lineups').delete().eq('race_id', race.id);
-    const lineupsToInsert = pilotsWithOwners.filter(p => p.owner_team_id).map(p => ({
-        race_id: race.id, team_id: p.owner_team_id, pilot_id: p.id, is_reserve: false
-    }));
+
+    // Group pilots by team, sort by price (desc), first 3 are starters, 4th is reserve
+    const teamPilots = {};
+    for (const p of pilotsWithOwners) {
+        if (!p.owner_team_id) continue;
+        if (!teamPilots[p.owner_team_id]) teamPilots[p.owner_team_id] = [];
+        teamPilots[p.owner_team_id].push(p);
+    }
+
+    const lineupsToInsert = [];
+    for (const teamId in teamPilots) {
+        let pilots = teamPilots[teamId];
+        pilots.sort((a, b) => b.purchase_price - a.purchase_price);
+        pilots.forEach((p, index) => {
+            lineupsToInsert.push({
+                race_id: race.id,
+                team_id: teamId,
+                pilot_id: p.id,
+                is_reserve: index >= 3 // true for 4th pilot
+            });
+        });
+    }
+
     if (lineupsToInsert.length > 0) await supabase.from('lineups').insert(lineupsToInsert);
 
     // Result simulation with 22 drivers.

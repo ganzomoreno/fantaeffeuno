@@ -23,6 +23,7 @@ export default function FantaF1() {
   const [pilots, setPilots] = useState([]);
   const [races, setRaces] = useState([]);
   const [lineups, setLineups] = useState({});
+  const [dbLineups, setDbLineups] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -31,7 +32,7 @@ export default function FantaF1() {
       const [t, p, r, l] = await Promise.all([
         db.fetchTeams(), db.fetchPilots(), db.fetchRaces(), db.fetchLineups(),
       ]);
-      setTeams(t); setPilots(p); setRaces(r); setLineups(l); setError(null);
+      setTeams(t); setPilots(p); setRaces(r); setLineups(JSON.parse(JSON.stringify(l))); setDbLineups(JSON.parse(JSON.stringify(l))); setError(null);
     } catch (e) {
       console.error('Errore caricamento dati:', e);
       setError(e.message);
@@ -49,7 +50,7 @@ export default function FantaF1() {
     [teams, teamScores]
   );
 
-  const handleTogglePilot = useCallback(async (calendarIndex, teamId, pilotId) => {
+  const handleTogglePilot = useCallback((calendarIndex, teamId, pilotId) => {
     const rKey = `race_${calendarIndex}`;
     const raceLineups = { ...(lineups[rKey] || {}) };
     let tLineup = [...(raceLineups[teamId] || [])];
@@ -60,12 +61,28 @@ export default function FantaF1() {
     }
     raceLineups[teamId] = tLineup;
     setLineups(prev => ({ ...prev, [rKey]: raceLineups }));
-    db.saveLineup(calendarIndex, teamId, tLineup).catch(err => console.error(err));
   }, [lineups]);
+
+  const handleSaveLineup = useCallback(async (calendarIndex, teamId) => {
+    const rKey = `race_${calendarIndex}`;
+    const tLineup = (lineups[rKey] || {})[teamId] || [];
+    if (tLineup.length !== 3) return;
+
+    const myPilots = pilots.filter(p => p.owner === teamId);
+    const benchPilot = myPilots.find(p => !tLineup.includes(p.id));
+
+    await db.saveLineup(calendarIndex, teamId, tLineup, benchPilot?.id);
+
+    setDbLineups(prev => {
+      const raceLineups = { ...(prev[rKey] || {}) };
+      raceLineups[teamId] = tLineup;
+      return { ...prev, [rKey]: raceLineups };
+    });
+  }, [lineups, pilots]);
 
   // Se currentUser è stale (UUID non corrisponde a nessun team DB) → forza re-login
   const currentTeam = currentUser ? teams.find(t => t.id === currentUser.id) : null;
-  const handleLogin  = (team) => setCurrentUser(team);
+  const handleLogin = (team) => setCurrentUser(team);
   const handleLogout = () => { setCurrentUser(null); setShowAdmin(false); };
 
   if (loading) {
@@ -90,10 +107,10 @@ export default function FantaF1() {
   if (!currentUser || !currentTeam) return <LoginPage teams={teams} onLogin={handleLogin} />;
 
   const nav = [
-    { id: "classifica", label: "Home",       icon: "trophy"    },
-    { id: "squadre",    label: "Scuderia",   icon: "users"     },
-    { id: "calendario", label: "Calendario", icon: "calendar"  },
-    { id: "gara",       label: "Gara",       icon: "flag"      },
+    { id: "classifica", label: "Home", icon: "trophy" },
+    { id: "squadre", label: "Scuderia", icon: "users" },
+    { id: "calendario", label: "Calendario", icon: "calendar" },
+    { id: "gara", label: "Gara", icon: "flag" },
   ];
 
   return (
@@ -119,7 +136,7 @@ export default function FantaF1() {
           position: "absolute", top: 0, right: 0, width: 220, height: "100%",
           background: "repeating-linear-gradient(90deg, transparent, transparent 14px, rgba(255,255,255,0.04) 14px, rgba(255,255,255,0.04) 16px)",
           pointerEvents: "none",
-        }}/>
+        }} />
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           {/* Logo */}
@@ -163,7 +180,7 @@ export default function FantaF1() {
                   borderRadius: 100, color: "#fff", padding: "5px 12px", cursor: "pointer",
                   fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 5,
                 }}>
-                  <Icon type="settings" size={13}/> Admin
+                  <Icon type="settings" size={13} /> Admin
                 </button>
               </div>
             )}
@@ -182,13 +199,14 @@ export default function FantaF1() {
         )}
         {page === "squadre" && (
           <Squadre
-            teams={teams} pilots={pilots} scores={teamScores}
-            currentUser={currentTeam} lineups={lineups}
+            teams={sortedTeams} pilots={pilots} scores={teamScores}
+            currentUser={currentTeam} lineups={lineups} dbLineups={dbLineups}
             calendar={CALENDAR} races={races}
             onTogglePilot={handleTogglePilot}
+            onSaveLineup={handleSaveLineup}
           />
         )}
-        {page === "calendario" && <Calendario calendar={CALENDAR} races={races}/>}
+        {page === "calendario" && <Calendario calendar={CALENDAR} races={races} />}
         {page === "gara" && (
           <GaraManager
             races={races} pilots={pilots} teams={teams}
@@ -237,7 +255,7 @@ export default function FantaF1() {
                 whiteSpace: "nowrap",
               }}
             >
-              <Icon type={n.icon} size={active ? 17 : 16}/>
+              <Icon type={n.icon} size={active ? 17 : 16} />
               {n.label}
             </button>
           );
@@ -246,7 +264,7 @@ export default function FantaF1() {
 
       {/* ── ADMIN PANEL ─────────────────────────────────────────────────────── */}
       {showAdmin && (
-        <AdminPanel teams={teams} pilots={pilots} races={races} lineups={lineups} onRefresh={refresh} onClose={() => setShowAdmin(false)}/>
+        <AdminPanel teams={teams} pilots={pilots} races={races} lineups={lineups} onRefresh={refresh} onClose={() => setShowAdmin(false)} />
       )}
     </div>
   );
