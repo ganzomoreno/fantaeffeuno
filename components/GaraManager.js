@@ -17,7 +17,7 @@ const C = {
 
 const MEDALS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
-export default function GaraManager({ races, pilots, teams, lineups, calendar, currentUser }) {
+export default function GaraManager({ races, pilots, teams, lineups, reserves, calendar, currentUser }) {
   const [selectedRaceIdx, setSelectedRaceIdx] = useState(() => races.length > 0 ? races.length - 1 : 0);
   const [view, setView] = useState('squadre'); // 'squadre' | 'piloti'
   const [expandedTeam, setExpandedTeam] = useState(null);
@@ -29,17 +29,17 @@ export default function GaraManager({ races, pilots, teams, lineups, calendar, c
   const raceLeaderboard = useMemo(() => {
     if (!selectedRace) return [];
     return teams
-      .map(t => ({ team: t, score: calculateRaceTeamScore(selectedRace, lineups, pilots, t.id) }))
+      .map(t => ({ team: t, score: calculateRaceTeamScore(selectedRace, lineups, reserves, pilots, t.id) }))
       .sort((a, b) => b.score - a.score);
-  }, [selectedRace, teams, lineups, pilots]);
+  }, [selectedRace, teams, lineups, reserves, pilots]);
 
   // Total scores for delta column
   const totalScores = useMemo(() => {
     const s = {};
     teams.forEach(t => { s[t.id] = 0; });
-    races.forEach(r => { teams.forEach(t => { s[t.id] += calculateRaceTeamScore(r, lineups, pilots, t.id); }); });
+    races.forEach(r => { teams.forEach(t => { s[t.id] += calculateRaceTeamScore(r, lineups, reserves, pilots, t.id); }); });
     return s;
-  }, [races, teams, lineups, pilots]);
+  }, [races, teams, lineups, reserves, pilots]);
 
   // Pilot leaderboard for selected race
   const pilotLeaderboard = useMemo(() => {
