@@ -17,12 +17,55 @@ const C = {
 export default function Squadre({ teams, pilots, scores, currentUser, lineups, dbLineups, calendar, races, onTogglePilot, onSaveLineup }) {
   const [expandedTeam, setExpandedTeam] = useState(null);
 
-  // Determine next race
-  const completedSet = useMemo(() => new Set(races.map(r => r.calendarIndex)), [races]);
-  const nextRaceIdx = useMemo(
-    () => calendar.findIndex((ev, i) => ev.type === 'race' && !completedSet.has(i)),
-    [calendar, completedSet]
-  );
+  // Helper to parse DD/MM/YYYY to a standard Date object
+  const parseDate = (ddmmyyyy) => {
+    const [d, m, y] = ddmmyyyy.split('/');
+    return new Date(`${y}-${m}-${d}T15:00:00Z`);
+  };
+
+  // ⏱ SIMULATED DATE MANAGER (as requested by user: 2 days after Australia)
+  // Australia was 08/03/2026 -> Simulated today is 10/03/2026
+  const SIMULATED_TODAY = new Date('2026-03-10T12:00:00Z');
+
+  // Determine active race based on strict timeline rules
+  const activeRaceInfo = useMemo(() => {
+    let activeIdx = -1;
+    let timeLocked = false;
+
+    for (let i = 0; i < calendar.length; i++) {
+      const ev = calendar[i];
+      if (ev.type !== 'race') continue;
+
+      const raceDate = parseDate(ev.date);
+
+      // Deadline is 23:59:59 of the day BEFORE the race
+      const deadline = new Date(raceDate);
+      deadline.setUTCDate(deadline.getUTCDate() - 1);
+      deadline.setUTCHours(23, 59, 59, 999);
+
+      if (SIMULATED_TODAY <= deadline) {
+        // Window is successfully open
+        activeIdx = i;
+        timeLocked = false;
+        break;
+      } else {
+        // Reopen window is day AFTER the race
+        const reopenDate = new Date(raceDate);
+        reopenDate.setUTCDate(reopenDate.getUTCDate() + 1);
+        reopenDate.setUTCHours(0, 0, 0, 0);
+
+        if (SIMULATED_TODAY < reopenDate) {
+          // We are in the "frozen" window (past deadline, race weekend ongoing)
+          activeIdx = i;
+          timeLocked = true;
+          break;
+        }
+      }
+    }
+    return { activeIdx, timeLocked };
+  }, [calendar]);
+
+  const nextRaceIdx = activeRaceInfo.activeIdx;
   const nextRaceEvent = nextRaceIdx >= 0 ? calendar[nextRaceIdx] : null;
 
   // My team data
@@ -33,7 +76,10 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
 
   const lineupConfirmed = myLineup.length === 3;
   const isDBConfirmed = myDbLineup.length === 3;
-  const isLocked = (nextRaceIdx >= 0 && completedSet.has(nextRaceIdx)) || isDBConfirmed;
+
+  // The UI is locked if either the timeframe is frozen (timeLocked), 
+  // or if the user has already confirmed their lineup in the DB (isDBConfirmed).
+  const isLocked = activeRaceInfo.timeLocked || isDBConfirmed;
 
   const handleToggle = (pilotId) => {
     if (isLocked || nextRaceIdx < 0) return;
@@ -166,7 +212,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
 
         {isLocked && !isDBConfirmed && (
           <div style={{ textAlign: 'center', padding: '10px', background: C.red + '15', borderRadius: 8, border: `1px solid ${C.red}33`, fontSize: 12, color: C.red }}>
-            🔒 Formazione bloccata — gara completata
+            🔒 Tempo scaduto — formazione bloccata per questa gara
           </div>
         )}
       </div>

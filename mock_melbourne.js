@@ -71,7 +71,7 @@ async function simulate() {
         { name: 'Liam Lawson', grid: 18, pos: 14, dotd: null, dnf: false }, // 7 + 2 = 9
         { name: 'Oliver Bearman', grid: 15, pos: 15, dotd: null, dnf: false }, // 6
         { name: 'Valtteri Bottas', grid: 19, pos: 16, dotd: null, dnf: false }, // 5 + 1.5 = 6.5
-        { name: 'Arvid Lindblad', grid: 17, pos: 17, dotd: null, dnf: false }, // 4
+        { name: 'Arvid Lindblad', grid: 17, pos: null, dotd: null, dnf: true }, // DNF, triggers Alonso sub
         { name: 'Isack Hadjar', grid: 20, pos: 18, dotd: null, dnf: false }, // 3 + 1 = 4
         { name: 'Franco Colapinto', grid: 19, pos: 19, dotd: null, dnf: false }, // 2
         { name: 'Lance Stroll', grid: 22, pos: 20, dotd: null, dnf: false }, // 1 + 1 = 2
