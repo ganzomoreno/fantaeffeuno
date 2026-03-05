@@ -11,6 +11,7 @@ import Squadre from './Squadre';
 import Calendario from './Calendario';
 import GaraManager from './GaraManager';
 import Risultati from './Risultati';
+import Aste from './Aste';
 import AdminPanel from './AdminPanel';
 import LoginPage from './LoginPage';
 
@@ -126,6 +127,7 @@ export default function FantaF1() {
     { id: "calendario", label: "Calendario", icon: "calendar" },
     { id: "gara", label: "Gara", icon: "flag" },
     { id: "risultati", label: "Risultati", icon: "activity" },
+    { id: "aste", label: "Aste", icon: "hammer" },
   ];
 
   return (
@@ -236,6 +238,7 @@ export default function FantaF1() {
             scores={teamScores} lineups={dbLineups} reserves={dbReserves}
           />
         )}
+        {page === "aste" && <Aste calendar={CALENDAR} />}
       </main>
 
       {/* ── FLOATING BOTTOM NAV ─────────────────────────────────────────────── */}

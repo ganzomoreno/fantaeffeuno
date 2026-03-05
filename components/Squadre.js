@@ -23,9 +23,9 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
     return new Date(`${y}-${m}-${d}T15:00:00Z`);
   };
 
-  // ⏱ SIMULATED DATE MANAGER (as requested by user: 2 days after Australia)
-  // Australia was 08/03/2026 -> Simulated today is 10/03/2026
-  const SIMULATED_TODAY = new Date('2026-03-10T12:00:00Z');
+  // ⏱ SIMULATED DATE MANAGER (as requested by user: 2 days after Race 5)
+  // Arabia Saudita was 19/04/2026 -> Simulated today is 21/04/2026
+  const SIMULATED_TODAY = new Date('2026-04-21T12:00:00Z');
 
   // Determine active race based on strict timeline rules
   const activeRaceInfo = useMemo(() => {
@@ -77,9 +77,9 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
   const lineupConfirmed = myLineup.length === 3;
   const isDBConfirmed = myDbLineup.length === 3;
 
-  // The UI is locked if either the timeframe is frozen (timeLocked), 
-  // or if the user has already confirmed their lineup in the DB (isDBConfirmed).
-  const isLocked = activeRaceInfo.timeLocked || isDBConfirmed;
+  // The UI is locked ONLY if the timeframe is frozen (timeLocked: after deadline, before race ends).
+  // We explicitly REMOVED `isDBConfirmed` from this check to allow unlimited pre-deadline edits!
+  const isLocked = activeRaceInfo.timeLocked;
 
   const handleToggle = (pilotId) => {
     if (isLocked || nextRaceIdx < 0) return;
