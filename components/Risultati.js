@@ -19,7 +19,10 @@ const C = {
 const MEDALS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
 export default function Risultati({ races, pilots, teams, scores, lineups, reserves }) {
-    const [activeTab, setActiveTab] = useState('piloti'); // 'piloti' | 'team'
+    const [activeTab, setActiveTab] = useState('team'); // Default 'team'
+
+    const [selectedTeamId, setSelectedTeamId] = useState(null);
+    const [hoveredTeamId, setHoveredTeamId] = useState(null);
 
     // ─── AGGREGATE PILOT STATS ──────────────────────────────────────────
     const pilotStats = useMemo(() => {
@@ -168,15 +171,28 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                                         return `${x},${y}`;
                                     }).join(' ');
 
+                                    const isHighlighted = (selectedTeamId === tp.team.id) || (hoveredTeamId === tp.team.id);
+                                    let isMuted = false;
+                                    if (selectedTeamId && selectedTeamId !== tp.team.id) isMuted = true;
+                                    if (!selectedTeamId && hoveredTeamId && hoveredTeamId !== tp.team.id) isMuted = true;
+
                                     return (
                                         <polyline
                                             key={tp.team.id}
                                             points={points}
                                             fill="none"
                                             stroke={MEDALS[i] || C.textSec}
-                                            strokeWidth={i === 0 ? "4" : "2"}
+                                            strokeWidth={isHighlighted ? "6" : (i === 0 ? "4" : "2")}
                                             strokeLinejoin="round"
-                                            style={{ filter: i === 0 ? `drop-shadow(0 0 4px ${MEDALS[i]})` : 'none' }}
+                                            style={{
+                                                filter: isHighlighted ? `drop-shadow(0 0 8px ${MEDALS[i] || C.textPri})` : (i === 0 && !isMuted ? `drop-shadow(0 0 4px ${MEDALS[i]})` : 'none'),
+                                                opacity: isMuted ? 0.15 : 1,
+                                                transition: 'all 0.3s ease-out',
+                                                cursor: 'pointer'
+                                            }}
+                                            onClick={() => setSelectedTeamId(selectedTeamId === tp.team.id ? null : tp.team.id)}
+                                            onMouseEnter={() => setHoveredTeamId(tp.team.id)}
+                                            onMouseLeave={() => setHoveredTeamId(null)}
                                         />
                                     );
                                 })}
@@ -196,7 +212,13 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                                 const maxPts = teamProgression[0].progression[teamProgression[0].progression.length - 1] || 1;
                                 const widthPct = Math.max(5, (finalScore / maxPts) * 100);
                                 return (
-                                    <div key={tp.team.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    <div
+                                        key={tp.team.id}
+                                        style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '6px 0', borderRadius: 8, background: (selectedTeamId === tp.team.id || hoveredTeamId === tp.team.id) ? `${C.surface2}` : 'transparent', transition: 'background 0.2s', paddingLeft: 8, paddingRight: 8 }}
+                                        onClick={() => setSelectedTeamId(selectedTeamId === tp.team.id ? null : tp.team.id)}
+                                        onMouseEnter={() => setHoveredTeamId(tp.team.id)}
+                                        onMouseLeave={() => setHoveredTeamId(null)}
+                                    >
                                         <div style={{ width: 14, fontSize: 10, fontWeight: 900, color: i < 3 ? MEDALS[i] : C.textSec, textAlign: 'right' }}>{i + 1}</div>
                                         <div style={{ width: 120, fontSize: 11, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tp.team.name}</div>
                                         <div style={{ flex: 1, height: 26, background: C.surface2, borderRadius: 6, overflow: 'hidden', border: `1px solid ${i === 0 ? C.red + '44' : C.border}` }}>
