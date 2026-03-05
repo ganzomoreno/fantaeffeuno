@@ -127,12 +127,24 @@ export default function GaraManager({ races, pilots, teams, lineups, calendar, c
             // Build team pilot breakdown for selected race
             const raceKey = selectedRace ? `race_${selectedRace.calendarIndex}` : null;
             const teamLineup = raceKey ? (lineups[raceKey] || {})[t.id] || [] : [];
+            const teamReserve = raceKey ? (reserves[raceKey] || {})[t.id] : null;
+
+            let dnfCount = 0;
             const pilotDetails = teamLineup.map(pid => {
               const pilot = pilots.find(p => p.id === pid);
               const result = selectedRace?.results?.find(r => r.pilotId === pid);
+              if (result?.dnf) dnfCount++;
               const pts = result ? calculatePilotPoints(result) : { total: 0, base: 0, overtakes: 0, fastestLap: 0, dotd: 0 };
-              return { pilot, result, pts };
+              return { pilot, result, pts, isReserve: false, subbedIn: false };
             });
+
+            if (teamReserve) {
+              const pilot = pilots.find(p => p.id === teamReserve);
+              const result = selectedRace?.results?.find(r => r.pilotId === teamReserve);
+              const pts = result ? calculatePilotPoints(result) : { total: 0, base: 0, overtakes: 0, fastestLap: 0, dotd: 0 };
+              const subbedIn = dnfCount > 0 && !(result?.dnf);
+              pilotDetails.push({ pilot, result, pts, isReserve: true, subbedIn });
+            }
 
             return (
               <div key={t.id} style={{
@@ -185,10 +197,11 @@ export default function GaraManager({ races, pilots, teams, lineups, calendar, c
                             <div key={h} style={{ fontSize: 9, textTransform: 'uppercase', color: C.textSec, textAlign: h !== 'PILOTA' ? 'center' : 'left', alignSelf: 'end' }}>{h}</div>
                           ))}
                         </div>
-                        {pilotDetails.map(({ pilot, result, pts }, j) => (
+                        {pilotDetails.map(({ pilot, result, pts, isReserve, subbedIn }, j) => (
                           <div key={j} style={{
                             display: 'grid', gridTemplateColumns: '1fr 40px 40px 55px 35px 55px 40px 60px 50px',
                             gap: 6, padding: '6px 0', borderTop: `1px solid ${C.surface2}`, alignItems: 'center',
+                            opacity: (isReserve && !subbedIn) ? 0.35 : 1,
                           }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                               <div style={{ width: 3, height: 20, borderRadius: 1, background: F1_TEAM_COLORS[pilot?.team] || '#555', flexShrink: 0 }} />
@@ -234,8 +247,8 @@ export default function GaraManager({ races, pilots, teams, lineups, calendar, c
                             </div>
 
                             {/* TOT */}
-                            <div style={{ textAlign: 'center', fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 700, color: C.green }}>
-                              {pts.total.toFixed(1)}
+                            <div style={{ textAlign: 'center', fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 700, color: (isReserve && !subbedIn) ? C.textSec : C.green }}>
+                              {(isReserve && !subbedIn) ? `(${pts.total.toFixed(1)})` : pts.total.toFixed(1)}
                             </div>
                           </div>
                         ))}

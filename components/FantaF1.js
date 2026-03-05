@@ -24,6 +24,8 @@ export default function FantaF1() {
   const [races, setRaces] = useState([]);
   const [lineups, setLineups] = useState({});
   const [dbLineups, setDbLineups] = useState({});
+  const [reserves, setReserves] = useState({});
+  const [dbReserves, setDbReserves] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -32,7 +34,12 @@ export default function FantaF1() {
       const [t, p, r, l] = await Promise.all([
         db.fetchTeams(), db.fetchPilots(), db.fetchRaces(), db.fetchLineups(),
       ]);
-      setTeams(t); setPilots(p); setRaces(r); setLineups(JSON.parse(JSON.stringify(l))); setDbLineups(JSON.parse(JSON.stringify(l))); setError(null);
+      setTeams(t); setPilots(p); setRaces(r);
+      setLineups(JSON.parse(JSON.stringify(l.starters)));
+      setDbLineups(JSON.parse(JSON.stringify(l.starters)));
+      setReserves(JSON.parse(JSON.stringify(l.reserves)));
+      setDbReserves(JSON.parse(JSON.stringify(l.reserves)));
+      setError(null);
     } catch (e) {
       console.error('Errore caricamento dati:', e);
       setError(e.message);
@@ -42,8 +49,8 @@ export default function FantaF1() {
   useEffect(() => { refresh().finally(() => setLoading(false)); }, [refresh]);
 
   const teamScores = useMemo(
-    () => calculateTeamScores(teams, pilots, races, lineups),
-    [teams, pilots, races, lineups]
+    () => calculateTeamScores(teams, pilots, races, dbLineups, dbReserves),
+    [teams, pilots, races, dbLineups, dbReserves]
   );
   const sortedTeams = useMemo(
     () => [...teams].sort((a, b) => (teamScores[b.id] || 0) - (teamScores[a.id] || 0)),
@@ -193,7 +200,7 @@ export default function FantaF1() {
         {page === "classifica" && (
           <Classifica
             teams={sortedTeams} scores={teamScores} races={races}
-            pilots={pilots} lineups={lineups} calendar={CALENDAR}
+            pilots={pilots} lineups={dbLineups} reserves={dbReserves} calendar={CALENDAR}
             currentUser={currentTeam} onNavigate={setPage}
           />
         )}
@@ -210,7 +217,7 @@ export default function FantaF1() {
         {page === "gara" && (
           <GaraManager
             races={races} pilots={pilots} teams={teams}
-            lineups={lineups} calendar={CALENDAR}
+            lineups={dbLineups} reserves={dbReserves} calendar={CALENDAR}
             currentUser={currentTeam}
             onTogglePilot={handleTogglePilot}
           />

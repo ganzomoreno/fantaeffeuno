@@ -51,22 +51,22 @@ function PasswordScreen({ onAuth, onClose }) {
 
 // ─── MAIN AUCTION PAGE ────────────────────────────────────────────────────────
 export default function GestioneAste({ teams, pilots, auction, onRefresh, onClose }) {
-  const [authed, setAuthed]           = useState(false);
+  const [authed, setAuthed] = useState(false);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
-  const [showOpenNext, setShowOpenNext]         = useState(false);
-  const [auctionBusy, setAuctionBusy]           = useState(false);
-  const [spotNum, setSpotNum]         = useState('');
-  const [assignTeam, setAssignTeam]   = useState('');
+  const [showOpenNext, setShowOpenNext] = useState(false);
+  const [auctionBusy, setAuctionBusy] = useState(false);
+  const [spotNum, setSpotNum] = useState('');
+  const [assignTeam, setAssignTeam] = useState('');
   const [assignPrice, setAssignPrice] = useState('');
   const [lastAssigned, setLastAssigned] = useState(null);
   const [confirmRelease, setConfirmRelease] = useState(null);
-  const [busy, setBusy]               = useState(false);
-  const [isMobile, setIsMobile]       = useState(false);
-  const [mobileTab, setMobileTab]     = useState('piloti');
-  const [extracting, setExtracting]   = useState(false);
-  const extractIntervalRef            = useRef(null);
-  const spotInputRef  = useRef(null);
-  const pilotListRef  = useRef(null);
+  const [busy, setBusy] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileTab, setMobileTab] = useState('piloti');
+  const [extracting, setExtracting] = useState(false);
+  const extractIntervalRef = useRef(null);
+  const spotInputRef = useRef(null);
+  const pilotListRef = useRef(null);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 700);
@@ -96,12 +96,12 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
     if (spotPilot.owner) { alert("Pilota già assegnato!"); return; }
     setBusy(true);
     try {
-      await db.assignPilot(spotPilot.id, assignTeam, price);
+      await db.assignPilot(spotPilot.id, assignTeam, price, auction?.id);
       setLastAssigned({ pilotName: spotPilot.name, teamName: team.name, price });
       setSpotNum(''); setAssignTeam(''); setAssignPrice('');
       await onRefresh();
       setTimeout(() => spotInputRef.current?.focus(), 50);
-    } catch(e) { alert("Errore: " + e.message); }
+    } catch (e) { alert("Errore: " + e.message); }
     setBusy(false);
   };
 
@@ -138,7 +138,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
       await db.closeAuction(auction.id);
       await onRefresh();
       setShowCloseConfirm(false);
-    } catch(e) { alert("Errore chiusura asta: " + e.message); }
+    } catch (e) { alert("Errore chiusura asta: " + e.message); }
     setAuctionBusy(false);
   };
 
@@ -148,7 +148,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
       await db.openNextAuction(auction?.budgetAdded ?? 100);
       await onRefresh();
       setShowOpenNext(false);
-    } catch(e) { alert("Errore apertura asta: " + e.message); }
+    } catch (e) { alert("Errore apertura asta: " + e.message); }
     setAuctionBusy(false);
   };
 
@@ -157,25 +157,25 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
   const releasePilot = async (pilotId) => {
     setBusy(true);
     try {
-      await db.releasePilot(pilotId);
+      await db.releasePilot(pilotId, auction?.id);
       setConfirmRelease(null);
       await onRefresh();
-    } catch(e) { alert("Errore: " + e.message); }
+    } catch (e) { alert("Errore: " + e.message); }
     setBusy(false);
   };
 
   const assignedCount = pilots.filter(p => p.owner).length;
-  const freeCount     = 22 - assignedCount;
+  const freeCount = 22 - assignedCount;
   // Squadre ordinate per budget decrescente
-  const sortedTeams   = [...teams].sort((a, b) => b.budget - a.budget);
+  const sortedTeams = [...teams].sort((a, b) => b.budget - a.budget);
 
   if (!authed) return <PasswordScreen onAuth={() => setAuthed(true)} onClose={onClose} />;
 
   // ── Assignment panel (used in both layouts) — hidden when auction closed ────
   const AssignmentPanel = (!isClosed && spotPilot) ? (() => {
-    const teamColor  = F1_TEAM_COLORS[spotPilot.team] || "#e10600";
+    const teamColor = F1_TEAM_COLORS[spotPilot.team] || "#e10600";
     const isAssigned = !!spotPilot.owner;
-    const ownerTeam  = isAssigned ? teams.find(t => t.id === spotPilot.owner) : null;
+    const ownerTeam = isAssigned ? teams.find(t => t.id === spotPilot.owner) : null;
     return (
       <div style={{
         background: `linear-gradient(135deg, #111 0%, ${teamColor}18 100%)`,
@@ -194,7 +194,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
 
         {/* Pilot identity */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-          <div style={{ width: 4, height: 44, borderRadius: 2, background: teamColor, flexShrink: 0 }}/>
+          <div style={{ width: 4, height: 44, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
           <div>
             <div style={{ fontSize: 11, color: teamColor, letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>
               {spotPilot.team}
@@ -446,9 +446,9 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
                 Lista piloti
               </div>
               {pilots.map((p, i) => {
-                const isAssigned    = !!p.owner;
+                const isAssigned = !!p.owner;
                 const isHighlighted = spotIndex === i + 1;
-                const teamColor     = F1_TEAM_COLORS[p.team] || "#666";
+                const teamColor = F1_TEAM_COLORS[p.team] || "#666";
                 return (
                   <div
                     key={p.id}
@@ -473,7 +473,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     {/* Team color bar */}
-                    <div style={{ width: 2, height: 16, borderRadius: 1, background: teamColor, flexShrink: 0 }}/>
+                    <div style={{ width: 2, height: 16, borderRadius: 1, background: teamColor, flexShrink: 0 }} />
                     {/* Abbreviation */}
                     <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 11, fontWeight: 900, color: isAssigned ? "#2a2a2a" : isHighlighted ? "#e10600" : "#777", letterSpacing: 0.5, width: 30, flexShrink: 0 }}>
                       {p.abbreviation}
@@ -483,13 +483,13 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
                       {p.name}
                     </span>
                     <span style={{ fontSize: 9, color: isAssigned ? "#252525" : "#3a3a3a", flexShrink: 0, whiteSpace: "nowrap" }}>
-                      {p.team.replace('Red Bull Racing','RBR').replace('Racing Bulls','RB').replace('Aston Martin','AM')}
+                      {p.team.replace('Red Bull Racing', 'RBR').replace('Racing Bulls', 'RB').replace('Aston Martin', 'AM')}
                     </span>
                     {/* Status dot */}
                     {isAssigned ? (
-                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#252525", flexShrink: 0 }}/>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#252525", flexShrink: 0 }} />
                     ) : (
-                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", flexShrink: 0, boxShadow: "0 0 4px #4ade8088" }}/>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", flexShrink: 0, boxShadow: "0 0 4px #4ade8088" }} />
                     )}
                   </div>
                 );
@@ -508,8 +508,8 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
             {(() => {
               const maxPrice = Math.max(1, ...pilots.filter(p => p.owner && p.price > 0).map(p => p.price));
               return sortedTeams.map(t => {
-                const teamPilots  = pilots.filter(p => p.owner === t.id);
-                const budgetPct   = Math.min(100, (t.budget / 100) * 100);
+                const teamPilots = pilots.filter(p => p.owner === t.id);
+                const budgetPct = Math.min(100, (t.budget / 100) * 100);
                 const budgetColor = t.budget >= 50 ? "#4ade80" : t.budget >= 20 ? "#facc15" : "#e10600";
                 return (
                   <div key={t.id} style={{ padding: "5px 10px", borderBottom: "1px solid #0f0f0f" }}>
@@ -522,25 +522,25 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
                     </div>
                     {/* Budget bar */}
                     <div style={{ height: 1, background: "#1a1a1a", borderRadius: 1, marginBottom: teamPilots.length > 0 ? 3 : 0 }}>
-                      <div style={{ height: "100%", borderRadius: 1, background: budgetColor, width: `${budgetPct}%`, transition: "width 0.4s" }}/>
+                      <div style={{ height: "100%", borderRadius: 1, background: budgetColor, width: `${budgetPct}%`, transition: "width 0.4s" }} />
                     </div>
                     {/* Assigned pilots */}
                     {teamPilots.length > 0 && (
                       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
                         {[...teamPilots].sort((a, b) => b.price - a.price).map(p => {
-                          const color    = F1_TEAM_COLORS[p.team] || "#666";
+                          const color = F1_TEAM_COLORS[p.team] || "#666";
                           const pricePct = Math.round((p.price / maxPrice) * 100);
                           return (
                             <div key={p.id} style={{ borderRadius: 3, padding: "2px 5px" }}>
                               {/* Row: color bar | abbrev | price bar | price | ✕ */}
                               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                                <div style={{ width: 2, height: 12, borderRadius: 1, background: color, flexShrink: 0 }}/>
+                                <div style={{ width: 2, height: 12, borderRadius: 1, background: color, flexShrink: 0 }} />
                                 <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 700, fontSize: 10, color: "#e0e0e0", letterSpacing: 0.5, width: 28, flexShrink: 0 }}>
                                   {p.abbreviation || p.name.split(' ').pop().slice(0, 3).toUpperCase()}
                                 </span>
                                 {/* Inline price bar */}
                                 <div style={{ flex: 1, height: 2, background: "#1c1c1c", borderRadius: 1 }}>
-                                  <div style={{ height: "100%", borderRadius: 1, background: color, width: `${pricePct}%`, opacity: 0.8, transition: "width 0.5s" }}/>
+                                  <div style={{ height: "100%", borderRadius: 1, background: color, width: `${pricePct}%`, opacity: 0.8, transition: "width 0.5s" }} />
                                 </div>
                                 <span style={{ fontSize: 9, color: "#555", fontFamily: "'Orbitron', monospace", fontWeight: 700, flexShrink: 0 }}>{p.price}M</span>
                                 <button onClick={() => setConfirmRelease(p.id)} title="Rilascia"
@@ -586,7 +586,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
           <div style={{ background: "#111", border: "1px solid #e10600", borderRadius: 16, padding: 28, width: 360, maxWidth: "calc(100vw - 32px)" }}>
             <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 16, fontWeight: 900, color: "#e10600", marginBottom: 8 }}>🔒 CHIUDI ASTA {auction?.auctionNumber}?</div>
             <div style={{ fontSize: 12, color: "#aaa", marginBottom: 16, lineHeight: 1.6 }}>
-              L&apos;asta verrà marcata come <strong style={{ color: "#fff" }}>chiusa</strong>. La rosa attuale di ogni squadra viene preservata come dato ufficiale.<br/><br/>
+              L&apos;asta verrà marcata come <strong style={{ color: "#fff" }}>chiusa</strong>. La rosa attuale di ogni squadra viene preservata come dato ufficiale.<br /><br />
               Potrai riaprire l&apos;asta successiva in qualsiasi momento (ogni squadra riceverà <strong style={{ color: "#4ade80" }}>+{auction?.budgetAdded ?? 100}M</strong>).
             </div>
             <div style={{ fontSize: 11, color: "#555", marginBottom: 20, background: "#0a0a0a", borderRadius: 8, padding: "10px 12px" }}>
@@ -644,7 +644,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
 
       {/* ── CONFIRM RELEASE MODAL ── */}
       {confirmRelease && (() => {
-        const p     = pilots.find(x => x.id === confirmRelease);
+        const p = pilots.find(x => x.id === confirmRelease);
         const owner = p ? teams.find(t => t.id === p.owner) : null;
         return (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center" }}>

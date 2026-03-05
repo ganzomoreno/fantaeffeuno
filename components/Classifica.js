@@ -5,25 +5,25 @@ import { calculatePilotPoints, calculateRaceTeamScore } from '@/lib/scoring';
 import { MAX_SWITCHES } from '@/lib/data';
 
 const C = {
-  surface:  '#14151C',
+  surface: '#14151C',
   surface2: '#1A1B24',
-  border:   '#2A2D3A',
-  textPri:  '#EDEEF3',
-  textSec:  '#A9ABBA',
-  red:      '#E10600',
-  green:    '#00FF41',
-  amber:    '#FFB700',
+  border: '#2A2D3A',
+  textPri: '#EDEEF3',
+  textSec: '#A9ABBA',
+  red: '#E10600',
+  green: '#00FF41',
+  amber: '#FFB700',
 };
 
 const MEDALS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
-export default function Classifica({ teams, scores, races, pilots, lineups, calendar, currentUser, onNavigate }) {
+export default function Classifica({ teams, scores, races, pilots, lineups, reserves, calendar, currentUser, onNavigate }) {
   const myScore = scores[currentUser?.id] || 0;
-  const myRank  = teams.findIndex(t => t.id === currentUser?.id) + 1;
+  const myRank = teams.findIndex(t => t.id === currentUser?.id) + 1;
 
   // Next upcoming race
   const completedSet = useMemo(() => new Set(races.map(r => r.calendarIndex)), [races]);
-  const nextRaceIdx  = useMemo(
+  const nextRaceIdx = useMemo(
     () => calendar.findIndex((ev, i) => ev.type === 'race' && !completedSet.has(i)),
     [calendar, completedSet]
   );
@@ -33,23 +33,23 @@ export default function Classifica({ teams, scores, races, pilots, lineups, cale
   const daysUntil = useMemo(() => {
     if (!nextRaceEvent) return null;
     const [d, m, y] = nextRaceEvent.date.split('/');
-    const diff = Math.ceil((new Date(`${y}-${m}-${d}`) - new Date().setHours(0,0,0,0)) / 86400000);
+    const diff = Math.ceil((new Date(`${y}-${m}-${d}`) - new Date().setHours(0, 0, 0, 0)) / 86400000);
     return diff;
   }, [nextRaceEvent]);
 
   // My lineup for next race
-  const myPilots      = useMemo(() => pilots.filter(p => p.owner === currentUser?.id), [pilots, currentUser]);
-  const myNextLineup  = nextRaceIdx >= 0 ? (lineups[`race_${nextRaceIdx}`] || {})[currentUser?.id] || [] : [];
-  const lineupPilots  = myNextLineup.map(id => pilots.find(p => p.id === id)).filter(Boolean);
-  const benchPilots   = myPilots.filter(p => !myNextLineup.includes(p.id));
+  const myPilots = useMemo(() => pilots.filter(p => p.owner === currentUser?.id), [pilots, currentUser]);
+  const myNextLineup = nextRaceIdx >= 0 ? (lineups[`race_${nextRaceIdx}`] || {})[currentUser?.id] || [] : [];
+  const lineupPilots = myNextLineup.map(id => pilots.find(p => p.id === id)).filter(Boolean);
+  const benchPilots = myPilots.filter(p => !myNextLineup.includes(p.id));
   const lineupConfirmed = myNextLineup.length === 3;
 
   // Last completed race
-  const lastRace      = races.length > 0 ? races[races.length - 1] : null;
+  const lastRace = races.length > 0 ? races[races.length - 1] : null;
   const lastRaceEvent = lastRace ? calendar[lastRace.calendarIndex] : null;
   const lastRaceScore = useMemo(
-    () => lastRace && currentUser ? calculateRaceTeamScore(lastRace, lineups, pilots, currentUser.id) : 0,
-    [lastRace, lineups, pilots, currentUser]
+    () => lastRace && currentUser ? calculateRaceTeamScore(lastRace, lineups, reserves, pilots, currentUser.id) : 0,
+    [lastRace, lineups, reserves, pilots, currentUser]
   );
 
   // Top driver of last race for my team
@@ -69,9 +69,9 @@ export default function Classifica({ teams, scores, races, pilots, lineups, cale
   const trendData = useMemo(() => {
     return races.slice(-5).map(race => ({
       label: (calendar[race.calendarIndex]?.location || '?').slice(0, 3).toUpperCase(),
-      pts: calculateRaceTeamScore(race, lineups, pilots, currentUser?.id),
+      pts: calculateRaceTeamScore(race, lineups, reserves, pilots, currentUser?.id),
     }));
-  }, [races, calendar, lineups, pilots, currentUser]);
+  }, [races, calendar, lineups, reserves, pilots, currentUser]);
   const maxTrend = Math.max(...trendData.map(d => d.pts), 1);
 
   // Rank delta vs pre-last-race
@@ -79,7 +79,7 @@ export default function Classifica({ teams, scores, races, pilots, lineups, cale
     if (races.length < 2 || !currentUser) return null;
     const prevRaces = races.slice(0, -1);
     const prevScores = {};
-    teams.forEach(t => { prevScores[t.id] = prevRaces.reduce((s, r) => s + calculateRaceTeamScore(r, lineups, pilots, t.id), 0); });
+    teams.forEach(t => { prevScores[t.id] = prevRaces.reduce((s, r) => s + calculateRaceTeamScore(r, lineups, reserves, pilots, t.id), 0); });
     const prevRank = [...teams].sort((a, b) => (prevScores[b.id] || 0) - (prevScores[a.id] || 0)).findIndex(t => t.id === currentUser.id) + 1;
     return prevRank - myRank;
   }, [races, teams, lineups, pilots, currentUser, myRank]);
@@ -159,7 +159,7 @@ export default function Classifica({ teams, scores, races, pilots, lineups, cale
           {/* Mini preview */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
             {/* Titolari */}
-            {[0,1,2].map(i => {
+            {[0, 1, 2].map(i => {
               const p = lineupPilots[i];
               return (
                 <div key={i} style={{
@@ -219,7 +219,7 @@ export default function Classifica({ teams, scores, races, pilots, lineups, cale
                   border: `1px solid ${i === trendData.length - 1 ? C.red : C.border}`,
                   height: `${Math.max((d.pts / maxTrend) * 46, 4)}px`,
                   transition: 'height 0.3s ease',
-                }}/>
+                }} />
                 <div style={{ fontSize: 9, color: C.textSec, textTransform: 'uppercase', textAlign: 'center' }}>{d.label}</div>
               </div>
             ))}
