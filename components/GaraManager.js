@@ -44,7 +44,9 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
   // Pilot leaderboard for selected race
   const pilotLeaderboard = useMemo(() => {
     if (!selectedRace) return [];
-    return getRaceBreakdown(selectedRace, pilots).filter(p => p.points > 0 || p.dnf);
+    return getRaceBreakdown(selectedRace, pilots)
+      .filter(p => p.points > 0 || p.dnf)
+      .sort((a, b) => b.points - a.points);
   }, [selectedRace, pilots]);
 
   if (races.length === 0) {
@@ -206,8 +208,13 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                               <div style={{ width: 3, height: 20, borderRadius: 1, background: F1_TEAM_COLORS[pilot?.team] || '#555', flexShrink: 0 }} />
                               <div>
-                                <div style={{ fontSize: 13, fontWeight: 600, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pilot?.name || '?'}</div>
-                                {result?.dnf && <span style={{ fontSize: 9, color: C.red }}>DNF</span>}
+                                <div style={{ fontSize: 13, fontWeight: 600, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {pilot?.name ? `${pilot.name} [${pilot.abbreviation}]` : '?'}
+                                </div>
+                                <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
+                                  {result?.dnf && <span style={{ fontSize: 9, color: C.red, fontWeight: 700 }}>DNF</span>}
+                                  {subbedIn && <span style={{ fontSize: 9, color: C.amber, fontWeight: 700 }}>SUB IN ⇡</span>}
+                                </div>
                               </div>
                             </div>
 
@@ -294,7 +301,7 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                 <div style={{ width: 4, height: 30, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri }}>
-                    {entry.pilotName}
+                    {entry.pilotName} [{pilots.find(p => p.id === entry.pilotId)?.abbreviation}]
                     {isMyPilot && <span style={{ fontSize: 9, color: C.green, marginLeft: 6 }}>★ MIO</span>}
                   </div>
                   <div style={{ fontSize: 10, color: C.textSec }}>

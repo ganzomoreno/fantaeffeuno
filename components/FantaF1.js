@@ -53,7 +53,13 @@ export default function FantaF1() {
     [teams, pilots, races, dbLineups, dbReserves]
   );
   const sortedTeams = useMemo(
-    () => [...teams].sort((a, b) => (teamScores[b.id] || 0) - (teamScores[a.id] || 0)),
+    () => [...teams].sort((a, b) => {
+      const scoreB = teamScores[b.id] || 0;
+      const scoreA = teamScores[a.id] || 0;
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      // Tie-breaker: higher budget left wins
+      return b.budget - a.budget;
+    }),
     [teams, teamScores]
   );
 

@@ -22,11 +22,38 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
   const myRank = teams.findIndex(t => t.id === currentUser?.id) + 1;
 
   // Next upcoming race
-  const completedSet = useMemo(() => new Set(races.map(r => r.calendarIndex)), [races]);
-  const nextRaceIdx = useMemo(
-    () => calendar.findIndex((ev, i) => ev.type === 'race' && !completedSet.has(i)),
-    [calendar, completedSet]
-  );
+  const parseDate = (ddmmyyyy) => {
+    const [d, m, y] = ddmmyyyy.split('/');
+    return new Date(`${y}-${m}-${d}T15:00:00Z`);
+  };
+  const SIMULATED_TODAY = new Date('2026-03-10T12:00:00Z');
+
+  const activeRaceInfo = useMemo(() => {
+    let activeIdx = -1;
+    let timeLocked = false;
+    for (let i = 0; i < calendar.length; i++) {
+      const ev = calendar[i];
+      if (ev.type !== 'race') continue;
+      const raceDate = parseDate(ev.date);
+      const deadline = new Date(raceDate);
+      deadline.setUTCDate(deadline.getUTCDate() - 1);
+      deadline.setUTCHours(23, 59, 59, 999);
+
+      if (SIMULATED_TODAY <= deadline) {
+        activeIdx = i; timeLocked = false; break;
+      } else {
+        const reopenDate = new Date(raceDate);
+        reopenDate.setUTCDate(reopenDate.getUTCDate() + 1);
+        reopenDate.setUTCHours(0, 0, 0, 0);
+        if (SIMULATED_TODAY < reopenDate) {
+          activeIdx = i; timeLocked = true; break;
+        }
+      }
+    }
+    return { activeIdx, timeLocked };
+  }, [calendar]);
+
+  const nextRaceIdx = activeRaceInfo.activeIdx;
   const nextRaceEvent = nextRaceIdx >= 0 ? calendar[nextRaceIdx] : null;
 
   // Days until next race
@@ -197,7 +224,7 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
                 fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1,
               }}
             >
-              {lineupConfirmed ? 'Modifica formazione' : 'SCHIERA ORA →'}
+              {activeRaceInfo?.timeLocked ? 'Vedi Formazione' : lineupConfirmed ? 'Modifica formazione' : 'SCHIERA ORA →'}
             </button>
           )}
         </div>

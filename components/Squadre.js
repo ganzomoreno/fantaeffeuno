@@ -107,8 +107,8 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
           <div style={{ fontSize: 11, color: C.textSec, marginTop: 2 }}>{myTeam?.owner}</div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: C.surface2, color: C.textSec, border: `1px solid ${C.border}` }}>
-            Switch {myTeam?.switchesUsed || 0}/{MAX_SWITCHES}
+          <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: (MAX_SWITCHES - (myTeam?.switchesUsed || 0)) === 0 ? C.red + '22' : C.surface2, color: (MAX_SWITCHES - (myTeam?.switchesUsed || 0)) === 0 ? C.red : C.textSec, border: `1px solid ${C.border}` }}>
+            Switch Rimanenti: {MAX_SWITCHES - (myTeam?.switchesUsed || 0)}
           </span>
           <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: C.surface2, color: C.textSec, border: `1px solid ${C.border}` }}>
             {myTeam?.budget || 0}M budget
@@ -153,7 +153,9 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                 </div>
                 {pilot ? (
                   <>
-                    <div style={{ fontWeight: 700, fontSize: 12, color: C.textPri, lineHeight: 1.3 }}>{pilot.name}</div>
+                    <div style={{ fontWeight: 700, fontSize: 12, color: C.textPri, lineHeight: 1.3 }}>
+                      {pilot.name} [{pilot.abbreviation}]
+                    </div>
                     <div style={{ fontSize: 10, color: C.textSec, marginTop: 2 }}>{pilot.team}</div>
                   </>
                 ) : (
@@ -176,7 +178,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
             }}>
               <span style={{ fontSize: 11, color: C.textSec }}>🪑 PANCHINA:</span>
               <span style={{ fontSize: 13, fontWeight: 600, color: C.textPri }}>
-                {benchPilot.name}
+                {benchPilot.name} [{benchPilot.abbreviation}]
               </span>
               <span style={{ fontSize: 10, color: C.textSec }}>{benchPilot.team}</span>
               <span style={{ marginLeft: 'auto', fontSize: 10, color: C.textSec }}>
@@ -251,11 +253,11 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                   }}
                 >
                   <div style={{ width: 4, height: 36, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri }}>{p.name}</div>
+                  <div style={{ flex: 1, minWidth: 0, opacity: isLocked ? 0.4 : 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri }}>{p.name} <span style={{ color: C.textSec }}>[{p.abbreviation}]</span></div>
                     <div style={{ fontSize: 11, color: C.textSec }}>{p.team} · {p.price}M</div>
                   </div>
-                  <div style={{ flexShrink: 0 }}>
+                  <div style={{ flexShrink: 0, opacity: isLocked ? 0.4 : 1 }}>
                     {inLineup && (
                       <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 10, background: C.green + '22', color: C.green, border: `1px solid ${C.green}44`, fontWeight: 700 }}>
                         TITOLARE
