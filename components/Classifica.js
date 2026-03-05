@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { calculatePilotPoints, calculateRaceTeamScore } from '@/lib/scoring';
-import { MAX_SWITCHES } from '@/lib/data';
+import { MAX_SWITCHES, F1_TEAM_COLORS } from '@/lib/data';
 
 const C = {
   surface: '#14151C',
