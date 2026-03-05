@@ -10,6 +10,7 @@ import Classifica from './Classifica';
 import Squadre from './Squadre';
 import Calendario from './Calendario';
 import GaraManager from './GaraManager';
+import Risultati from './Risultati';
 import AdminPanel from './AdminPanel';
 import LoginPage from './LoginPage';
 
@@ -124,6 +125,7 @@ export default function FantaF1() {
     { id: "squadre", label: "Scuderia", icon: "users" },
     { id: "calendario", label: "Calendario", icon: "calendar" },
     { id: "gara", label: "Gara", icon: "flag" },
+    { id: "risultati", label: "Risultati", icon: "activity" },
   ];
 
   return (
@@ -226,6 +228,12 @@ export default function FantaF1() {
             lineups={dbLineups} reserves={dbReserves} calendar={CALENDAR}
             currentUser={currentTeam}
             onTogglePilot={handleTogglePilot}
+          />
+        )}
+        {page === "risultati" && (
+          <Risultati
+            races={races} pilots={pilots} teams={sortedTeams}
+            scores={teamScores} lineups={dbLineups} reserves={dbReserves}
           />
         )}
       </main>
