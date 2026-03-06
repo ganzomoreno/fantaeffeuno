@@ -32,15 +32,21 @@ async function run() {
         is_completed: true
     }).select().single();
 
-    // Assegna 2 piloti per team (12 piloti totali)
-    const availablePilots = [...pilots].sort(() => 0.5 - Math.random());
+    // Assegna TUTTI i 22 piloti (minimo 3 per team, alcuni 4)
+    let availablePilots = [...pilots].filter(p => p.id !== '0').sort(() => 0.5 - Math.random());
     const auction1Lots = [];
     const ownershipUpdates = [];
 
-    for (let i = 0; i < 12; i++) {
+    // Track spent budget to pass to Asta 2
+    const spentAsta1 = {};
+    teams.forEach(t => spentAsta1[t.id] = 0);
+
+    for (let i = 0; i < 22; i++) {
         const p = availablePilots[i];
         const team = teams[i % teams.length];
-        const price = Math.floor(Math.random() * 25) + 5;
+
+        const price = Math.floor(Math.random() * 15) + 1;
+        spentAsta1[team.id] += price;
 
         auction1Lots.push({
             auction_id: auction1.id,
@@ -63,8 +69,12 @@ async function run() {
         await simulateRaceAndLineups(ev, teams);
     }
 
-    // 5. ASTA 2 (RIPARAZIONE)
-    console.log('Step 4: Simulating Auction 2 (Repair)...');
+    // 5. ASTA 2 (REBOOT)
+    console.log('Step 4: Simulating Auction 2 (Full Reboot)...');
+
+    // Reset all pilots before Asta 2
+    await supabase.from('pilots').update({ owner_team_id: null, purchase_price: null }).neq('id', '0');
+
     const asta2Event = events.find(e => e.sort_order === 5);
     const { data: auction2 } = await supabase.from('auctions').insert({
         calendar_event_id: asta2Event.id,
@@ -74,11 +84,16 @@ async function run() {
     }).select().single();
 
     const auction2Lots = [];
-    const remainingPilots = availablePilots.slice(12); // the 10 pilots left
-    remainingPilots.forEach((p, i) => {
-        // Assegna equamente ai team
+    const ownershipUpdates2 = [];
+
+    availablePilots = [...pilots].filter(p => p.id !== '0').sort(() => 0.5 - Math.random());
+
+    for (let i = 0; i < 22; i++) {
+        const p = availablePilots[i];
         const team = teams[i % teams.length];
-        const price = Math.floor(Math.random() * 15) + 1;
+
+        let price = Math.floor(Math.random() * 20) + 1;
+
         auction2Lots.push({
             auction_id: auction2.id,
             pilot_id: p.id,
@@ -86,10 +101,11 @@ async function run() {
             final_price: price,
             lot_order: i + 1
         });
-        ownershipUpdates.push({ id: p.id, owner_team_id: team.id, purchase_price: price });
-    });
+        ownershipUpdates2.push({ id: p.id, owner_team_id: team.id, purchase_price: price });
+    }
+
     await supabase.from('auction_lots').insert(auction2Lots);
-    for (const u of ownershipUpdates.slice(12)) {
+    for (const u of ownershipUpdates2) {
         await supabase.from('pilots').update({ owner_team_id: u.owner_team_id, purchase_price: u.purchase_price }).eq('id', u.id);
     }
 
@@ -97,7 +113,7 @@ async function run() {
     console.log('Step 5: Simulating Race 3, 4 & 5...');
     const raceEvents2 = events.filter(e => e.sort_order === 3 || e.sort_order === 4 || e.sort_order === 6);
     for (const ev of raceEvents2) {
-        await simulateRaceAndLineups(ev, teams, 22);
+        await simulateRaceAndLineups(ev, teams);
     }
 
     // 7. CALCOLO SWITCH FINALE
