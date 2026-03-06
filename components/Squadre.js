@@ -71,8 +71,11 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
   // My team data
   const myTeam = useMemo(() => teams.find(t => t.id === currentUser?.id), [teams, currentUser]);
   const myPilots = useMemo(() => pilots.filter(p => p.owner === currentUser?.id), [pilots, currentUser]);
-  const myLineup = nextRaceIdx >= 0 ? (lineups[`race_${nextRaceIdx}`] || {})[currentUser?.id] || [] : [];
-  const myDbLineup = nextRaceIdx >= 0 ? (dbLineups[`race_${nextRaceIdx}`] || {})[currentUser?.id] || [] : [];
+  const myLineupObjs = nextRaceIdx >= 0 ? (lineups[`race_${nextRaceIdx}`] || {})[currentUser?.id] || [] : [];
+  const myDbLineupObjs = nextRaceIdx >= 0 ? (dbLineups[`race_${nextRaceIdx}`] || {})[currentUser?.id] || [] : [];
+
+  const myLineup = myLineupObjs.map(l => l.id || l);
+  const myDbLineup = myDbLineupObjs.map(l => l.id || l);
 
   const lineupConfirmed = myLineup.length === 3;
   const isDBConfirmed = myDbLineup.length === 3;

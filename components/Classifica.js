@@ -66,7 +66,8 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
 
   // My lineup for next race
   const myPilots = useMemo(() => pilots.filter(p => p.owner === currentUser?.id), [pilots, currentUser]);
-  const myNextLineup = nextRaceIdx >= 0 ? (lineups[`race_${nextRaceIdx}`] || {})[currentUser?.id] || [] : [];
+  const myNextLineupObjs = nextRaceIdx >= 0 ? (lineups[`race_${nextRaceIdx}`] || {})[currentUser?.id] || [] : [];
+  const myNextLineup = myNextLineupObjs.map(l => l?.id || l);
   const lineupPilots = myNextLineup.map(id => pilots.find(p => p.id === id)).filter(Boolean);
   const benchPilots = myPilots.filter(p => !myNextLineup.includes(p.id));
   const lineupConfirmed = myNextLineup.length === 3;
@@ -82,7 +83,8 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
   // Top driver of last race for my team
   const lastTopDriver = useMemo(() => {
     if (!lastRace || !currentUser) return null;
-    const lineup = (lineups[`race_${lastRace.calendarIndex}`] || {})[currentUser.id] || [];
+    const lineupObjs = (lineups[`race_${lastRace.calendarIndex}`] || {})[currentUser.id] || [];
+    const lineup = lineupObjs.map(l => l?.id || l);
     let best = null, bestPts = -1;
     (lastRace.results || []).forEach(r => {
       if (!lineup.includes(r.pilotId)) return;
@@ -132,8 +134,10 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
   // Points breakdown for last race
   const lastRaceMyBreakdown = useMemo(() => {
     if (!lastRace || !currentUser) return [];
-    const lineup = (lineups[`race_${lastRace.calendarIndex}`] || {})[currentUser.id] || [];
-    const reserveId = (reserves[`race_${lastRace.calendarIndex}`] || {})[currentUser.id];
+    const lineupObjs = (lineups[`race_${lastRace.calendarIndex}`] || {})[currentUser.id] || [];
+    const lineup = lineupObjs.map(l => l?.id || l);
+    const reserveObj = (reserves[`race_${lastRace.calendarIndex}`] || {})[currentUser.id];
+    const reserveId = reserveObj?.id || reserveObj;
 
     let dnfCount = 0;
     const resData = (lastRace.results || []).filter(r => lineup.includes(r.pilotId));

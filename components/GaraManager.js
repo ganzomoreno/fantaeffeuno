@@ -49,6 +49,20 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
       .sort((a, b) => b.points - a.points);
   }, [selectedRace, pilots]);
 
+  const handleManualSwitch = async (calendarIndex, teamId, starterId, reserveId) => {
+    if (!confirm('Vuoi usare 1 dei tuoi Switch per sostituire questo pilota con la riserva? Questa azione è IRREVERSIBILE.')) return;
+    try {
+      // Lazy load to prevent large imports at top level if component strictly UI
+      const db = await import('@/lib/db');
+      await db.applyManualSwitch(calendarIndex, teamId, starterId, reserveId);
+      alert('Sostituzione applicata! Ricarica la pagina per vedere i nuovi punteggi.');
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert('Errore durante lo switch: ' + err.message);
+    }
+  };
+
   if (races.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: 60, color: C.textSec, fontSize: 13 }}>
@@ -128,24 +142,33 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
             const isOpen = expandedTeam === t.id;
             // Build team pilot breakdown for selected race
             const raceKey = selectedRace ? `race_${selectedRace.calendarIndex}` : null;
-            const teamLineup = raceKey ? (lineups[raceKey] || {})[t.id] || [] : [];
-            const teamReserve = raceKey ? (reserves[raceKey] || {})[t.id] : null;
+            const teamLineupObjs = raceKey ? (lineups[raceKey] || {})[t.id] || [] : [];
+            const teamReserveObj = raceKey ? (reserves[raceKey] || {})[t.id] : null;
 
             let dnfCount = 0;
-            const pilotDetails = teamLineup.map(pid => {
+            const pilotDetails = teamLineupObjs.map(entry => {
+              const pid = entry.id || entry;
               const pilot = pilots.find(p => p.id === pid);
               const result = selectedRace?.results?.find(r => r.pilotId === pid);
               if (result?.dnf) dnfCount++;
               const pts = result ? calculatePilotPoints(result) : { total: 0, base: 0, overtakes: 0, fastestLap: 0, dotd: 0 };
-              return { pilot, result, pts, isReserve: false, subbedIn: false };
+
+              // check if manually swapped out
+              const isSwappedOut = teamReserveObj && entry.subbedOutFor === (teamReserveObj.id || teamReserveObj);
+
+              return { pilot, result, pts, isReserve: false, subbedIn: false, isSwappedOut, rawId: pid };
             });
 
-            if (teamReserve) {
-              const pilot = pilots.find(p => p.id === teamReserve);
-              const result = selectedRace?.results?.find(r => r.pilotId === teamReserve);
+            if (teamReserveObj) {
+              const resId = teamReserveObj.id || teamReserveObj;
+              const pilot = pilots.find(p => p.id === resId);
+              const result = selectedRace?.results?.find(r => r.pilotId === resId);
               const pts = result ? calculatePilotPoints(result) : { total: 0, base: 0, overtakes: 0, fastestLap: 0, dotd: 0 };
-              const subbedIn = dnfCount > 0 && !(result?.dnf);
-              pilotDetails.push({ pilot, result, pts, isReserve: true, subbedIn });
+
+              // explicitly check if manually subbed in 
+              const subbedIn = teamReserveObj.subbedInManually || (dnfCount > 0 && !(result?.dnf));
+
+              pilotDetails.push({ pilot, result, pts, isReserve: true, subbedIn, rawId: resId });
             }
 
             return (
@@ -201,34 +224,50 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                                 <div key={h} style={{ fontSize: 9, textTransform: 'uppercase', color: C.textSec, textAlign: h !== 'PILOTA' ? 'center' : 'left', alignSelf: 'end', fontWeight: 800 }}>{h}</div>
                               ))}
                             </div>
-                            {pilotDetails.map(({ pilot, result, pts, isReserve, subbedIn }, j) => (
-                              <div key={j} style={{
-                                display: 'grid', gridTemplateColumns: '1fr 40px 40px 55px 35px 55px 40px 60px 50px',
-                                gap: 6, padding: '10px 0', borderTop: j > 0 ? `1px solid ${C.surface2}` : 'none', alignItems: 'center',
-                                opacity: (isReserve && !subbedIn) ? 0.35 : 1,
-                              }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                  <div style={{ width: 3, height: 20, borderRadius: 1, background: F1_TEAM_COLORS[pilot?.team] || '#555', flexShrink: 0 }} />
-                                  <div>
-                                    <div style={{ fontSize: 13, fontWeight: 700, color: result?.dnf ? '#555' : C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                      {pilot?.abbreviation || pilot?.name?.substring(0, 3).toUpperCase() || '?'}
-                                    </div>
-                                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
-                                      {result?.dnf && <span style={{ fontSize: 9, color: C.red, fontWeight: 800 }}>DNF</span>}
-                                      {subbedIn && <span style={{ fontSize: 9, color: C.amber, fontWeight: 800 }}>SUB IN ⇡</span>}
+                            {pilotDetails.map(({ pilot, result, pts, isReserve, subbedIn, isSwappedOut, rawId }, j) => {
+                              const canManualSwitch = isMe && !isReserve && !isSwappedOut && !result?.dnf && teamReserveObj && (5 - (t.switchesUsed || 0) > 0) && !pilotDetails.find(p => p.isReserve)?.subbedIn;
+
+                              return (
+                                <div key={j} style={{
+                                  display: 'grid', gridTemplateColumns: '1fr 40px 40px 55px 35px 55px 40px 60px 50px',
+                                  gap: 6, padding: '10px 0', borderTop: j > 0 ? `1px solid ${C.surface2}` : 'none', alignItems: 'center',
+                                  opacity: ((isReserve && !subbedIn) || isSwappedOut) ? 0.35 : 1,
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <div style={{ width: 3, height: 20, borderRadius: 1, background: F1_TEAM_COLORS[pilot?.team] || '#555', flexShrink: 0 }} />
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <div style={{ fontSize: 13, fontWeight: 700, color: result?.dnf ? '#555' : C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                          {pilot?.abbreviation || pilot?.name?.substring(0, 3).toUpperCase() || '?'}
+                                        </div>
+                                        {canManualSwitch && (
+                                          <button
+                                            onClick={() => handleManualSwitch(selectedRace.calendarIndex, t.id, rawId, teamReserveObj.id || teamReserveObj)}
+                                            style={{ background: 'transparent', border: `1px solid ${C.border}`, borderRadius: 4, color: C.textPri, cursor: 'pointer', padding: '2px 4px', fontSize: 10, display: 'flex', alignItems: 'center', gap: 4 }}
+                                            title="Usa Switch"
+                                          >
+                                            🔁
+                                          </button>
+                                        )}
+                                      </div>
+                                      <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
+                                        {result?.dnf && <span style={{ fontSize: 9, color: C.red, fontWeight: 800 }}>DNF</span>}
+                                        {subbedIn && <span style={{ fontSize: 9, color: C.amber, fontWeight: 800 }}>SUB IN ⇡</span>}
+                                        {isSwappedOut && <span style={{ fontSize: 9, color: C.textSec, fontWeight: 800 }}>SWAPPED</span>}
+                                      </div>
                                     </div>
                                   </div>
+                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textSec }}>{result?.gridPosition ? `P${result.gridPosition}` : '—'}</div>
+                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textPri, fontWeight: 800 }}>{result?.dnf ? '—' : result?.position ? `P${result.position}` : '—'}</div>
+                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textPri }}>{pts.base > 0 ? `+${pts.base}` : '—'}</div>
+                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (result?.overtakes > 0 ? C.textSec : C.textSec) }}>{result?.overtakes || '—'}</div>
+                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (pts.overtakes > 0 ? C.green : C.textSec) }}>{pts.overtakes > 0 ? `+${pts.overtakes}` : '—'}</div>
+                                  <div style={{ textAlign: 'center', fontSize: 11, fontWeight: 800, color: result?.dnf ? '#555' : (result?.dotdRank ? '#FFD700' : C.textSec) }}>{result?.dotdRank ? `#${result.dotdRank}` : '—'}</div>
+                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (pts.dotd > 0 ? '#FFD700' : C.textSec) }}>{pts.dotd > 0 ? `+${pts.dotd}` : '—'}</div>
+                                  <div style={{ textAlign: 'center', fontFamily: "'Orbitron', monospace", fontSize: 15, fontWeight: 900, color: ((isReserve && !subbedIn) || isSwappedOut) ? C.textSec : C.green }}>{((isReserve && !subbedIn) || isSwappedOut) ? `(${pts.total.toFixed(1)})` : pts.total.toFixed(1)}</div>
                                 </div>
-                                <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textSec }}>{result?.gridPosition ? `P${result.gridPosition}` : '—'}</div>
-                                <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textPri, fontWeight: 800 }}>{result?.dnf ? '—' : result?.position ? `P${result.position}` : '—'}</div>
-                                <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textPri }}>{pts.base > 0 ? `+${pts.base}` : '—'}</div>
-                                <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (result?.overtakes > 0 ? C.textSec : C.textSec) }}>{result?.overtakes || '—'}</div>
-                                <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (pts.overtakes > 0 ? C.green : C.textSec) }}>{pts.overtakes > 0 ? `+${pts.overtakes}` : '—'}</div>
-                                <div style={{ textAlign: 'center', fontSize: 11, fontWeight: 800, color: result?.dnf ? '#555' : (result?.dotdRank ? '#FFD700' : C.textSec) }}>{result?.dotdRank ? `#${result.dotdRank}` : '—'}</div>
-                                <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (pts.dotd > 0 ? '#FFD700' : C.textSec) }}>{pts.dotd > 0 ? `+${pts.dotd}` : '—'}</div>
-                                <div style={{ textAlign: 'center', fontFamily: "'Orbitron', monospace", fontSize: 15, fontWeight: 900, color: (isReserve && !subbedIn) ? C.textSec : C.green }}>{(isReserve && !subbedIn) ? `(${pts.total.toFixed(1)})` : pts.total.toFixed(1)}</div>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         </div>
 
@@ -237,9 +276,9 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                             <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 10, background: C.surface2, color: C.textSec, border: `1px solid ${C.border}` }}>
                               Switches: {t.switchesUsed || 0}/5
                             </span>
-                            {dnfCount > 0 && teamReserve && (
+                            {teamReserveObj && (pilotDetails.find(p => p.isReserve)?.subbedIn) && (
                               <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 10, background: C.amber + '22', color: C.amber, border: `1px solid ${C.amber}44` }}>
-                                1 Switch Usato per DNF
+                                {teamReserveObj.subbedInManually ? 'Switch Manuale Usato' : (dnfCount > 0 ? '1 Switch Usato per DNF' : 'Switch Applicato')}
                               </span>
                             )}
                           </div>
