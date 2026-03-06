@@ -263,23 +263,24 @@ export default function FantaF1() {
               onClick={() => setPage(n.id)}
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center",
-                gap: active ? 3 : 2,
-                padding: active ? "9px 18px" : "9px 14px",
+                gap: active ? 2 : 1,
+                padding: active ? "8px 12px" : "8px 10px",
                 borderRadius: 100,
                 border: "none",
                 background: active ? "#e10600" : "transparent",
                 color: active ? "#fff" : "#666",
                 cursor: "pointer",
                 transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                fontSize: 9,
+                fontSize: 8,
                 fontWeight: 700,
                 textTransform: "uppercase",
-                letterSpacing: active ? 0.5 : 1,
+                letterSpacing: active ? 0.3 : 0.5,
                 boxShadow: active ? "0 4px 16px rgba(225,6,0,0.45)" : "none",
                 whiteSpace: "nowrap",
+                minWidth: 48,
               }}
             >
-              <Icon type={n.icon} size={active ? 17 : 16} />
+              <Icon type={n.icon} size={active ? 16 : 14} />
               {n.label}
             </button>
           );
