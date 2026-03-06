@@ -19,39 +19,42 @@ async function run() {
     }
 
     // Clear previous auction and lot history
-    console.log('Clearing old auction lots...');
-    await supabase.from('auction_lots').delete().neq('id', 0);
-    await supabase.from('auctions').update({ is_completed: true }).neq('id', 0); // we mark all as completed if any exist
+    console.log('Clearing old auction lots and auctions...');
+    await supabase.from('auction_lots').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('auctions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 
     // Index 2 is Asta 1, Index 5 is Asta 2 based on lib/data.js CALENDAR
     const pastAuctionEvents = events.filter(e => e.sort_order === 2 || e.sort_order === 5);
 
     if (pastAuctionEvents.length < 2) {
         console.error("Not enough past auction events found in DB to simulate", pastAuctionEvents);
-        // Continuing anyway to try...
+        return;
     }
 
-    let auctionCounter = 1;
-    const lotsToInsert = [];
+    // 1.5 Pre-create the two auctions
+    const auctions = [];
+    for (let i = 0; i < pastAuctionEvents.length; i++) {
+        const { data: au, error: auErr } = await supabase.from('auctions')
+            .insert({
+                calendar_event_id: pastAuctionEvents[i].id,
+                auction_number: i + 1,
+                budget_added: 100,
+                is_completed: true
+            })
+            .select().single();
+        if (auErr) {
+            console.error("Error creating auction", auErr);
+            return;
+        }
+        auctions.push(au);
+    }
 
-    // Group current pilots by their currently assigned teams.
-    // We'll simulate that they were bought in "Asta 1" and "Asta 2"
+    const lotsToInsert = [];
     const ownedPilots = pilots.filter(p => p.owner_team_id !== null);
 
-    for (const p of ownedPilots) {
-        // Arbitrarily assign half the purchases to Auction 1, and half to Auction 2
-        const targetAuctionEvent = pastAuctionEvents[(auctionCounter - 1) % pastAuctionEvents.length];
-
-        // Ensure the `auctions` record exists for this event
-        let { data: auctionInfo } = await supabase.from('auctions').select('*').eq('calendar_event_id', targetAuctionEvent.id).maybeSingle();
-        if (!auctionInfo) {
-            const { data: newAu } = await supabase.from('auctions')
-                .insert({ calendar_event_id: targetAuctionEvent.id, auction_number: auctionCounter, is_completed: true })
-                .select()
-                .single();
-            auctionInfo = newAu;
-            auctionCounter++;
-        }
+    ownedPilots.forEach((p, idx) => {
+        // Alterniamo i lotti tra le due aste
+        const auctionInfo = auctions[idx % auctions.length];
 
         lotsToInsert.push({
             auction_id: auctionInfo.id,
@@ -60,9 +63,9 @@ async function run() {
             final_price: p.purchase_price || Math.floor(Math.random() * 20) + 1,
             lot_order: lotsToInsert.length + 1
         });
-    }
+    });
 
-    console.log(`Inserting ${lotsToInsert.length} historical auction lots...`);
+    console.log(`Inserting ${lotsToInsert.length} historical auction lots across ${auctions.length} auctions...`);
     const { error: lotErr } = await supabase.from('auction_lots').insert(lotsToInsert);
     if (lotErr) console.error("Error inserting lots", lotErr);
 
