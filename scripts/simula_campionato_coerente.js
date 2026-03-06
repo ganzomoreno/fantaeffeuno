@@ -32,15 +32,15 @@ async function run() {
         is_completed: true
     }).select().single();
 
-    // Assegna 3 piloti per team (18 piloti totali)
+    // Assegna 2 piloti per team (12 piloti totali)
     const availablePilots = [...pilots].sort(() => 0.5 - Math.random());
     const auction1Lots = [];
     const ownershipUpdates = [];
 
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 12; i++) {
         const p = availablePilots[i];
         const team = teams[i % teams.length];
-        const price = Math.floor(Math.random() * 20) + 1;
+        const price = Math.floor(Math.random() * 25) + 5;
 
         auction1Lots.push({
             auction_id: auction1.id,
@@ -60,7 +60,7 @@ async function run() {
     console.log('Step 3: Simulating Race 1 & 2...');
     const raceEvents1 = events.filter(e => e.sort_order === 0 || e.sort_order === 1);
     for (const ev of raceEvents1) {
-        await simulateRaceAndLineups(ev, teams, 18); // Pass total owned pilots
+        await simulateRaceAndLineups(ev, teams);
     }
 
     // 5. ASTA 2 (RIPARAZIONE)
@@ -74,11 +74,11 @@ async function run() {
     }).select().single();
 
     const auction2Lots = [];
-    const remainingPilots = availablePilots.slice(18); // the 4 pilots left
+    const remainingPilots = availablePilots.slice(12); // the 10 pilots left
     remainingPilots.forEach((p, i) => {
-        // Assegna a chi ha meno di 4 piloti (i primi 4 team della lista)
+        // Assegna equamente ai team
         const team = teams[i % teams.length];
-        const price = Math.floor(Math.random() * 10) + 1;
+        const price = Math.floor(Math.random() * 15) + 1;
         auction2Lots.push({
             auction_id: auction2.id,
             pilot_id: p.id,
@@ -89,7 +89,7 @@ async function run() {
         ownershipUpdates.push({ id: p.id, owner_team_id: team.id, purchase_price: price });
     });
     await supabase.from('auction_lots').insert(auction2Lots);
-    for (const u of ownershipUpdates.slice(18)) {
+    for (const u of ownershipUpdates.slice(12)) {
         await supabase.from('pilots').update({ owner_team_id: u.owner_team_id, purchase_price: u.purchase_price }).eq('id', u.id);
     }
 

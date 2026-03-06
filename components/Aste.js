@@ -211,38 +211,42 @@ export default function Aste({ calendar }) {
 
                         {/* LOTS TABLE */}
                         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '50px 1fr 1fr 80px', padding: '10px 16px', background: C.surface2, borderBottom: `1px solid ${C.border}`, fontSize: 10, fontWeight: 800, color: C.textSec, letterSpacing: 1 }}>
-                                <div style={{ textAlign: 'center' }}>LOTTO</div>
-                                <div>PILOTA ACQUISTATO</div>
-                                <div>SQUADRA ACQUIRENTE</div>
-                                <div style={{ textAlign: 'right' }}>PREZZO</div>
-                            </div>
-
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                {auction.lots.map((lot, i) => (
-                                    <div key={lot.id} style={{ display: 'grid', gridTemplateColumns: '50px 1fr 1fr 80px', padding: '12px 16px', borderBottom: i < auction.lots.length - 1 ? `1px solid ${C.border}` : 'none', alignItems: 'center' }}>
-                                        {/* Lot Num */}
-                                        <div style={{ textAlign: 'center', fontSize: 11, color: C.textSec, fontWeight: 600 }}>#{lot.lotOrder}</div>
-                                        {/* Pilot */}
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                            <div style={{ width: 20, height: 20, borderRadius: '50%', background: F1_TEAM_COLORS[lot.pilot.team] || '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, fontWeight: 900, color: '#fff', border: `1px solid ${C.border}` }}>
-                                                {lot.pilot.abbreviation}
-                                            </div>
-                                            <div style={{ fontSize: 13, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lot.pilot.name}</div>
-                                        </div>
-                                        {/* Buyer Team */}
-                                        <div style={{ fontSize: 13, fontWeight: 600, color: C.textSec, display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                            <div style={{ width: 16, height: 16, borderRadius: '50%', background: C.red, display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#fff' }}>
-                                                {lot.team.name.charAt(0)}
-                                            </div>
-                                            {lot.team.name}
-                                        </div>
-                                        {/* Price */}
-                                        <div style={{ textAlign: 'right', fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 900, color: C.amber }}>
-                                            {lot.finalPrice} <span style={{ fontSize: 9, color: C.textSec }}>FM</span>
-                                        </div>
+                            <div style={{ overflowX: 'auto' }}>
+                                <div style={{ minWidth: 500 }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '50px 1fr 1fr 80px', padding: '10px 16px', background: C.surface2, borderBottom: `1px solid ${C.border}`, fontSize: 10, fontWeight: 800, color: C.textSec, letterSpacing: 1 }}>
+                                        <div style={{ textAlign: 'center' }}>LOTTO</div>
+                                        <div>PILOTA ACQUISTATO</div>
+                                        <div>SQUADRA ACQUIRENTE</div>
+                                        <div style={{ textAlign: 'right' }}>PREZZO</div>
                                     </div>
-                                ))}
+
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        {auction.lots.map((lot, i) => (
+                                            <div key={lot.id} style={{ display: 'grid', gridTemplateColumns: '50px 1fr 1fr 80px', padding: '12px 16px', borderBottom: i < auction.lots.length - 1 ? `1px solid ${C.border}` : 'none', alignItems: 'center' }}>
+                                                {/* Lot Num */}
+                                                <div style={{ textAlign: 'center', fontSize: 11, color: C.textSec, fontWeight: 600 }}>#{lot.lotOrder}</div>
+                                                {/* Pilot */}
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: F1_TEAM_COLORS[lot.pilot.team] || '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, fontWeight: 900, color: '#fff', border: `1px solid ${C.border}` }}>
+                                                        {lot.pilot.abbreviation}
+                                                    </div>
+                                                    <div style={{ fontSize: 13, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lot.pilot.name}</div>
+                                                </div>
+                                                {/* Buyer Team */}
+                                                <div style={{ fontSize: 13, fontWeight: 600, color: C.textSec, display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                    <div style={{ width: 16, height: 16, borderRadius: '50%', background: C.red, display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#fff' }}>
+                                                        {lot.team.name.charAt(0)}
+                                                    </div>
+                                                    {lot.team.name}
+                                                </div>
+                                                {/* Price */}
+                                                <div style={{ textAlign: 'right', fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 900, color: C.amber }}>
+                                                    {lot.finalPrice} <span style={{ fontSize: 9, color: C.textSec }}>FM</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

@@ -198,7 +198,11 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                                 })}
                             </svg>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>
-                                {races.map((_, i) => <div key={i} style={{ fontSize: 10, color: C.textSec }}>GARA {i + 1}</div>)}
+                                {races.map((r, i) => {
+                                    const loc = r.location || "Gara";
+                                    const synthetic = `(${loc.slice(0, 5).toLowerCase()})`;
+                                    return <div key={i} style={{ fontSize: 9, color: C.textSec, textTransform: 'uppercase', fontWeight: 700 }}>{synthetic}</div>
+                                })}
                             </div>
                         </div>
                     </div>
