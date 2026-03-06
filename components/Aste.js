@@ -35,47 +35,82 @@ export default function Aste({ calendar }) {
         });
     }, []);
 
-    // Raggruppa per Numero Asta
+    // Raggruppa per Numero Asta e calcola la progressione dei budget
     const groupedAuctions = useMemo(() => {
-        const groups = {};
+        // 1. Ordiniamo TUTTI i lotti per numero d'asta e ordine di battuta
+        const sortedLots = [...lots].sort((a, b) => {
+            if (a.auctionNumber !== b.auctionNumber) return a.auctionNumber - b.auctionNumber;
+            return a.lotOrder - b.lotOrder;
+        });
 
-        // Prima passata: organizziamo i lotti e calcoliamo i budget spesi per ASTA
-        lots.forEach(lot => {
-            if (!groups[lot.auctionNumber]) {
-                let dateStr = "Sconosciuta";
-                let auctionCount = 0;
-                for (let ev of calendar) {
-                    if (ev.type === 'auction') {
-                        auctionCount++;
-                        if (auctionCount === lot.auctionNumber) {
-                            dateStr = ev.date;
-                            break;
-                        }
+        // 2. Troviamo tutte le sessioni d'asta uniche
+        const auctionNums = [...new Set(sortedLots.map(l => l.auctionNumber))].sort((a, b) => a - b);
+
+        const sessions = [];
+        const rollingBudgets = {}; // { teamId: balance }
+
+        auctionNums.forEach(num => {
+            const sessionLots = sortedLots.filter(l => l.auctionNumber === num);
+            const budgetAdded = sessionLots[0]?.budgetAdded || 0;
+
+            // Trova data dal calendario
+            let dateStr = "Sconosciuta";
+            let auctionCount = 0;
+            for (let ev of calendar) {
+                if (ev.type === 'auction') {
+                    auctionCount++;
+                    if (auctionCount === num) {
+                        dateStr = ev.date;
+                        break;
                     }
                 }
-                groups[lot.auctionNumber] = {
-                    number: lot.auctionNumber,
-                    date: dateStr,
-                    lots: [],
-                    teamSpent: {} // { team_id: spent }
-                };
             }
-            groups[lot.auctionNumber].lots.push(lot);
 
-            // Traccia i soldi spesi dal team in questa specifica asta
-            const tId = lot.team.id;
-            if (!groups[lot.auctionNumber].teamSpent[tId]) {
-                groups[lot.auctionNumber].teamSpent[tId] = { team: lot.team, spent: 0 };
-            }
-            groups[lot.auctionNumber].teamSpent[tId].spent += lot.finalPrice;
+            const teamStats = {};
+
+            sessionLots.forEach(lot => {
+                const tId = lot.team.id;
+                if (!teamStats[tId]) {
+                    const prevBalance = rollingBudgets[tId] || 0;
+                    teamStats[tId] = {
+                        team: lot.team,
+                        start: prevBalance + budgetAdded,
+                        spent: 0,
+                        end: prevBalance + budgetAdded,
+                        pilotsWon: []
+                    };
+                }
+                teamStats[tId].spent += lot.finalPrice;
+                teamStats[tId].end -= lot.finalPrice;
+                teamStats[tId].pilotsWon.push({ ...lot.pilot, price: lot.finalPrice });
+            });
+
+            // Assicuriamoci che tutti i team siano presenti nel recap
+            const allInvolvedTeams = [...new Set(lots.map(l => JSON.stringify(l.team)))].map(s => JSON.parse(s));
+            allInvolvedTeams.forEach(t => {
+                if (!teamStats[t.id]) {
+                    const prevBalance = rollingBudgets[t.id] || 0;
+                    teamStats[t.id] = {
+                        team: t,
+                        start: prevBalance + budgetAdded,
+                        spent: 0,
+                        end: prevBalance + budgetAdded,
+                        pilotsWon: []
+                    };
+                }
+                // Aggiorniamo il rolling budget per la prossima asta
+                rollingBudgets[t.id] = teamStats[t.id].end;
+            });
+
+            sessions.push({
+                number: num,
+                date: dateStr,
+                lots: sessionLots,
+                budgetRecap: Object.values(teamStats).sort((a, b) => b.spent - a.spent)
+            });
         });
 
-        // Convertiamo il tracciatore budget in array e lo ordiniamo dal più parsimonioso
-        Object.values(groups).forEach(g => {
-            g.budgetRecap = Object.values(g.teamSpent).sort((a, b) => a.spent - b.spent);
-        });
-
-        return Object.values(groups).sort((a, b) => b.number - a.number); // Dalla più recente
+        return sessions.sort((a, b) => b.number - a.number);
     }, [lots, calendar]);
 
     if (loading) {
@@ -135,34 +170,42 @@ export default function Aste({ calendar }) {
                         {/* BUDGET RECAP CARD */}
                         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
                             <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 16 }}>
-                                RIASSUNTO RISORSE
+                                RIEPILOGO FINANZIARIO E COMPOSIZIONE SQUADRE
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12 }}>
-                                {auction.budgetRecap.map((t, idx) => {
-                                    // Simulated logic: everyone starts with 100 FM for Auction 1, and gets +100 for Auction 2
-                                    const startingBudget = auction.number * 100;
-                                    const remaining = startingBudget - t.spent;
-                                    const pct = Math.max(0, (remaining / startingBudget) * 100);
-
-                                    return (
-                                        <div key={t.team.id} style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12 }}>
-                                            <div style={{ fontSize: 11, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 8 }}>{t.team.name}</div>
-
-                                            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 8 }}>
-                                                <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 18, fontWeight: 900, color: C.amber }}>{remaining}</span>
-                                                <span style={{ fontSize: 9, color: C.textSec }}>FM</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                {auction.budgetRecap.map((t, idx) => (
+                                    <div key={t.team.id} style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                                            <div>
+                                                <div style={{ fontSize: 13, fontWeight: 800, color: C.textPri, marginBottom: 4 }}>{idx + 1}. {t.team.name}</div>
+                                                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                                                    <div style={{ fontSize: 10, color: C.textSec }}>START: <span style={{ color: C.textPri, fontWeight: 700 }}>{t.start} FM</span></div>
+                                                    <div style={{ fontSize: 10, color: C.red }}>SPESI: <span style={{ fontWeight: 700 }}>{t.spent} FM</span></div>
+                                                    <div style={{ fontSize: 10, color: C.amber }}>END: <span style={{ fontWeight: 700 }}>{t.end} FM</span></div>
+                                                </div>
                                             </div>
-
-                                            <div style={{ width: '100%', height: 4, background: C.border, borderRadius: 2, overflow: 'hidden' }}>
-                                                <div style={{ width: `${pct}%`, height: '100%', background: C.textPri }} />
-                                            </div>
-                                            <div style={{ fontSize: 9, color: C.textSec, marginTop: 6, display: 'flex', justifyContent: 'space-between' }}>
-                                                <span>Spesi: {t.spent}</span>
-                                                <span>Su: {startingBudget}</span>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <div style={{ fontSize: 11, fontWeight: 900, color: C.textPri, fontFamily: "'Orbitron', monospace" }}>{t.end} <span style={{ fontSize: 8, color: C.textSec }}>FM</span></div>
+                                                <div style={{ fontSize: 9, color: C.textSec, textTransform: 'uppercase' }}>Residuo</div>
                                             </div>
                                         </div>
-                                    );
-                                })}
+
+                                        {/* Pilots recap for this team */}
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                                            {t.pilotsWon.length > 0 ? t.pilotsWon.map(p => (
+                                                <div key={p.id} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: '4px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <div style={{ width: 14, height: 14, borderRadius: '50%', background: F1_TEAM_COLORS[p.team] || '#555', fontSize: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff' }}>
+                                                        {p.abbreviation}
+                                                    </div>
+                                                    <div style={{ fontSize: 10, fontWeight: 600, color: C.textSec }}>{p.name}</div>
+                                                    <div style={{ fontSize: 10, fontWeight: 900, color: C.amber, marginLeft: 4, paddingLeft: 8, borderLeft: `1px solid ${C.border}` }}>{p.price} <span style={{ fontSize: 7, opacity: 0.7 }}>FM</span></div>
+                                                </div>
+                                            )) : (
+                                                <div style={{ fontSize: 10, fontStyle: 'italic', color: C.border }}>Nessun acquisto in questa sessione</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
@@ -171,7 +214,7 @@ export default function Aste({ calendar }) {
                             <div style={{ display: 'grid', gridTemplateColumns: '50px 1fr 1fr 80px', padding: '10px 16px', background: C.surface2, borderBottom: `1px solid ${C.border}`, fontSize: 10, fontWeight: 800, color: C.textSec, letterSpacing: 1 }}>
                                 <div style={{ textAlign: 'center' }}>LOTTO</div>
                                 <div>PILOTA ACQUISTATO</div>
-                                <div>ACQUIRENTE</div>
+                                <div>SQUADRA ACQUIRENTE</div>
                                 <div style={{ textAlign: 'right' }}>PREZZO</div>
                             </div>
 
