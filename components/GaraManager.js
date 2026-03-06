@@ -216,59 +216,80 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                       <div style={{ color: C.textSec, fontSize: 12 }}>Nessuna formazione impostata per questa gara.</div>
                     ) : (
                       <>
-                        <div style={{ overflowX: 'auto', marginBottom: 12 }}>
-                          <div style={{ minWidth: 600 }}>
-                            {/* Header */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 40px 40px 55px 35px 55px 40px 60px 50px', gap: 6, marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${C.border}` }}>
-                              {['PILOTA', 'START', 'END', 'PT POS', 'OVT', 'PT OVT', 'DOTD', 'PT DOTD', 'TOT'].map(h => (
-                                <div key={h} style={{ fontSize: 9, textTransform: 'uppercase', color: C.textSec, textAlign: h !== 'PILOTA' ? 'center' : 'left', alignSelf: 'end', fontWeight: 800 }}>{h}</div>
-                              ))}
-                            </div>
-                            {pilotDetails.map(({ pilot, result, pts, isReserve, subbedIn, isSwappedOut, rawId }, j) => {
-                              const canManualSwitch = isMe && !isReserve && !isSwappedOut && !result?.dnf && teamReserveObj && (5 - (t.switchesUsed || 0) > 0) && !pilotDetails.find(p => p.isReserve)?.subbedIn;
+                        <div style={{ marginBottom: 12 }}>
+                          {/* Header */}
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 45px 30px 40px 30px 40px', gap: 4, marginBottom: 8, paddingBottom: 6, borderBottom: `1px solid ${C.border}` }}>
+                            {['PILOTA', 'ST>FIN', 'PT', 'OVR', 'DD', 'TOT'].map(h => (
+                              <div key={h} style={{ fontSize: 9, textTransform: 'uppercase', color: C.textSec, textAlign: h !== 'PILOTA' && h !== 'TOT' ? 'center' : h === 'TOT' ? 'right' : 'left', alignSelf: 'end', fontWeight: 800 }}>{h}</div>
+                            ))}
+                          </div>
 
-                              return (
-                                <div key={j} style={{
-                                  display: 'grid', gridTemplateColumns: '1fr 40px 40px 55px 35px 55px 40px 60px 50px',
-                                  gap: 6, padding: '10px 0', borderTop: j > 0 ? `1px solid ${C.surface2}` : 'none', alignItems: 'center',
-                                  opacity: ((isReserve && !subbedIn) || isSwappedOut) ? 0.35 : 1,
-                                }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <div style={{ width: 3, height: 20, borderRadius: 1, background: F1_TEAM_COLORS[pilot?.team] || '#555', flexShrink: 0 }} />
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                        <div style={{ fontSize: 13, fontWeight: 700, color: result?.dnf ? '#555' : C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                          {pilot?.abbreviation || pilot?.name?.substring(0, 3).toUpperCase() || '?'}
-                                        </div>
-                                        {canManualSwitch && (
-                                          <button
-                                            onClick={() => handleManualSwitch(selectedRace.calendarIndex, t.id, rawId, teamReserveObj.id || teamReserveObj)}
-                                            style={{ background: 'transparent', border: `1px solid ${C.border}`, borderRadius: 4, color: C.textPri, cursor: 'pointer', padding: '2px 4px', fontSize: 10, display: 'flex', alignItems: 'center', gap: 4 }}
-                                            title="Usa Switch"
-                                          >
-                                            🔁
-                                          </button>
-                                        )}
+                          {pilotDetails.map(({ pilot, result, pts, isReserve, subbedIn, isSwappedOut, rawId }, j) => {
+                            const canManualSwitch = isMe && !isReserve && !isSwappedOut && !result?.dnf && teamReserveObj && (5 - (t.switchesUsed || 0) > 0) && !pilotDetails.find(p => p.isReserve)?.subbedIn;
+
+                            return (
+                              <div key={j} style={{
+                                display: 'grid', gridTemplateColumns: '1fr 45px 30px 40px 30px 40px',
+                                gap: 4, padding: '8px 0', borderTop: j > 0 ? `1px solid ${C.surface2}` : 'none', alignItems: 'center',
+                                opacity: ((isReserve && !subbedIn) || isSwappedOut) ? 0.35 : 1,
+                              }}>
+                                {/* COL 1: PILOTA */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+                                  <div style={{ width: 3, height: 20, borderRadius: 1, background: F1_TEAM_COLORS[pilot?.team] || '#555', flexShrink: 0 }} />
+                                  <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                      <div style={{ fontSize: 12, fontWeight: 700, color: result?.dnf ? '#555' : C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        {pilot?.abbreviation || pilot?.name?.substring(0, 3).toUpperCase() || '?'}
                                       </div>
-                                      <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
-                                        {result?.dnf && <span style={{ fontSize: 9, color: C.red, fontWeight: 800 }}>DNF</span>}
-                                        {subbedIn && <span style={{ fontSize: 9, color: C.amber, fontWeight: 800 }}>SUB IN ⇡</span>}
-                                        {isSwappedOut && <span style={{ fontSize: 9, color: C.textSec, fontWeight: 800 }}>SWAPPED</span>}
-                                      </div>
+                                      {canManualSwitch && (
+                                        <button
+                                          onClick={() => handleManualSwitch(selectedRace.calendarIndex, t.id, rawId, teamReserveObj.id || teamReserveObj)}
+                                          style={{ background: 'transparent', border: `1px solid ${C.border}`, borderRadius: 4, color: C.textPri, cursor: 'pointer', padding: '1px 3px', fontSize: 10, display: 'flex', alignItems: 'center' }}
+                                          title="Usa Switch"
+                                        >
+                                          🔁
+                                        </button>
+                                      )}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginTop: 2 }}>
+                                      {result?.dnf && <span style={{ fontSize: 8, color: C.red, fontWeight: 800 }}>DNF</span>}
+                                      {subbedIn && <span style={{ fontSize: 8, color: C.amber, fontWeight: 800 }}>SUB ⇡</span>}
+                                      {isSwappedOut && <span style={{ fontSize: 8, color: C.textSec, fontWeight: 800 }}>SWAP</span>}
                                     </div>
                                   </div>
-                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textSec }}>{result?.gridPosition ? `P${result.gridPosition}` : '—'}</div>
-                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textPri, fontWeight: 800 }}>{result?.dnf ? '—' : result?.position ? `P${result.position}` : '—'}</div>
-                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : C.textPri }}>{pts.base > 0 ? `+${pts.base}` : '—'}</div>
-                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (result?.overtakes > 0 ? C.textSec : C.textSec) }}>{result?.overtakes || '—'}</div>
-                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (pts.overtakes > 0 ? C.green : C.textSec) }}>{pts.overtakes > 0 ? `+${pts.overtakes}` : '—'}</div>
-                                  <div style={{ textAlign: 'center', fontSize: 11, fontWeight: 800, color: result?.dnf ? '#555' : (result?.dotdRank ? '#FFD700' : C.textSec) }}>{result?.dotdRank ? `#${result.dotdRank}` : '—'}</div>
-                                  <div style={{ textAlign: 'center', fontSize: 13, color: result?.dnf ? '#555' : (pts.dotd > 0 ? '#FFD700' : C.textSec) }}>{pts.dotd > 0 ? `+${pts.dotd}` : '—'}</div>
-                                  <div style={{ textAlign: 'center', fontFamily: "'Orbitron', monospace", fontSize: 15, fontWeight: 900, color: ((isReserve && !subbedIn) || isSwappedOut) ? C.textSec : C.green }}>{((isReserve && !subbedIn) || isSwappedOut) ? `(${pts.total.toFixed(1)})` : pts.total.toFixed(1)}</div>
                                 </div>
-                              );
-                            })}
-                          </div>
+
+                                {/* COL 2: START > END */}
+                                <div style={{ textAlign: 'center', fontSize: 10, color: result?.dnf ? '#555' : C.textSec, lineHeight: 1.1 }}>
+                                  <div>{result?.gridPosition ? `P${result.gridPosition}` : '—'}</div>
+                                  <div style={{ fontSize: 8 }}>↓</div>
+                                  <div style={{ color: result?.dnf ? '#555' : C.textPri, fontWeight: 800 }}>{result?.dnf ? 'DNF' : result?.position ? `P${result.position}` : '—'}</div>
+                                </div>
+
+                                {/* COL 3: BASE PT */}
+                                <div style={{ textAlign: 'center', fontSize: 12, color: result?.dnf ? '#555' : C.textPri, fontWeight: 700 }}>
+                                  {pts.base > 0 ? `+${pts.base}` : '—'}
+                                </div>
+
+                                {/* COL 4: OVT */}
+                                <div style={{ textAlign: 'center', color: result?.dnf ? '#555' : (pts.overtakes > 0 ? C.green : C.textSec), lineHeight: 1.1 }}>
+                                  <div style={{ fontSize: 11, fontWeight: 700 }}>{pts.overtakes > 0 ? `+${pts.overtakes}` : '—'}</div>
+                                  {result?.overtakes > 0 && <div style={{ fontSize: 8, color: C.textSec }}>({result.overtakes})</div>}
+                                </div>
+
+                                {/* COL 5: DOTD */}
+                                <div style={{ textAlign: 'center', color: result?.dnf ? '#555' : (pts.dotd > 0 ? '#FFD700' : C.textSec), lineHeight: 1.1 }}>
+                                  <div style={{ fontSize: 11, fontWeight: 700 }}>{pts.dotd > 0 ? `+${pts.dotd}` : '—'}</div>
+                                  {result?.dotdRank && <div style={{ fontSize: 8 }}>#{result.dotdRank}</div>}
+                                </div>
+
+                                {/* COL 6: TOTAL */}
+                                <div style={{ textAlign: 'right', fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 900, color: ((isReserve && !subbedIn) || isSwappedOut) ? C.textSec : C.green }}>
+                                  {((isReserve && !subbedIn) || isSwappedOut) ? `(${pts.total.toFixed(1)})` : pts.total.toFixed(1)}
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
