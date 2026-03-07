@@ -20,12 +20,11 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
   // Helper to parse DD/MM/YYYY to a standard Date object
   const parseDate = (ddmmyyyy) => {
     const [d, m, y] = ddmmyyyy.split('/');
-    return new Date(`${y}-${m}-${d}T15:00:00Z`);
+    // Races are on 2026-xx-xx. We use local time for the "midnight before" rule.
+    return new Date(`${y}-${m}-${d}T15:00:00`);
   };
 
-  // ⏱ SIMULATED DATE MANAGER (as requested by user: 2 days after Race 5)
-  // Arabia Saudita was 19/04/2026 -> Simulated today is 21/04/2026
-  const SIMULATED_TODAY = new Date('2026-04-21T12:00:00Z');
+  const SIMULATED_TODAY = new Date();
 
   // Determine active race based on strict timeline rules
   const activeRaceInfo = useMemo(() => {
@@ -39,9 +38,10 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
       const raceDate = parseDate(ev.date);
 
       // Deadline is 23:59:59 of the day BEFORE the race
+      // The day of the race starts at 00:00:00. The deadline is the end of the previous day.
       const deadline = new Date(raceDate);
-      deadline.setUTCDate(deadline.getUTCDate() - 1);
-      deadline.setUTCHours(23, 59, 59, 999);
+      deadline.setHours(0, 0, 0, 0); // Start of race day
+      deadline.setMilliseconds(-1); // One millisecond before race day (23:59:59.999 of previous day)
 
       if (SIMULATED_TODAY <= deadline) {
         // Window is successfully open
@@ -311,7 +311,22 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                     <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri }}>{t.name}</div>
                     <div style={{ fontSize: 11, color: C.textSec }}>{t.owner} · {tPilots.length} piloti</div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                    {(() => {
+                      const tLineup = nextRaceIdx >= 0 ? (dbLineups[`race_${nextRaceIdx}`] || {})[t.id] || [] : [];
+                      const isSchierata = tLineup.length === 3;
+                      return (
+                        <span style={{
+                          fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 4,
+                          background: isSchierata ? C.green + '22' : C.red + '22',
+                          color: isSchierata ? C.green : C.red,
+                          border: `1px solid ${isSchierata ? C.green + '44' : C.red + '44'}`,
+                          textTransform: 'uppercase', letterSpacing: 1
+                        }}>
+                          {isSchierata ? '✓ SCHIERATA' : '⚠ DA SCHIERARE'}
+                        </span>
+                      );
+                    })()}
                     <span style={{ fontFamily: "'Orbitron'", fontWeight: 700, color: C.red, fontSize: 15 }}>
                       {(scores[t.id] || 0).toFixed(1)}
                     </span>
@@ -322,15 +337,25 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                   <div style={{ padding: '0 14px 12px', borderTop: `1px solid ${C.border}` }}>
                     {tPilots.length === 0 ? (
                       <p style={{ color: C.textSec, fontSize: 12, margin: '10px 0' }}>Nessun pilota assegnato</p>
-                    ) : tPilots.map(p => (
-                      <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${C.surface2}` }}>
-                        <div style={{ width: 4, height: 26, borderRadius: 2, background: F1_TEAM_COLORS[p.team] || '#555', flexShrink: 0 }} />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 600, fontSize: 12, color: C.textPri }}>{p.name}</div>
-                          <div style={{ fontSize: 10, color: C.textSec }}>{p.team} · {p.price}M</div>
+                    ) : tPilots.map(p => {
+                      const tLineup = nextRaceIdx >= 0 ? (dbLineups[`race_${nextRaceIdx}`] || {})[t.id] || [] : [];
+                      const isStarter = tLineup.some(l => (l.id || l) === p.id);
+                      return (
+                        <div key={p.id} style={{
+                          display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
+                          borderBottom: `1px solid ${C.surface2}`,
+                          opacity: isStarter ? 1 : 0.4
+                        }}>
+                          <div style={{ width: 4, height: 26, borderRadius: 2, background: F1_TEAM_COLORS[p.team] || '#555', flexShrink: 0 }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600, fontSize: 12, color: C.textPri }}>
+                              {p.name} {isStarter && <span style={{ color: C.green, fontSize: 9, marginLeft: 6, fontWeight: 800 }}>[TITOLARE]</span>}
+                            </div>
+                            <div style={{ fontSize: 10, color: C.textSec }}>{p.team} · {p.price}M</div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

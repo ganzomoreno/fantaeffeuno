@@ -26,7 +26,7 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
     const [d, m, y] = ddmmyyyy.split('/');
     return new Date(`${y}-${m}-${d}T15:00:00Z`);
   };
-  const SIMULATED_TODAY = new Date('2026-04-21T12:00:00Z');
+  const SIMULATED_TODAY = new Date();
 
   const activeRaceInfo = useMemo(() => {
     let activeIdx = -1;

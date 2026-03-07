@@ -1,0 +1,22 @@
+﻿--- GP AUSTRALIA SIMULATION (FULL GRID) ---
+1. Inserting lineups (all 3 drivers starting for each team)...
+2. Inserting race results...
+3. Recomputing team scores via pgSQL RPC func...
+\n--- ­ƒÅå TOP 10 PILOTI ---
+1. Charles Leclerc           | Grid: P1 -> Arrivo: P1 | Ovt: 0 | Punti: 28
+2. Lando Norris              | Grid: P4 -> Arrivo: P2 | Ovt: 2 | Punti: 25
+3. Max Verstappen            | Grid: P3 -> Arrivo: P3 | Ovt: 0 | Punti: 20
+4. Oscar Piastri             | Grid: P5 -> Arrivo: P4 | Ovt: 1 | Punti: 19.5
+5. Carlos Sainz              | Grid: P9 -> Arrivo: P5 | Ovt: 4 | Punti: 18
+6. Andrea Kimi Antonelli     | Grid: P15 -> Arrivo: P8 | Ovt: 7 | Punti: 16
+7. Fernando Alonso           | Grid: P10 -> Arrivo: P7 | Ovt: 3 | Punti: 15.5
+8. George Russell            | Grid: P6 -> Arrivo: P6 | Ovt: 0 | Punti: 15
+9. Nico H├╝lkenberg           | Grid: P9 -> Arrivo: P9 | Ovt: 0 | Punti: 12
+10. Alexander Albon           | Grid: P11 -> Arrivo: P10 | Ovt: 1 | Punti: 11.5
+\n--- ­ƒÅÄ´©Å CLASSIFICA FANTA F1 ---
+1. ZetaRacing                | Totale: 63.5 pt
+2. Scudemaria Ferrari        | Totale: 54 pt
+3. SF ÔÇô Scuderia Fainelli    | Totale: 40 pt
+4. Ranocchiettos             | Totale: 36 pt
+5. Alpha Chiro Racing        | Totale: 32.5 pt
+6. Abdull Mazzar             | Totale: 14.5 pt
