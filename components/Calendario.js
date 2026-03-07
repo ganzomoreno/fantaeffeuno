@@ -3,14 +3,14 @@
 import { useState, useMemo } from 'react';
 
 const C = {
-  surface:  '#14151C',
+  surface: '#14151C',
   surface2: '#1A1B24',
-  border:   '#2A2D3A',
-  textPri:  '#EDEEF3',
-  textSec:  '#A9ABBA',
-  red:      '#E10600',
-  green:    '#00FF41',
-  amber:    '#FFB700',
+  border: '#2A2D3A',
+  textPri: '#EDEEF3',
+  textSec: '#A9ABBA',
+  red: '#E10600',
+  green: '#00FF41',
+  amber: '#FFB700',
 };
 
 function parseDateItalian(str) {
@@ -22,7 +22,7 @@ export default function Calendario({ calendar, races }) {
   const [filter, setFilter] = useState('tutto'); // 'tutto' | 'gare' | 'aste'
 
   const completedSet = useMemo(() => new Set(races.map(r => r.calendarIndex)), [races]);
-  const today = useMemo(() => { const d = new Date(); d.setHours(0,0,0,0); return d; }, []);
+  const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
 
   // Find next upcoming event index
   const nextEventIdx = useMemo(() => {
@@ -33,15 +33,15 @@ export default function Calendario({ calendar, races }) {
     return calendar
       .map((ev, i) => ({ ...ev, index: i }))
       .filter(ev => {
-        if (filter === 'gare')  return ev.type === 'race';
-        if (filter === 'aste')  return ev.type === 'auction';
+        if (filter === 'gare') return ev.type === 'race';
+        if (filter === 'aste') return ev.type === 'auction';
         return true;
       });
   }, [calendar, filter]);
 
   function getStatus(ev) {
     if (completedSet.has(ev.index)) return 'done';
-    if (ev.index === nextEventIdx)  return 'next';
+    if (ev.index === nextEventIdx) return 'next';
     return 'future';
   }
 
@@ -52,8 +52,8 @@ export default function Calendario({ calendar, races }) {
       <div style={{ display: 'flex', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden', alignSelf: 'flex-start' }}>
         {[
           { id: 'tutto', label: 'Tutto' },
-          { id: 'gare',  label: '🏁 Gare' },
-          { id: 'aste',  label: '💰 Aste' },
+          { id: 'gare', label: '🏁 Gare' },
+          { id: 'aste', label: '💰 Aste' },
         ].map(f => (
           <button
             key={f.id}
@@ -74,21 +74,23 @@ export default function Calendario({ calendar, races }) {
       {/* ── TIMELINE ──────────────────────────────────────────────────────────── */}
       <div style={{ position: 'relative', paddingLeft: 22 }}>
         {/* Vertical line */}
-        <div style={{ position: 'absolute', left: 8, top: 0, bottom: 0, width: 2, background: C.border }}/>
+        <div style={{ position: 'absolute', left: 8, top: 0, bottom: 0, width: 2, background: C.border }} />
 
         {filtered.map(ev => {
-          const status   = getStatus(ev);
-          const isRace   = ev.type === 'race';
-          const isDone   = status === 'done';
-          const isNext   = status === 'next';
+          const status = getStatus(ev);
+          const isRace = ev.type === 'race';
+          const isDone = status === 'done';
+          const isNext = status === 'next';
 
           const dotColor = isDone ? '#555' : isNext ? (isRace ? C.red : C.amber) : isRace ? C.border : '#FFD70066';
-          const dotBorder= isDone ? '#555' : isNext ? (isRace ? C.red : C.amber) : isRace ? '#444' : '#FFD70066';
+          const dotBorder = isDone ? '#555' : isNext ? (isRace ? C.red : C.amber) : isRace ? '#444' : '#FFD70066';
           const cardBorderColor = isDone ? C.border : isNext ? (isRace ? C.red : C.amber) : C.border;
-          const cardBorderLeft  = isDone ? `1px solid ${C.border}` : isNext ? (isRace ? `3px solid ${C.red}` : `3px solid ${C.amber}`) : `1px solid ${C.border}`;
+          const cardBorderLeft = isDone ? `1px solid ${C.border}` : isNext ? (isRace ? `3px solid ${C.red}` : `3px solid ${C.amber}`) : `1px solid ${C.border}`;
 
           const daysUntil = !isDone && ev.date ? (() => {
-            const diff = Math.ceil((parseDateItalian(ev.date) - today) / 86400000);
+            const evDate = parseDateItalian(ev.date);
+            evDate.setHours(0, 0, 0, 0);
+            const diff = Math.ceil((evDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
             return diff;
           })() : null;
 
@@ -101,7 +103,7 @@ export default function Calendario({ calendar, races }) {
                 background: dotColor, border: `2px solid ${dotBorder}`,
                 zIndex: 1, flexShrink: 0,
                 boxShadow: isNext ? `0 0 8px ${isRace ? C.red : C.amber}66` : 'none',
-              }}/>
+              }} />
 
               {/* Card */}
               <div style={{
