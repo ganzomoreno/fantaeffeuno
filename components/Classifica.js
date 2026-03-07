@@ -60,7 +60,10 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
   const daysUntil = useMemo(() => {
     if (!nextRaceEvent) return null;
     const [d, m, y] = nextRaceEvent.date.split('/');
-    const diff = Math.ceil((new Date(`${y}-${m}-${d}`) - new Date().setHours(0, 0, 0, 0)) / 86400000);
+    const raceDate = new Date(`${y}-${m}-${d}T00:00:00`);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today local time
+    const diff = Math.ceil((raceDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return diff;
   }, [nextRaceEvent]);
 
