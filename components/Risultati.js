@@ -19,10 +19,20 @@ const C = {
 const MEDALS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
 export default function Risultati({ races, pilots, teams, scores, lineups, reserves }) {
-    const [activeTab, setActiveTab] = useState('team'); // Default 'team'
+    const [activeTab, setActiveTab] = useState('piloti'); // Default changed to piloti to showcase the new feature easily
 
     const [selectedTeamId, setSelectedTeamId] = useState(null);
     const [hoveredTeamId, setHoveredTeamId] = useState(null);
+
+    // Singola gara view states
+    const [selectedRaceIdx, setSelectedRaceIdx] = useState(races.length > 0 ? races[races.length - 1].calendarIndex : null);
+    const [sessionView, setSessionView] = useState('gara'); // 'gara' | 'qualifica'
+
+    // Assicuriamoci che se le gare si caricano in un secondo momento, settiamo il default
+    useMemo(() => {
+        if (selectedRaceIdx === null && races.length > 0) setSelectedRaceIdx(races[races.length - 1].calendarIndex);
+    }, [races, selectedRaceIdx]);
+
 
     // ─── AGGREGATE PILOT STATS ──────────────────────────────────────────
     const pilotStats = useMemo(() => {
@@ -147,6 +157,84 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                             })}
                         </div>
                     </div>
+
+                    {/* RISULTATI SINGOLA GARA */}
+                    {races.length > 0 && selectedRaceIdx !== null && (
+                        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+                                <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>
+                                    CLASSIFICA SINGOLA GARA
+                                </div>
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                    <select
+                                        value={selectedRaceIdx}
+                                        onChange={e => setSelectedRaceIdx(Number(e.target.value))}
+                                        style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.textPri, padding: '4px 8px', borderRadius: 6, fontSize: 11, outline: 'none', cursor: 'pointer' }}
+                                    >
+                                        {races.map(r => (
+                                            <option key={r.calendarIndex} value={r.calendarIndex}>{r.location}</option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        value={sessionView}
+                                        onChange={e => setSessionView(e.target.value)}
+                                        style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.textPri, padding: '4px 8px', borderRadius: 6, fontSize: 11, outline: 'none', cursor: 'pointer' }}
+                                    >
+                                        <option value="gara">🏁 Gara</option>
+                                        <option value="qualifica">⏱ Qualifica</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                {(() => {
+                                    const race = races.find(r => r.calendarIndex === selectedRaceIdx);
+                                    if (!race || !race.results) return <div style={{ color: C.textSec, fontSize: 12 }}>Nessun risultato.</div>;
+
+                                    // Preparare classifica
+                                    let list = race.results.map(res => {
+                                        const p = pilots.find(x => x.id === res.pilotId);
+                                        return {
+                                            ...res,
+                                            pilot: p,
+                                            sortVal: sessionView === 'qualifica' ? (res.gridPosition || 99) : (res.dnf ? 99 : (res.position || 99))
+                                        };
+                                    });
+
+                                    list.sort((a, b) => a.sortVal - b.sortVal);
+
+                                    return list.map((item, index) => {
+                                        if (!item.pilot) return null;
+
+                                        const isDnf = sessionView === 'gara' && item.dnf;
+                                        const posText = isDnf ? 'DNF' : (sessionView === 'qualifica' ? item.gridPosition : item.position);
+                                        const color = isDnf ? C.red : (index < 3 ? MEDALS[index] : C.textSec);
+
+                                        return (
+                                            <div key={item.pilotId} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px', borderRadius: 6, background: index % 2 === 0 ? 'transparent' : `${C.surface2}66` }}>
+                                                <div style={{ width: 24, fontSize: 11, fontWeight: 900, color: color, textAlign: 'right' }}>
+                                                    {posText}
+                                                </div>
+                                                <div style={{ width: 40, fontSize: 12, fontWeight: 700, color: isDnf ? '#777' : C.textPri }}>
+                                                    {item.pilot.abbreviation}
+                                                </div>
+                                                <div style={{ flex: 1, fontSize: 11, color: C.textSec, opacity: isDnf ? 0.5 : 1 }}>
+                                                    {item.pilot.team}
+                                                </div>
+                                                {sessionView === 'gara' && !isDnf && (
+                                                    <div style={{ display: 'flex', gap: 8, fontSize: 10, fontWeight: 700 }}>
+                                                        {item.overtakes > 0 && <span style={{ color: C.green }}>+{item.overtakes}</span>}
+                                                        {item.overtakes < 0 && <span style={{ color: C.red }}>{item.overtakes}</span>}
+                                                        {item.dotdRank === 1 && <span style={{ color: '#FFD700', marginLeft: 4 }}>👑 DOTD</span>}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    });
+                                })()}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
