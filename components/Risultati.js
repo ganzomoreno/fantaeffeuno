@@ -129,7 +129,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
             {activeTab === 'piloti' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     {/* NERD CARDS */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
+                    <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 }}>
                         <StatCard title="MOST OVERTAKES" icon="⚔️" pilotStat={bestOvertaker} value={`${bestOvertaker?.overtakes} sorpassi`} color={C.green} />
                         <StatCard title="HIGHEST AVG" icon="🔥" pilotStat={highestAvg} value={`${(highestAvg?.totalPts / highestAvg?.races || 0).toFixed(1)} pt/gara`} color={C.amber} />
                         <StatCard title="DNFs LEADER" icon="💥" pilotStat={mostDnfs} value={`${mostDnfs?.dnfs} ritiri`} color={C.red} />
@@ -392,7 +392,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
 function StatCard({ title, icon, pilotStat, value, color }) {
     if (!pilotStat) return null;
     return (
-        <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ flex: 1, minWidth: 100, background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: C.textSec, letterSpacing: 1 }}>{title}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ fontSize: 24 }}>{icon}</div>
