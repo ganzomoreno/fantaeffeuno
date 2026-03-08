@@ -315,6 +315,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                     {(() => {
                       const tLineup = nextRaceIdx >= 0 ? (dbLineups[`race_${nextRaceIdx}`] || {})[t.id] || [] : [];
                       const isSchierata = tLineup.length === 3;
+                      const isScudemaria = t.name.toLowerCase().includes('scudemaria');
                       return (
                         <span style={{
                           fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 4,
@@ -323,7 +324,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                           border: `1px solid ${isSchierata ? C.green + '44' : C.red + '44'}`,
                           textTransform: 'uppercase', letterSpacing: 1
                         }}>
-                          {isSchierata ? '✓ SCHIERATA' : '⚠ DA SCHIERARE'}
+                          {isSchierata ? (isScudemaria ? '✓ SHERATA' : '✓ SCHIERATA') : '⚠ DA SCHIERARE'}
                         </span>
                       );
                     })()}

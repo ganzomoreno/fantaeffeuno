@@ -304,19 +304,79 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                                 const maxPts = teamProgression[0].progression[teamProgression[0].progression.length - 1] || 1;
                                 const widthPct = Math.max(5, (finalScore / maxPts) * 100);
                                 return (
-                                    <div
-                                        key={tp.team.id}
-                                        style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '6px 0', borderRadius: 8, background: (selectedTeamId === tp.team.id || hoveredTeamId === tp.team.id) ? `${C.surface2}` : 'transparent', transition: 'background 0.2s', paddingLeft: 8, paddingRight: 8 }}
-                                        onClick={() => setSelectedTeamId(selectedTeamId === tp.team.id ? null : tp.team.id)}
-                                        onMouseEnter={() => setHoveredTeamId(tp.team.id)}
-                                        onMouseLeave={() => setHoveredTeamId(null)}
-                                    >
-                                        <div style={{ width: 14, fontSize: 10, fontWeight: 900, color: i < 3 ? MEDALS[i] : C.textSec, textAlign: 'right' }}>{i + 1}</div>
-                                        <div style={{ width: 120, fontSize: 11, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tp.team.name}</div>
-                                        <div style={{ flex: 1, height: 26, background: C.surface2, borderRadius: 6, overflow: 'hidden', border: `1px solid ${i === 0 ? C.red + '44' : C.border}` }}>
-                                            <div style={{ width: `${widthPct}%`, height: '100%', background: i === 0 ? C.red : C.textSec, opacity: 0.8, transition: 'width 0.5s ease-out' }} />
+                                    <div key={tp.team.id}>
+                                        <div
+                                            style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '6px 0', borderRadius: 8, background: (selectedTeamId === tp.team.id || hoveredTeamId === tp.team.id) ? `${C.surface2}` : 'transparent', transition: 'background 0.2s', paddingLeft: 8, paddingRight: 8 }}
+                                            onClick={() => setSelectedTeamId(selectedTeamId === tp.team.id ? null : tp.team.id)}
+                                            onMouseEnter={() => setHoveredTeamId(tp.team.id)}
+                                            onMouseLeave={() => setHoveredTeamId(null)}
+                                        >
+                                            <div style={{ width: 14, fontSize: 10, fontWeight: 900, color: i < 3 ? MEDALS[i] : C.textSec, textAlign: 'right' }}>{i + 1}</div>
+                                            <div style={{ width: 120, fontSize: 11, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tp.team.name}</div>
+                                            <div style={{ flex: 1, height: 26, background: C.surface2, borderRadius: 6, overflow: 'hidden', border: `1px solid ${i === 0 ? C.red + '44' : C.border}` }}>
+                                                <div style={{ width: `${widthPct}%`, height: '100%', background: i === 0 ? C.red : C.textSec, opacity: 0.8, transition: 'width 0.5s ease-out' }} />
+                                            </div>
+                                            <div style={{ width: 45, fontFamily: "'Orbitron', monospace", fontSize: 14, color: i === 0 ? C.red : C.textPri, textAlign: 'right', fontWeight: 900 }}>{finalScore.toFixed(1)}</div>
                                         </div>
-                                        <div style={{ width: 45, fontFamily: "'Orbitron', monospace", fontSize: 14, color: i === 0 ? C.red : C.textPri, textAlign: 'right', fontWeight: 900 }}>{finalScore.toFixed(1)}</div>
+
+                                        {/* TEAM BREAKDOWN UI */}
+                                        {selectedTeamId === tp.team.id && (
+                                            <div style={{ marginTop: 4, marginBottom: 16, padding: '12px 16px', background: C.surface2, borderRadius: 8, border: `1px solid ${C.border}` }}>
+                                                {races.slice().reverse().map((race, rIdx) => {
+                                                    const raceKey = `race_${race.calendarIndex}`;
+                                                    const tLineup = (lineups[raceKey] || {})[tp.team.id] || [];
+                                                    const tReserve = (reserves[raceKey] || {})[tp.team.id];
+
+                                                    const scorers = [];
+                                                    let hasDnf = false;
+
+                                                    tLineup.forEach(starter => {
+                                                        const res = race.results.find(r => r.pilotId === starter.id);
+                                                        if (!res) return;
+                                                        if (tReserve && starter.subbedOutFor === tReserve.id) return;
+
+                                                        if (res.dnf) {
+                                                            hasDnf = true;
+                                                        } else {
+                                                            scorers.push({ pilot: pilots.find(p => p.id === starter.id), pts: calculatePilotPoints(res) });
+                                                        }
+                                                    });
+
+                                                    if (tReserve) {
+                                                        const resRes = race.results.find(r => r.pilotId === tReserve.id);
+                                                        if (resRes && !resRes.dnf && (tReserve.subbedInManually || hasDnf)) {
+                                                            scorers.push({ pilot: pilots.find(p => p.id === tReserve.id), pts: calculatePilotPoints(resRes), isReserve: true });
+                                                        }
+                                                    }
+
+                                                    if (scorers.length === 0 && tLineup.length === 0) return null;
+
+                                                    return (
+                                                        <div key={race.id} style={{ marginBottom: rIdx < races.length - 1 ? 16 : 0 }}>
+                                                            <div style={{ fontSize: 10, fontWeight: 800, color: C.textSec, textTransform: 'uppercase', marginBottom: 6 }}>
+                                                                {race.location}
+                                                            </div>
+                                                            {tLineup.length < 3 && <div style={{ fontSize: 11, color: C.red, marginBottom: 4 }}>⚠ Formazione incompleta (-5 pt)</div>}
+                                                            {scorers.map((s, idx) => (
+                                                                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: `1px solid ${C.border}44` }}>
+                                                                    <div style={{ fontSize: 11, color: C.textPri, fontWeight: 600 }}>
+                                                                        {s.pilot?.abbreviation} {s.isReserve ? <span style={{ color: C.textSec, fontSize: 9 }}>(Riserva)</span> : ''}
+                                                                    </div>
+                                                                    <div style={{ display: 'flex', gap: 8, fontSize: 10, color: C.textSec, alignItems: 'center' }}>
+                                                                        <span>Pos: <span style={{ color: C.textPri }}>{s.pts.base}</span></span>
+                                                                        {s.pts.overtakes > 0 && <span style={{ color: C.green }}>Sorp: +{s.pts.overtakes}</span>}
+                                                                        {s.pts.dotd > 0 && <span style={{ color: '#FFD700' }}>DOTD: +{s.pts.dotd}</span>}
+                                                                        <span style={{ color: '#fff', fontWeight: 800, marginLeft: 8, background: '#e10600', padding: '2px 6px', borderRadius: 4 }}>
+                                                                            {s.pts.total.toFixed(1)} pt
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
