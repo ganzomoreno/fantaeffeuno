@@ -356,7 +356,9 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                 </div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
                   {entry.gridPosition && <span style={{ fontSize: 10, color: C.textSec }}>Start <b style={{ color: C.textPri }}>P{entry.gridPosition}</b></span>}
-                  {entry.dotdRank && <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 12, background: '#FFD70022', color: '#FFD700', border: '1px solid #FFD70044', fontWeight: 800 }}>DOTD</span>}
+                  {entry.dotdRank === 1 && <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 12, background: '#FFD70033', color: '#FFD700', border: '1px solid #FFD70066', fontWeight: 800 }}>🥇 1° DOTD</span>}
+                  {entry.dotdRank === 2 && <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 12, background: '#C0C0C033', color: '#C0C0C0', border: '1px solid #C0C0C066', fontWeight: 800 }}>🥈 2° DOTD</span>}
+                  {entry.dotdRank === 3 && <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 12, background: '#CD7F3233', color: '#CD7F32', border: '1px solid #CD7F3266', fontWeight: 800 }}>🥉 3° DOTD</span>}
                   {entry.dnf && <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 12, background: C.red + '22', color: C.red, border: `1px solid ${C.red}44`, fontWeight: 800 }}>DNF</span>}
                   <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 18, fontWeight: 900, color: entry.dnf ? C.textSec : C.red, marginLeft: 8 }}>
                     {entry.points.toFixed(1)}

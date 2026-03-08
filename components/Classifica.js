@@ -275,7 +275,9 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
                     {r.dnf && !r.subbedIn && <span style={{ fontSize: 9, padding: '2px 6px', background: C.red + '22', color: C.red, borderRadius: 10, fontWeight: 700 }}>DNF</span>}
                     {!r.dnf && <span style={{ fontSize: 9, padding: '2px 6px', background: C.surface, color: C.textSec, borderRadius: 10 }}>P{r.position}</span>}
                     {r.overtakes > 0 && <span style={{ fontSize: 9, padding: '2px 6px', background: C.surface, color: C.textSec, borderRadius: 10 }}>OVT +{r.overtakes}</span>}
-                    {r.dotdRank && <span style={{ fontSize: 9, padding: '2px 6px', background: '#FFD70022', color: '#FFD700', borderRadius: 10, fontWeight: 700 }}>DOTD</span>}
+                    {r.dotdRank === 1 && <span style={{ fontSize: 9, padding: '2px 6px', background: '#FFD70033', color: '#FFD700', borderRadius: 10, fontWeight: 800, border: '1px solid #FFD70066' }}>🥇 1° DOTD</span>}
+                    {r.dotdRank === 2 && <span style={{ fontSize: 9, padding: '2px 6px', background: '#C0C0C033', color: '#C0C0C0', borderRadius: 10, fontWeight: 800, border: '1px solid #C0C0C066' }}>🥈 2° DOTD</span>}
+                    {r.dotdRank === 3 && <span style={{ fontSize: 9, padding: '2px 6px', background: '#CD7F3233', color: '#CD7F32', borderRadius: 10, fontWeight: 800, border: '1px solid #CD7F3266' }}>🥉 3° DOTD</span>}
                   </div>
                 </div>
                 <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 15, fontWeight: 900, color: C.green }}>
