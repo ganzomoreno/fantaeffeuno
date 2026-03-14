@@ -21,36 +21,57 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
   const myScore = scores[currentUser?.id] || 0;
   const myRank = teams.findIndex(t => t.id === currentUser?.id) + 1;
 
-  // Next upcoming race
-  const parseDate = (ddmmyyyy) => {
-    const [d, m, y] = ddmmyyyy.split('/');
-    return new Date(`${y}-${m}-${d}T15:00:00Z`);
+  // Robustly parse DD/MM/YYYY or YYYY-MM-DD to a local Date object
+  const parseDate = (dateStr) => {
+    if (!dateStr) return new Date();
+    let y, m, d;
+    if (dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      [d, m, y] = parts;
+    } else if (dateStr.includes('-')) {
+      const parts = dateStr.split('-');
+      if (parts[0].length === 4) [y, m, d] = parts;
+      else [d, m, y] = parts;
+    }
+    const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d), 15, 0, 0);
+    return date;
   };
+
   const SIMULATED_TODAY = new Date();
 
+  // Determine active race based on strict timeline rules.
+  // Priority: first event with OPEN lineup window (before midnight of race day).
+  // Fallback: the most recent LOCKED event (race is ongoing today).
   const activeRaceInfo = useMemo(() => {
-    let activeIdx = -1;
-    let timeLocked = false;
+    let openIdx = -1;
+    let lockedIdx = -1;
+
     for (let i = 0; i < calendar.length; i++) {
       const ev = calendar[i];
-      if (ev.type !== 'race') continue;
+      if (ev.type !== 'race' && ev.type !== 'sprint') continue;
+
       const raceDate = parseDate(ev.date);
+      if (isNaN(raceDate.getTime())) continue;
+
       const deadline = new Date(raceDate);
-      deadline.setUTCDate(deadline.getUTCDate() - 1);
-      deadline.setUTCHours(23, 59, 59, 999);
+      deadline.setHours(0, 0, 0, 0);
+      deadline.setMilliseconds(-1);
 
       if (SIMULATED_TODAY <= deadline) {
-        activeIdx = i; timeLocked = false; break;
+        openIdx = i;
+        break;
       } else {
-        const reopenDate = new Date(raceDate);
-        reopenDate.setUTCDate(reopenDate.getUTCDate() + 1);
-        reopenDate.setUTCHours(0, 0, 0, 0);
-        if (SIMULATED_TODAY < reopenDate) {
-          activeIdx = i; timeLocked = true; break;
+        const endOfRaceDay = new Date(raceDate);
+        endOfRaceDay.setHours(23, 59, 59, 999);
+        if (SIMULATED_TODAY <= endOfRaceDay) {
+          lockedIdx = i;
         }
       }
     }
-    return { activeIdx, timeLocked };
+
+    if (openIdx >= 0) return { activeIdx: openIdx, timeLocked: false };
+    if (lockedIdx >= 0) return { activeIdx: lockedIdx, timeLocked: true };
+    return { activeIdx: -1, timeLocked: false };
   }, [calendar]);
 
   const nextRaceIdx = activeRaceInfo.activeIdx;
@@ -59,10 +80,10 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
   // Days until next race
   const daysUntil = useMemo(() => {
     if (!nextRaceEvent) return null;
-    const [d, m, y] = nextRaceEvent.date.split('/');
-    const raceDate = new Date(`${y}-${m}-${d}T00:00:00`);
+    const raceDate = parseDate(nextRaceEvent.date);
+    raceDate.setHours(0, 0, 0, 0);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Start of today local time
+    today.setHours(0, 0, 0, 0);
     const diff = Math.ceil((raceDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return diff;
   }, [nextRaceEvent]);
@@ -91,8 +112,9 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
     let best = null, bestPts = -1;
     (lastRace.results || []).forEach(r => {
       if (!lineup.includes(r.pilotId)) return;
-      const pts = calculatePilotPoints(r);
-      if (pts > bestPts) { bestPts = pts; best = { ...r, pts, pilot: pilots.find(p => p.id === r.pilotId) }; }
+      const ptsObj = calculatePilotPoints(r, lastRace.isSprint);
+      const pts = ptsObj.total;
+      if (pts > bestPts) { bestPts = pts; best = { ...r, pts: ptsObj, pilot: pilots.find(p => p.id === r.pilotId) }; }
     });
     return best;
   }, [lastRace, currentUser, lineups, pilots]);
@@ -149,7 +171,7 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
     let drivers = resData.map(r => ({
       ...r,
       pilot: pilots.find(p => p.id === r.pilotId),
-      pts: calculatePilotPoints(r)
+      pts: calculatePilotPoints(r, lastRace.isSprint)
     }));
 
     if (dnfCount > 0 && reserveId) {
@@ -158,7 +180,7 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
         drivers.push({
           ...resResult,
           pilot: pilots.find(p => p.id === reserveId),
-          pts: calculatePilotPoints(resResult),
+          pts: calculatePilotPoints(resResult, lastRace.isSprint),
           subbedIn: true
         });
       }

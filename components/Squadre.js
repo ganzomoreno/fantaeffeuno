@@ -16,54 +16,70 @@ const C = {
 
 export default function Squadre({ teams, pilots, scores, currentUser, lineups, dbLineups, calendar, races, onTogglePilot, onSaveLineup }) {
   const [expandedTeam, setExpandedTeam] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Helper to parse DD/MM/YYYY to a standard Date object
-  const parseDate = (ddmmyyyy) => {
-    const [d, m, y] = ddmmyyyy.split('/');
-    // Races are on 2026-xx-xx. We use local time for the "midnight before" rule.
-    return new Date(`${y}-${m}-${d}T15:00:00`);
+  // Robustly parse DD/MM/YYYY or YYYY-MM-DD to a local Date object
+  const parseDate = (dateStr) => {
+    if (!dateStr) return new Date();
+    let y, m, d;
+    if (dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      [d, m, y] = parts;
+    } else if (dateStr.includes('-')) {
+      const parts = dateStr.split('-');
+      if (parts[0].length === 4) [y, m, d] = parts;
+      else [d, m, y] = parts;
+    }
+    // Set to 15:00:00 local time to match "deadline is midnight before" rule
+    const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d), 15, 0, 0);
+    return date;
   };
 
   const SIMULATED_TODAY = new Date();
 
-  // Determine active race based on strict timeline rules
+  // Determine active race based on strict timeline rules.
+  // Priority: first event with OPEN lineup window (before midnight of race day).
+  // Fallback: the most recent LOCKED event (race is ongoing today).
   const activeRaceInfo = useMemo(() => {
-    let activeIdx = -1;
-    let timeLocked = false;
+    let openIdx = -1;
+    let lockedIdx = -1;
 
     for (let i = 0; i < calendar.length; i++) {
       const ev = calendar[i];
-      if (ev.type !== 'race') continue;
+      if (ev.type !== 'race' && ev.type !== 'sprint') continue;
 
       const raceDate = parseDate(ev.date);
+      if (isNaN(raceDate.getTime())) continue;
 
-      // Deadline is 23:59:59 of the day BEFORE the race
-      // The day of the race starts at 00:00:00. The deadline is the end of the previous day.
+      // Deadline = 23:59:59.999 of the day BEFORE the race
       const deadline = new Date(raceDate);
-      deadline.setHours(0, 0, 0, 0); // Start of race day
-      deadline.setMilliseconds(-1); // One millisecond before race day (23:59:59.999 of previous day)
+      deadline.setHours(0, 0, 0, 0);
+      deadline.setMilliseconds(-1);
 
       if (SIMULATED_TODAY <= deadline) {
-        // Window is successfully open
-        activeIdx = i;
-        timeLocked = false;
+        // Window is open! Terminate search here: this is our next target.
+        openIdx = i;
         break;
       } else {
-        // Reopen window is day AFTER the race
-        const reopenDate = new Date(raceDate);
-        reopenDate.setUTCDate(reopenDate.getUTCDate() + 1);
-        reopenDate.setUTCHours(0, 0, 0, 0);
+        // Window is past deadline. Check if the race day is still in progress.
+        const endOfRaceDay = new Date(raceDate);
+        endOfRaceDay.setHours(23, 59, 59, 999);
 
-        if (SIMULATED_TODAY < reopenDate) {
-          // We are in the "frozen" window (past deadline, race weekend ongoing)
-          activeIdx = i;
-          timeLocked = true;
-          break;
+        if (SIMULATED_TODAY <= endOfRaceDay) {
+          // We are currently in the race/sprint day itself. This is "LOCKED".
+          // We keep searching in case there's another race in the same weekend (e.g. Sunday after Sprint).
+          lockedIdx = i;
         }
       }
     }
-    return { activeIdx, timeLocked };
+
+    if (openIdx >= 0) return { activeIdx: openIdx, timeLocked: false };
+    if (lockedIdx >= 0) return { activeIdx: lockedIdx, timeLocked: true };
+    return { activeIdx: -1, timeLocked: false };
   }, [calendar]);
+
 
   const nextRaceIdx = activeRaceInfo.activeIdx;
   const nextRaceEvent = nextRaceIdx >= 0 ? calendar[nextRaceIdx] : null;
@@ -89,9 +105,19 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
     onTogglePilot?.(nextRaceIdx, currentUser.id, pilotId);
   };
 
-  const handleSave = () => {
-    if (isLocked || !lineupConfirmed) return;
-    onSaveLineup?.(nextRaceIdx, currentUser.id);
+  const handleSave = async () => {
+    if (isLocked || !lineupConfirmed || isSaving) return;
+    setIsSaving(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+    const result = await onSaveLineup?.(nextRaceIdx, currentUser.id);
+    setIsSaving(false);
+    if (result?.success === false) {
+      setSaveError(result.error || 'Errore sconosciuto. Controlla la console.');
+    } else {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    }
   };
 
   // Other teams (for the secondary list)
@@ -131,8 +157,8 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
 
       {/* ── SECTION A: Lineup Builder ─────────────────────────────────────────── */}
       <div style={{ background: C.surface, border: `1px solid ${lineupConfirmed && !isLocked ? C.green + '44' : C.border}`, borderRadius: 12, padding: 16 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 4 }}>
-          SCHIERAMENTO — {nextRaceEvent ? nextRaceEvent.location : 'Nessuna gara disponibile'}
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: nextRaceEvent?.type === 'sprint' ? C.amber : C.textSec, marginBottom: 4 }}>
+          {nextRaceEvent?.type === 'sprint' ? '🏎️ SCHIERAMENTO SPRINT — ' : 'SCHIERAMENTO — '}{nextRaceEvent ? nextRaceEvent.location : 'Nessuna gara disponibile'}
         </div>
         {nextRaceEvent && (
           <div style={{ fontSize: 11, color: C.textSec, marginBottom: 14 }}>{nextRaceEvent.date}</div>
@@ -197,16 +223,32 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
         </div>
 
         {lineupConfirmed && !isDBConfirmed && !isLocked && (
-          <button
-            onClick={handleSave}
-            style={{
-              width: '100%', padding: '12px', background: C.green, borderRadius: 8,
-              border: 'none', color: '#000', fontWeight: 900, cursor: 'pointer',
-              fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12
-            }}
-          >
-            SALVA E CONFERMA FORMAZIONE
-          </button>
+          <>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              style={{
+                width: '100%', padding: '12px',
+                background: saveSuccess ? C.green : isSaving ? '#555' : C.green,
+                borderRadius: 8, border: 'none', color: '#000', fontWeight: 900,
+                cursor: isSaving ? 'not-allowed' : 'pointer',
+                fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6,
+                opacity: isSaving ? 0.7 : 1,
+                transition: 'all 0.2s'
+              }}
+            >
+              {isSaving
+                ? '⏳ SALVATAGGIO...'
+                : nextRaceEvent?.type === 'sprint'
+                ? '🏎️ SALVA FORMAZIONE SPRINT'
+                : '✓ SALVA FORMAZIONE GARA'}
+            </button>
+            {saveError && (
+              <div style={{ textAlign: 'center', padding: '8px 12px', background: '#E1060022', borderRadius: 8, border: '1px solid #E1060055', fontSize: 11, color: '#E10600', marginBottom: 8 }}>
+                ❌ {saveError}
+              </div>
+            )}
+          </>
         )}
 
         {isDBConfirmed && (

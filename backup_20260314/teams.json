@@ -1,0 +1,62 @@
+[
+  {
+    "id": "fbffdb1c-1e87-473f-9132-5e2009233795",
+    "name": "Abdull Mazzar",
+    "owner_name": "Dario Mazzanti",
+    "budget": 96,
+    "switches_used": 0,
+    "is_admin": false,
+    "created_at": "2026-03-04T22:41:59.228097+00:00",
+    "auth_user_id": null
+  },
+  {
+    "id": "05086247-5ec5-4adf-8845-63262ecc9838",
+    "name": "Scudemaria Ferrari",
+    "owner_name": "Carlo Maria Ferrari",
+    "budget": 44,
+    "switches_used": 0,
+    "is_admin": false,
+    "created_at": "2026-03-04T22:41:59.228097+00:00",
+    "auth_user_id": null
+  },
+  {
+    "id": "16bd7ed4-06e0-462a-bfd0-be084e8d7e75",
+    "name": "Ranocchiettos",
+    "owner_name": "Leonardo Cedaro",
+    "budget": 18,
+    "switches_used": 0,
+    "is_admin": false,
+    "created_at": "2026-03-04T22:41:59.228097+00:00",
+    "auth_user_id": null
+  },
+  {
+    "id": "3034f5d6-aa87-41df-af5c-975d463fe8b0",
+    "name": "Alpha Chiro Racing",
+    "owner_name": "Andrea Chirizzi",
+    "budget": 26,
+    "switches_used": 0,
+    "is_admin": false,
+    "created_at": "2026-03-04T22:41:59.228097+00:00",
+    "auth_user_id": null
+  },
+  {
+    "id": "fe291964-2daf-407e-aa7f-e5aeb21acba2",
+    "name": "ZetaRacing",
+    "owner_name": "Alessandro Zanin",
+    "budget": 24,
+    "switches_used": 0,
+    "is_admin": true,
+    "created_at": "2026-03-04T22:41:59.228097+00:00",
+    "auth_user_id": "2551463e-5924-4eec-8942-3bcb19588e2f"
+  },
+  {
+    "id": "f7bfa2d5-9896-4dee-ac87-ff801a91e71f",
+    "name": "SF – Scuderia Fainelli",
+    "owner_name": "Alessandro Fainelli",
+    "budget": 2,
+    "switches_used": 0,
+    "is_admin": false,
+    "created_at": "2026-03-04T22:41:59.228097+00:00",
+    "auth_user_id": "fa043821-5bbe-40a5-ae7f-2d48175e0a2f"
+  }
+]

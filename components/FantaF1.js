@@ -3,8 +3,8 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { CALENDAR } from '@/lib/data';
 import { calculateTeamScores } from '@/lib/scoring';
-import { useLocalStorage } from '@/lib/useLocalStorage';
 import * as db from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 import { Icon } from './ui';
 import Classifica from './Classifica';
 import Squadre from './Squadre';
@@ -19,7 +19,8 @@ export default function FantaF1() {
   const [page, setPage] = useState("classifica");
   const [showAdmin, setShowAdmin] = useState(false);
 
-  const [currentUser, setCurrentUser] = useLocalStorage("ff1_current_user", null);
+  const [session, setSession] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null); // team matched to user
 
   const [teams, setTeams] = useState([]);
   const [pilots, setPilots] = useState([]);
@@ -42,13 +43,41 @@ export default function FantaF1() {
       setReserves(JSON.parse(JSON.stringify(l.reserves)));
       setDbReserves(JSON.parse(JSON.stringify(l.reserves)));
       setError(null);
+      return t;
     } catch (e) {
       console.error('Errore caricamento dati:', e);
       setError(e.message);
+      return null;
     }
   }, []);
 
-  useEffect(() => { refresh().finally(() => setLoading(false)); }, [refresh]);
+  useEffect(() => {
+    // 1. Fetch data initially
+    refresh().then((fetchedTeams) => {
+      // 2. Setup Supabase Auth listener
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+        if (session && fetchedTeams) {
+          const matchedTeam = fetchedTeams.find(t => t.authUserId === session.user.id) || fetchedTeams.find(t => t.id === session.user.id);
+          setCurrentUser(matchedTeam || null);
+        }
+        setLoading(false);
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+        if (session && fetchedTeams) {
+          // Temporarily match by auth_user_id or id if mock
+          const matchedTeam = fetchedTeams.find(t => t.authUserId === session.user.id) || fetchedTeams.find(t => t.id === session.user.id);
+          setCurrentUser(matchedTeam || null);
+        } else {
+          setCurrentUser(null);
+        }
+      });
+
+      return () => subscription.unsubscribe();
+    });
+  }, [refresh]);
 
   const teamScores = useMemo(
     () => calculateTeamScores(teams, pilots, races, dbLineups, dbReserves),
@@ -81,24 +110,37 @@ export default function FantaF1() {
   const handleSaveLineup = useCallback(async (calendarIndex, teamId) => {
     const rKey = `race_${calendarIndex}`;
     const tLineup = (lineups[rKey] || {})[teamId] || [];
-    if (tLineup.length !== 3) return;
+    if (tLineup.length !== 3) return { success: false, error: 'Serve selezionare 3 titolari.' };
 
     const myPilots = pilots.filter(p => p.owner === teamId);
-    const benchPilot = myPilots.find(p => !tLineup.includes(p.id));
+    const benchPilot = myPilots.find(p => !tLineup.includes(p.id)) || null;
 
-    await db.saveLineup(calendarIndex, teamId, tLineup, benchPilot?.id);
-
-    setDbLineups(prev => {
-      const raceLineups = { ...(prev[rKey] || {}) };
-      raceLineups[teamId] = tLineup;
-      return { ...prev, [rKey]: raceLineups };
-    });
+    try {
+      await db.saveLineup(calendarIndex, teamId, tLineup, benchPilot?.id);
+      
+      setDbLineups(prev => {
+        const raceLineups = { ...(prev[rKey] || {}) };
+        raceLineups[teamId] = tLineup;
+        return { ...prev, [rKey]: raceLineups };
+      });
+      return { success: true };
+    } catch (err) {
+      console.error('Errore Salvataggio DB:', err);
+      return { success: false, error: err.message };
+    }
   }, [lineups, pilots]);
 
-  // Se currentUser è stale (UUID non corrisponde a nessun team DB) → forza re-login
-  const currentTeam = currentUser ? teams.find(t => t.id === currentUser.id) : null;
-  const handleLogin = (team) => setCurrentUser(team);
-  const handleLogout = () => { setCurrentUser(null); setShowAdmin(false); };
+  // Se la sessione Supabase manca The user needs to login
+  const currentTeam = currentUser;
+  
+  const handleLoginSuccess = (newSession) => {
+    setSession(newSession);
+  };
+
+  const handleLogout = async () => { 
+    await supabase.auth.signOut();
+    setShowAdmin(false); 
+  };
 
   if (loading) {
     return (
@@ -118,8 +160,8 @@ export default function FantaF1() {
     );
   }
 
-  // currentUser stale (es. vecchio ID localStorage prima di Supabase) → re-login
-  if (!currentUser || !currentTeam) return <LoginPage teams={teams} onLogin={handleLogin} />;
+  // Manca la sessione Auth di Supabase
+  if (!session || !currentTeam) return <LoginPage onLoginSuccess={handleLoginSuccess} />;
 
   const nav = [
     { id: "classifica", label: "Home", icon: "trophy" },

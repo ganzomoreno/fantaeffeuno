@@ -1,0 +1,200 @@
+[
+  {
+    "id": "a94607ac-8ac3-454b-b8d5-48f46f97077f",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "9b4dbed8-7bb1-4ab8-804c-856a85c068a6",
+    "winner_team_id": "fe291964-2daf-407e-aa7f-e5aeb21acba2",
+    "final_price": 54,
+    "lot_order": 1,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "2d51ebc7-bd24-4f7f-a5a3-ff85d34f131a",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "f945a18b-0d3d-47fb-95db-bd489838a505",
+    "winner_team_id": "fe291964-2daf-407e-aa7f-e5aeb21acba2",
+    "final_price": 1,
+    "lot_order": 3,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "c3d50e8c-9215-47e5-bf58-6330526cab21",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "5c174c52-94b3-4e4a-b02c-7766e5f869be",
+    "winner_team_id": "fe291964-2daf-407e-aa7f-e5aeb21acba2",
+    "final_price": 20,
+    "lot_order": 4,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "c8240d63-62bd-49d2-9b80-ad10291c3e38",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "848aeda2-5b5a-4b84-8ed0-e7a62098d423",
+    "winner_team_id": "fbffdb1c-1e87-473f-9132-5e2009233795",
+    "final_price": 1,
+    "lot_order": 5,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "e5f7055a-38e8-4572-a698-ba3aa1eb7e54",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "11529f53-0826-49e7-bf3f-74e98f5a05a7",
+    "winner_team_id": "fbffdb1c-1e87-473f-9132-5e2009233795",
+    "final_price": 1,
+    "lot_order": 6,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "7560a012-29e9-4b5c-9d71-dc068043a52f",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "39059fd0-87a5-43c6-be25-db3016925291",
+    "winner_team_id": "fbffdb1c-1e87-473f-9132-5e2009233795",
+    "final_price": 1,
+    "lot_order": 7,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "6e499f77-1932-4fb5-acb6-6bde890097fd",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "0556d919-d8d4-4f68-9d73-ab094c03462a",
+    "winner_team_id": "fbffdb1c-1e87-473f-9132-5e2009233795",
+    "final_price": 1,
+    "lot_order": 8,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "265cd0fb-70b2-4eac-a965-2dc2db8c3edb",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "a13c41e1-9a48-4918-8e70-42830d0906aa",
+    "winner_team_id": "f7bfa2d5-9896-4dee-ac87-ff801a91e71f",
+    "final_price": 46,
+    "lot_order": 9,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "8e51fa08-a6a4-4931-b2d5-89a53b71567b",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "49f08caa-45a8-4caa-ae6a-4a051319fbc0",
+    "winner_team_id": "f7bfa2d5-9896-4dee-ac87-ff801a91e71f",
+    "final_price": 34,
+    "lot_order": 10,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "b6dc4ba3-66b4-40e9-bf8a-5c46b8cdc12e",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "98992aa3-506a-4bfa-8a5d-2a14b923da02",
+    "winner_team_id": "f7bfa2d5-9896-4dee-ac87-ff801a91e71f",
+    "final_price": 8,
+    "lot_order": 11,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "3dfc7aa9-99e1-4dac-988a-da50fdda89a5",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "1a2b0ef6-a966-4ef7-b800-a0c55d358e36",
+    "winner_team_id": "f7bfa2d5-9896-4dee-ac87-ff801a91e71f",
+    "final_price": 10,
+    "lot_order": 12,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "b258496f-7215-482a-bdb7-5033913724c5",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "122c3cb3-8cd9-4a05-a338-11d04bb4ed4f",
+    "winner_team_id": "16bd7ed4-06e0-462a-bfd0-be084e8d7e75",
+    "final_price": 68,
+    "lot_order": 13,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "ffe869c3-3bc3-4083-ab9e-b8563ae82c37",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "cd3ac1ea-ed24-4bc0-8504-da3b5620901a",
+    "winner_team_id": "16bd7ed4-06e0-462a-bfd0-be084e8d7e75",
+    "final_price": 12,
+    "lot_order": 14,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "c2b33082-7e85-4a28-8e04-2b984ff29d5a",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "10d3d199-0da3-4c7b-bd34-2d79f991929f",
+    "winner_team_id": "16bd7ed4-06e0-462a-bfd0-be084e8d7e75",
+    "final_price": 2,
+    "lot_order": 15,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "814c74e0-f266-4dc3-9af0-29ee8c4de241",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "359cc3b8-1d23-4c35-8029-a6664a8e9780",
+    "winner_team_id": "16bd7ed4-06e0-462a-bfd0-be084e8d7e75",
+    "final_price": 5,
+    "lot_order": 16,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "55c13588-9df1-4edf-aa72-2c3b51ec30fc",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "a38bd3af-cb5a-4711-a7f2-93f6c5254fcd",
+    "winner_team_id": "05086247-5ec5-4adf-8845-63262ecc9838",
+    "final_price": 41,
+    "lot_order": 17,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "d0224983-6be9-4e40-811a-4c2c69b0ce0f",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "3f430732-59be-4606-a308-31da305d96b0",
+    "winner_team_id": "05086247-5ec5-4adf-8845-63262ecc9838",
+    "final_price": 5,
+    "lot_order": 18,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "fbdca0d2-563c-4910-9ea6-f0d3a7762674",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "78f81f97-e152-4636-9bf4-03695002bacb",
+    "winner_team_id": "05086247-5ec5-4adf-8845-63262ecc9838",
+    "final_price": 10,
+    "lot_order": 19,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "ceec594f-769a-4e85-ad94-ad8c40499421",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "e5a8a166-220d-4fed-bcde-d98a7c49d380",
+    "winner_team_id": "3034f5d6-aa87-41df-af5c-975d463fe8b0",
+    "final_price": 51,
+    "lot_order": 20,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "986b638c-a471-46e5-847e-0018fd792a7a",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "f01a3ef7-6121-4fd5-b858-030da09605e2",
+    "winner_team_id": "3034f5d6-aa87-41df-af5c-975d463fe8b0",
+    "final_price": 17,
+    "lot_order": 21,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "9221c505-63fa-4dc1-a8fb-7adfbac0c3f8",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "347a271f-e95a-44cb-8860-4a1f2b2cd8d1",
+    "winner_team_id": "3034f5d6-aa87-41df-af5c-975d463fe8b0",
+    "final_price": 6,
+    "lot_order": 22,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  },
+  {
+    "id": "85215285-6dc3-4629-bbd0-d26c100c7056",
+    "auction_id": "c8981df5-1951-4842-82ef-eb4f5ac2d169",
+    "pilot_id": "acad6115-9707-481c-8687-63308ee7b846",
+    "winner_team_id": "fe291964-2daf-407e-aa7f-e5aeb21acba2",
+    "final_price": 1,
+    "lot_order": 1,
+    "created_at": "2026-03-07T21:23:04.653532+00:00"
+  }
+]

@@ -33,7 +33,7 @@ export default function Calendario({ calendar, races }) {
     return calendar
       .map((ev, i) => ({ ...ev, index: i }))
       .filter(ev => {
-        if (filter === 'gare') return ev.type === 'race';
+        if (filter === 'gare') return ev.type === 'race' || ev.type === 'sprint';
         if (filter === 'aste') return ev.type === 'auction';
         return true;
       });
@@ -79,13 +79,14 @@ export default function Calendario({ calendar, races }) {
         {filtered.map(ev => {
           const status = getStatus(ev);
           const isRace = ev.type === 'race';
+          const isSprint = ev.type === 'sprint';
           const isDone = status === 'done';
           const isNext = status === 'next';
 
-          const dotColor = isDone ? '#555' : isNext ? (isRace ? C.red : C.amber) : isRace ? C.border : '#FFD70066';
-          const dotBorder = isDone ? '#555' : isNext ? (isRace ? C.red : C.amber) : isRace ? '#444' : '#FFD70066';
-          const cardBorderColor = isDone ? C.border : isNext ? (isRace ? C.red : C.amber) : C.border;
-          const cardBorderLeft = isDone ? `1px solid ${C.border}` : isNext ? (isRace ? `3px solid ${C.red}` : `3px solid ${C.amber}`) : `1px solid ${C.border}`;
+          const dotColor = isDone ? '#555' : isNext ? ((isRace||isSprint) ? C.red : C.amber) : (isRace||isSprint) ? C.border : '#FFD70066';
+          const dotBorder = isDone ? '#555' : isNext ? ((isRace||isSprint) ? C.red : C.amber) : (isRace||isSprint) ? '#444' : '#FFD70066';
+          const cardBorderColor = isDone ? C.border : isNext ? ((isRace||isSprint) ? C.red : C.amber) : C.border;
+          const cardBorderLeft = isDone ? `1px solid ${C.border}` : isNext ? ((isRace||isSprint) ? `3px solid ${C.red}` : `3px solid ${C.amber}`) : `1px solid ${C.border}`;
 
           const daysUntil = !isDone && ev.date ? (() => {
             const evDate = parseDateItalian(ev.date);
@@ -107,7 +108,7 @@ export default function Calendario({ calendar, races }) {
 
               {/* Card */}
               <div style={{
-                flex: 1, background: isNext ? (isRace ? C.red + '0D' : C.amber + '0D') : C.surface,
+                flex: 1, background: isNext ? ((isRace||isSprint) ? C.red + '0D' : C.amber + '0D') : C.surface,
                 borderRadius: 10, padding: '10px 14px',
                 border: `1px solid ${cardBorderColor}`,
                 borderLeft: cardBorderLeft,
@@ -116,8 +117,8 @@ export default function Calendario({ calendar, races }) {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 4 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: C.textPri }}>
-                      {isRace ? `🏁 ${ev.location}` : `💰 ${ev.location}`}
+                    <div style={{ fontWeight: 700, fontSize: 13, color: isSprint ? C.amber : C.textPri }}>
+                      {isRace ? `🏁 ${ev.location}` : isSprint ? `🏎️ SPRINT - ${ev.location}` : `💰 ${ev.location}`}
                     </div>
                     <div style={{ fontSize: 11, color: C.textSec, marginTop: 2 }}>{ev.date}</div>
                   </div>
@@ -132,9 +133,9 @@ export default function Calendario({ calendar, races }) {
                     {isNext && (
                       <span style={{
                         fontSize: 10, padding: '2px 8px', borderRadius: 10, fontWeight: 700,
-                        background: isRace ? C.red + '33' : C.amber + '33',
-                        color: isRace ? C.red : C.amber,
-                        border: `1px solid ${isRace ? C.red + '66' : C.amber + '66'}`,
+                        background: (isRace||isSprint) ? C.red + '33' : C.amber + '33',
+                        color: (isRace||isSprint) ? C.red : C.amber,
+                        border: `1px solid ${(isRace||isSprint) ? C.red + '66' : C.amber + '66'}`,
                         animation: 'none',
                       }}>
                         ► PROSSIMO
@@ -151,7 +152,7 @@ export default function Calendario({ calendar, races }) {
                 {/* CTA per evento prossimo */}
                 {isNext && !isDone && (
                   <div style={{ marginTop: 8 }}>
-                    {isRace ? (
+                    {(isRace||isSprint) ? (
                       <div style={{ fontSize: 11, color: C.textSec }}>
                         ⚡ Imposta la formazione nella sezione <strong style={{ color: C.textPri }}>Squadre</strong>
                       </div>

@@ -91,9 +91,10 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
         >
           {races.map((r, i) => {
             const ev = calendar[r.calendarIndex];
+            const isSprint = ev?.type === 'sprint';
             return (
               <option key={i} value={i}>
-                🏁 {ev?.location || `Gara ${r.calendarIndex}`} — {ev?.date || ''}
+                {isSprint ? '🏎️ SPRINT' : '🏁 Gara'} — {ev?.location || `Idx ${r.calendarIndex}`} ({ev?.date || ''})
               </option>
             );
           })}
@@ -120,11 +121,13 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
 
       {/* Race info banner */}
       {selectedEvent && (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.red}`, borderRadius: 10, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderLeft: `4px solid ${selectedEvent.type === 'sprint' ? C.amber : C.red}`, borderRadius: 10, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <div>
-            <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec }}>GARA SELEZIONATA</div>
+            <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec }}>
+              {selectedEvent.type === 'sprint' ? 'SPRINT RACE SELEZIONATA' : 'GARA SELEZIONATA'}
+            </div>
             <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, fontSize: 16, color: C.textPri }}>
-              {selectedEvent.location}
+              {selectedEvent.location} {selectedEvent.type === 'sprint' && <span style={{color: C.amber}}>*</span>}
             </div>
           </div>
           <div style={{ marginLeft: 'auto', fontSize: 11, color: C.textSec }}>{selectedEvent.date}</div>
@@ -151,8 +154,12 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
               const pilot = pilots.find(p => p.id === pid);
               const result = selectedRace?.results?.find(r => r.pilotId === pid);
               if (result?.dnf) dnfCount++;
-              const pts = result ? calculatePilotPoints(result) : { total: 0, base: 0, overtakes: 0, fastestLap: 0, dotd: 0 };
-
+              
+              // Correctly pass isSprint flag to calculation
+              const pts = result 
+                ? calculatePilotPoints(result, selectedRace?.isSprint) 
+                : { total: 0, base: 0, overtakes: 0, fastestLap: 0, dotd: 0 };
+              
               // check if manually swapped out
               const isSwappedOut = teamReserveObj && entry.subbedOutFor === (teamReserveObj.id || teamReserveObj);
 
@@ -163,7 +170,11 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
               const resId = teamReserveObj.id || teamReserveObj;
               const pilot = pilots.find(p => p.id === resId);
               const result = selectedRace?.results?.find(r => r.pilotId === resId);
-              const pts = result ? calculatePilotPoints(result) : { total: 0, base: 0, overtakes: 0, fastestLap: 0, dotd: 0 };
+              
+              // Correctly pass isSprint flag to calculation
+              const pts = result 
+                ? calculatePilotPoints(result, selectedRace?.isSprint) 
+                : { total: 0, base: 0, overtakes: 0, fastestLap: 0, dotd: 0 };
 
               // explicitly check if manually subbed in 
               const subbedIn = teamReserveObj.subbedInManually || (dnfCount > 0 && !(result?.dnf));
@@ -299,7 +310,7 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                             </span>
                             {teamReserveObj && (pilotDetails.find(p => p.isReserve)?.subbedIn) && (
                               <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 10, background: C.amber + '22', color: C.amber, border: `1px solid ${C.amber}44` }}>
-                                {teamReserveObj.subbedInManually ? 'Switch Manuale Usato' : (dnfCount > 0 ? '1 Switch Usato per DNF' : 'Switch Applicato')}
+                                {teamReserveObj.subbedInManually ? (selectedEvent?.type === 'sprint' ? 'Sub Sprint' : 'Switch Manuale Usato') : (dnfCount > 0 ? '1 Switch Usato per DNF' : 'Switch Applicato')}
                               </span>
                             )}
                           </div>

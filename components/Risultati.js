@@ -50,7 +50,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                 const pStat = stats[res.pilotId];
                 if (!pStat) return;
 
-                const pts = calculatePilotPoints(res);
+                const pts = calculatePilotPoints(res, r.isSprint);
                 pStat.races += 1;
                 pStat.totalPts += pts.total;
                 pStat.overtakes += (res.overtakes || 0);
@@ -338,14 +338,14 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                                                         if (res.dnf) {
                                                             hasDnf = true;
                                                         } else {
-                                                            scorers.push({ pilot: pilots.find(p => p.id === starter.id), pts: calculatePilotPoints(res) });
+                                                            scorers.push({ pilot: pilots.find(p => p.id === starter.id), pts: calculatePilotPoints(res, race.isSprint) });
                                                         }
                                                     });
 
                                                     if (tReserve) {
                                                         const resRes = race.results.find(r => r.pilotId === tReserve.id);
                                                         if (resRes && !resRes.dnf && (tReserve.subbedInManually || hasDnf)) {
-                                                            scorers.push({ pilot: pilots.find(p => p.id === tReserve.id), pts: calculatePilotPoints(resRes), isReserve: true });
+                                                            scorers.push({ pilot: pilots.find(p => p.id === tReserve.id), pts: calculatePilotPoints(resRes, race.isSprint), isReserve: true });
                                                         }
                                                     }
 

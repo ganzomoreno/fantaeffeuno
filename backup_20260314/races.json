@@ -1,0 +1,20 @@
+[
+  {
+    "id": "b57c54dc-1612-4c15-b86f-e1b0e2f7d287",
+    "calendar_event_id": "cf7fb3a8-156a-4d8c-9939-a39d5b3b5da1",
+    "is_sprint": false,
+    "created_at": "2026-03-07T21:25:22.699976+00:00"
+  },
+  {
+    "id": "78b82d52-3c69-4184-90de-8ba0baa7204e",
+    "calendar_event_id": "e14a8d2d-182c-4cdf-a58b-60b048a47a36",
+    "is_sprint": false,
+    "created_at": "2026-03-07T21:30:29.791616+00:00"
+  },
+  {
+    "id": "06567805-89b9-4b1c-aac4-da57bdcaeca1",
+    "calendar_event_id": "dedca19b-ee8e-4ee2-b1d9-138a21441788",
+    "is_sprint": false,
+    "created_at": "2026-03-09T04:34:18.922345+00:00"
+  }
+]

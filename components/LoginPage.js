@@ -2,17 +2,42 @@
 
 import { useState } from 'react';
 
-export default function LoginPage({ teams, onLogin }) {
-  const [selectedTeamId, setSelectedTeamId] = useState('');
-  const [error, setError] = useState('');
+import { supabase } from '@/lib/supabase';
 
-  const handleLogin = () => {
-    if (!selectedTeamId) {
-      setError('Seleziona la tua squadra per continuare.');
+export default function LoginPage({ onLoginSuccess }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setError('Inserisci email e password.');
       return;
     }
-    const team = teams.find(t => t.id === selectedTeamId);
-    onLogin(team);
+    
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) throw authError;
+      
+      if (data.session) {
+        onLoginSuccess(data.session);
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      // Mostriamo l'errore esatto di Supabase per facilitare il debug
+      setError(`Errore: ${err.message || 'Credenziali non valide o errore di rete'}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -86,110 +111,76 @@ export default function LoginPage({ teams, onLogin }) {
           Seleziona la tua squadra
         </div>
 
-        <select
-          value={selectedTeamId}
-          onChange={e => { setSelectedTeamId(e.target.value); setError(''); }}
-          style={{
-            width: "100%",
-            background: "#1e1e1e",
-            border: error ? "1px solid #e10600" : "1px solid #333",
-            borderRadius: 10,
-            color: selectedTeamId ? "#e8e8e8" : "#555",
-            padding: "14px 16px",
-            fontSize: 14,
-            fontFamily: "'Titillium Web', sans-serif",
-            cursor: "pointer",
-            marginBottom: 8,
-            appearance: "none",
-            WebkitAppearance: "none",
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "right 14px center",
-            paddingRight: 40,
-          }}
-        >
-          <option value="" disabled style={{ color: "#555" }}>— Scegli il tuo team —</option>
-          {teams.map(t => (
-            <option key={t.id} value={t.id} style={{ color: "#e8e8e8", background: "#1e1e1e" }}>
-              {t.name}  ({t.owner})
-            </option>
-          ))}
-        </select>
-
-        {error && (
-          <div style={{ fontSize: 12, color: "#e10600", marginBottom: 12 }}>{error}</div>
-        )}
-
-        {selectedTeamId && (
-          <div style={{
-            background: "rgba(225,6,0,0.08)",
-            border: "1px solid rgba(225,6,0,0.2)",
-            borderRadius: 8,
-            padding: "10px 14px",
-            marginBottom: 16,
-            fontSize: 12,
-            color: "#ccc",
-          }}>
-            {(() => {
-              const t = teams.find(t => t.id === selectedTeamId);
-              return t ? <>Owner: <strong style={{ color: "#fff" }}>{t.owner}</strong>{t.isAdmin && <span style={{ marginLeft: 8, background: "#e10600", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 700 }}>ADMIN</span>}</> : null;
-            })()}
-          </div>
-        )}
-
-        <button
-          onClick={handleLogin}
-          style={{
-            width: "100%",
-            background: "linear-gradient(135deg, #e10600, #a00)",
-            border: "none",
-            borderRadius: 10,
-            color: "#fff",
-            padding: "14px 0",
-            fontSize: 14,
-            fontWeight: 700,
-            fontFamily: "'Orbitron', monospace",
-            letterSpacing: 2,
-            textTransform: "uppercase",
-            cursor: "pointer",
-            transition: "opacity 0.2s",
-          }}
-          onMouseEnter={e => e.target.style.opacity = "0.85"}
-          onMouseLeave={e => e.target.style.opacity = "1"}
-        >
-          Entra →
-        </button>
-      </div>
-
-      {/* Participants list */}
-      <div style={{
-        marginTop: 32,
-        display: "flex",
-        flexWrap: "wrap",
-        gap: 8,
-        justifyContent: "center",
-        maxWidth: 400,
-      }}>
-        {teams.map(t => (
-          <button
-            key={t.id}
-            onClick={() => { setSelectedTeamId(t.id); setError(''); }}
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Email fanta-manager"
+            value={email}
+            onChange={e => { setEmail(e.target.value); setError(''); }}
             style={{
-              background: selectedTeamId === t.id ? "rgba(225,6,0,0.2)" : "rgba(255,255,255,0.04)",
-              border: selectedTeamId === t.id ? "1px solid #e10600" : "1px solid #222",
-              borderRadius: 20,
-              color: selectedTeamId === t.id ? "#e10600" : "#666",
-              padding: "6px 14px",
-              fontSize: 11,
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "all 0.15s",
+              width: "100%",
+              background: "#1e1e1e",
+              border: error ? "1px solid #e10600" : "1px solid #333",
+              borderRadius: 10,
+              color: "#e8e8e8",
+              padding: "14px 16px",
+              fontSize: 14,
+              fontFamily: "'Titillium Web', sans-serif",
+              marginBottom: 12,
+              outline: "none"
             }}
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => { setPassword(e.target.value); setError(''); }}
+            style={{
+              width: "100%",
+              background: "#1e1e1e",
+              border: error ? "1px solid #e10600" : "1px solid #333",
+              borderRadius: 10,
+              color: "#e8e8e8",
+              padding: "14px 16px",
+              fontSize: 14,
+              fontFamily: "'Titillium Web', sans-serif",
+              marginBottom: 16,
+              outline: "none"
+            }}
+          />
+
+          {error && (
+            <div style={{ fontSize: 12, color: "#e10600", marginBottom: 12 }}>{error}</div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{
+              width: "100%",
+              background: isLoading ? "#555" : "linear-gradient(135deg, #e10600, #a00)",
+              border: "none",
+              borderRadius: 10,
+              color: "#fff",
+              padding: "14px 0",
+              fontSize: 14,
+              fontWeight: 700,
+              fontFamily: "'Orbitron', monospace",
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              cursor: isLoading ? "not-allowed" : "pointer",
+              transition: "opacity 0.2s",
+            }}
+            onMouseEnter={e => { if(!isLoading) e.target.style.opacity = "0.85" }}
+            onMouseLeave={e => { if(!isLoading) e.target.style.opacity = "1" }}
           >
-            {t.name}
+            {isLoading ? "ACCESSO..." : "Entra →"}
           </button>
-        ))}
+        </form>
       </div>
+
+
     </div>
   );
 }
