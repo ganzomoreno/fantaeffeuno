@@ -69,8 +69,10 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
 
         if (SIMULATED_TODAY <= endOfRaceDay) {
           // We are currently in the race/sprint day itself. This is "LOCKED".
-          // We keep searching in case there's another race in the same weekend (e.g. Sunday after Sprint).
+          // Continue searching ONLY after a sprint (to find the Sunday race of the same weekend).
+          // If it's a main race, stop here — today IS the race, show it as locked.
           lockedIdx = i;
+          if (ev.type !== 'sprint') break;
         }
       }
     }

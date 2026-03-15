@@ -17,11 +17,12 @@ export default function AdminPanel({ teams, pilots, races, lineups, onRefresh, o
   const [tab, setTab] = useState("asta");
 
   const tabs = [
-    { id: "asta",      label: "Asta" },
-    { id: "risultati", label: "Risultati Gara" },
-    { id: "teams",     label: "Squadre" },
-    { id: "piloti",    label: "Piloti" },
-    { id: "budget",    label: "Budget" },
+    { id: "asta",        label: "Asta" },
+    { id: "risultati",   label: "Risultati Gara" },
+    { id: "teams",       label: "Squadre" },
+    { id: "piloti",      label: "Piloti" },
+    { id: "budget",      label: "Budget" },
+    { id: "formazioni",  label: "Formazioni" },
   ];
 
   return (
@@ -55,11 +56,12 @@ export default function AdminPanel({ teams, pilots, races, lineups, onRefresh, o
           ))}
         </div>
 
-        {tab === "asta"      && <AdminAsta      teams={teams} pilots={pilots} onRefresh={onRefresh}/>}
-        {tab === "risultati" && <AdminRisultati  races={races} pilots={pilots} lineups={lineups} teams={teams} onRefresh={onRefresh}/>}
-        {tab === "teams"     && <AdminTeams      teams={teams} onRefresh={onRefresh}/>}
-        {tab === "piloti"    && <AdminPiloti     pilots={pilots} teams={teams} onRefresh={onRefresh}/>}
-        {tab === "budget"    && <AdminBudget     teams={teams} onRefresh={onRefresh}/>}
+        {tab === "asta"        && <AdminAsta       teams={teams} pilots={pilots} onRefresh={onRefresh}/>}
+        {tab === "risultati"   && <AdminRisultati   races={races} pilots={pilots} lineups={lineups} teams={teams} onRefresh={onRefresh}/>}
+        {tab === "teams"       && <AdminTeams       teams={teams} onRefresh={onRefresh}/>}
+        {tab === "piloti"      && <AdminPiloti      pilots={pilots} teams={teams} onRefresh={onRefresh}/>}
+        {tab === "budget"      && <AdminBudget      teams={teams} onRefresh={onRefresh}/>}
+        {tab === "formazioni"  && <AdminFormazioni  onRefresh={onRefresh}/>}
       </div>
     </div>
   );
@@ -447,6 +449,76 @@ function AdminBudget({ teams, onRefresh }) {
             onChange={v => setBudgetDirect(t.id, v)} width={70}/>
         </div>
       ))}
+    </AdminCard>
+  );
+}
+
+// ─── FORMAZIONI ───────────────────────────────────────────────────────────────
+function AdminFormazioni({ onRefresh }) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+
+  // Indici nel calendario: Sprint Cina = 1, GP Cina = 2
+  const SPRINT_IDX = 1;
+  const RACE_IDX   = 2;
+
+  const handleCopySprintToRace = async () => {
+    if (!window.confirm(`Copia le formazioni della Sprint Cina (idx ${SPRINT_IDX}) al GP Cina (idx ${RACE_IDX})?\nLe formazioni già salvate per il GP verranno sovrascritte.`)) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      const result = await db.copyLineupsFromSprintToRace(SPRINT_IDX, RACE_IDX);
+      setMsg({ ok: true, text: `✅ Copiate ${result.copiedRows} formazioni di ${result.copiedTeams} squadre.` });
+      await onRefresh();
+    } catch (e) {
+      setMsg({ ok: false, text: `❌ Errore: ${e.message}` });
+    }
+    setBusy(false);
+  };
+
+  return (
+    <AdminCard title="Gestione Formazioni">
+      <p style={{ fontSize: 12, color: '#A9ABBA', marginBottom: 16 }}>
+        Usa questa sezione per operazioni speciali sulle formazioni dei team.
+      </p>
+
+      {/* ── COPIA SPRINT → GP ───────────────────────────── */}
+      <div style={{
+        border: '1px solid #2A2D3A', borderRadius: 10, padding: 16, marginBottom: 12,
+        background: '#1A1B24',
+      }}>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6, color: '#FFB700' }}>
+          🏎️ Copia formazioni Sprint → GP Cina
+        </div>
+        <p style={{ fontSize: 12, color: '#A9ABBA', margin: '0 0 12px' }}>
+          Imposta le formazioni del <strong style={{ color: '#EDEEF3' }}>GP Cina (domenica)</strong> uguali
+          a quelle già salvate per la <strong style={{ color: '#EDEEF3' }}>Sprint Cina (sabato)</strong>.
+          Le formazioni esistenti per il GP saranno sovrascritte.
+        </p>
+        <button
+          onClick={handleCopySprintToRace}
+          disabled={busy}
+          style={{
+            ...btnPrimary,
+            opacity: busy ? 0.6 : 1,
+            background: '#FFB700',
+            color: '#000',
+          }}
+        >
+          {busy ? 'Copio...' : 'Copia Sprint → GP Cina'}
+        </button>
+
+        {msg && (
+          <div style={{
+            marginTop: 10, fontSize: 12, padding: '8px 12px', borderRadius: 6,
+            background: msg.ok ? 'rgba(0,255,65,0.08)' : 'rgba(225,6,0,0.1)',
+            color: msg.ok ? '#00FF41' : '#ff6b6b',
+            border: `1px solid ${msg.ok ? 'rgba(0,255,65,0.2)' : 'rgba(225,6,0,0.3)'}`,
+          }}>
+            {msg.text}
+          </div>
+        )}
+      </div>
     </AdminCard>
   );
 }
