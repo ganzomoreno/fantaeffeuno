@@ -284,10 +284,10 @@ export default function FantaF1() {
       </main>
 
       {/* ── FLOATING BOTTOM NAV ─────────────────────────────────────────────── */}
-      <nav style={{
+      <nav className="ff1-nav" style={{
         position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)",
         zIndex: 100,
-        background: "rgba(14, 15, 20, 0.82)",
+        background: "rgba(14, 15, 20, 0.92)",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
         border: "1px solid rgba(255,255,255,0.08)",
@@ -295,7 +295,7 @@ export default function FantaF1() {
         padding: "6px",
         display: "flex", gap: 2,
         boxShadow: "0 8px 40px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.06) inset",
-        maxWidth: "calc(100vw - 32px)",
+        maxWidth: "calc(100vw - 16px)",
       }}>
         {nav.map(n => {
           const active = page === n.id;
@@ -303,27 +303,28 @@ export default function FantaF1() {
             <button
               key={n.id}
               onClick={() => setPage(n.id)}
+              title={n.label}
+              className={`ff1-nav-btn${active ? ' active' : ''}`}
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center",
-                gap: active ? 2 : 1,
-                padding: active ? "8px 12px" : "8px 10px",
+                gap: 2,
+                padding: "8px 12px",
                 borderRadius: 100,
                 border: "none",
                 background: active ? "#e10600" : "transparent",
-                color: active ? "#fff" : "#666",
+                color: active ? "#fff" : "#9CA0B0",
                 cursor: "pointer",
                 transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: 700,
                 textTransform: "uppercase",
-                letterSpacing: active ? 0.3 : 0.5,
+                letterSpacing: 0.3,
                 boxShadow: active ? "0 4px 16px rgba(225,6,0,0.45)" : "none",
                 whiteSpace: "nowrap",
-                minWidth: 48,
               }}
             >
-              <Icon type={n.icon} size={active ? 16 : 14} />
-              {n.label}
+              <Icon type={n.icon} size={active ? 20 : 18} />
+              <span className="ff1-nav-label">{n.label}</span>
             </button>
           );
         })}

@@ -20,6 +20,13 @@ export default function RootLayout({ children }) {
           html { font-size: 16px; }
           body { font-size: 16px; line-height: 1.5; color: #EDEEF3; }
           @media (max-width: 480px) { body { font-size: 16px; } }
+
+          /* Bottom nav: hide labels on mobile, show only icons + label for active */
+          @media (max-width: 600px) {
+            .ff1-nav-btn .ff1-nav-label { display: none; }
+            .ff1-nav-btn.active .ff1-nav-label { display: inline; font-size: 11px; }
+            .ff1-nav-btn { padding: 10px !important; }
+          }
           * { margin: 0; padding: 0; box-sizing: border-box; }
           ::-webkit-scrollbar { width: 6px; }
           ::-webkit-scrollbar-track { background: #111; }
