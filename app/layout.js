@@ -15,8 +15,11 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body style={{ margin: 0, padding: 0, background: '#0a0a0a' }}>
+      <body style={{ margin: 0, padding: 0, background: '#0a0a0a', fontSize: 15, lineHeight: 1.45, WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }}>
         <style>{`
+          html { font-size: 16px; }
+          body { font-size: 15px; line-height: 1.45; }
+          @media (max-width: 480px) { body { font-size: 16px; } }
           * { margin: 0; padding: 0; box-sizing: border-box; }
           ::-webkit-scrollbar { width: 6px; }
           ::-webkit-scrollbar-track { background: #111; }

@@ -218,26 +218,26 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: C.red, fontWeight: 900 }}>
+              <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 2, color: C.red, fontWeight: 900 }}>
                 {daysUntil === 0 ? 'GARA OGGI' : 'PROSSIMA GARA'}
               </div>
               {daysUntil === 0 && (
-                <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 100, background: C.red, color: '#fff', fontWeight: 900, letterSpacing: 1, animation: 'pulse 1.6s ease-in-out infinite' }}>
+                <span style={{ fontSize: 12, padding: '2px 7px', borderRadius: 100, background: C.red, color: '#fff', fontWeight: 900, letterSpacing: 1, animation: 'pulse 1.6s ease-in-out infinite' }}>
                   LIVE
                 </span>
               )}
             </div>
-            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 22, fontWeight: 900, color: C.textPri, lineHeight: 1.1 }}>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 24, fontWeight: 900, color: C.textPri, lineHeight: 1.1 }}>
               {nextRaceEvent?.type === 'sprint' ? '🏎️ SPRINT — ' : ''}{nextRaceEvent?.location || '?'}
             </div>
-            <div style={{ fontSize: 12, color: C.textSec, marginTop: 4 }}>{nextRaceEvent?.date}</div>
+            <div style={{ fontSize: 14, color: C.textSec, marginTop: 4 }}>{nextRaceEvent?.date}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 10, textTransform: 'uppercase', color: C.textSec, marginBottom: 4 }}>
+            <div style={{ fontSize: 12, textTransform: 'uppercase', color: C.textSec, marginBottom: 4 }}>
               {daysUntil === 0 ? (activeRaceInfo?.timeLocked ? 'IN CORSO' : 'SCHIERAMENTO') : 'SCHIERAMENTO'}
             </div>
             {daysUntil !== null ? (
-              <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 24, fontWeight: 900, color: daysUntil <= 1 ? C.amber : C.textPri, lineHeight: 1 }}>
+              <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 26, fontWeight: 900, color: daysUntil <= 1 ? C.amber : C.textPri, lineHeight: 1 }}>
                 {daysUntil === 0 ? 'OGGI' : daysUntil < 0 ? 'IN CORSO' : `-${daysUntil}g`}
               </div>
             ) : null}
@@ -245,8 +245,8 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
         </div>
 
         <div style={{ position: 'relative', zIndex: 1, marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'rgba(0,0,0,0.4)', borderRadius: 10, border: `1px solid ${lineupConfirmed && !activeRaceInfo?.timeLocked ? C.green + '44' : C.border}` }}>
-          <span style={{ fontSize: 16 }}>{lineupConfirmed ? '✅' : '⚠️'}</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: lineupConfirmed ? C.green : C.amber }}>
+          <span style={{ fontSize: 17 }}>{lineupConfirmed ? '✅' : '⚠️'}</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: lineupConfirmed ? C.green : C.amber }}>
             {activeRaceInfo?.timeLocked ? 'Formazione Bloccata (In Gara)' : lineupConfirmed ? 'Formazione inviata e pronta' : 'Formazione da inviare!'}
           </span>
         </div>
@@ -255,8 +255,8 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
       {/* 2) Card “La tua formazione” */}
       <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>LA TUA FORMAZIONE</div>
-          <button onClick={() => onNavigate?.('squadre')} style={{ background: C.red, color: '#fff', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', cursor: 'pointer' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>LA TUA FORMAZIONE</div>
+          <button onClick={() => onNavigate?.('squadre')} style={{ background: C.red, color: '#fff', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', cursor: 'pointer' }}>
             {activeRaceInfo?.timeLocked ? 'Vedi →' : lineupConfirmed ? 'Modifica →' : 'Schiera →'}
           </button>
         </div>
@@ -269,13 +269,13 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
               <div key={i} style={{ background: C.surface2, border: `1px solid ${p ? (F1_TEAM_COLORS[p.team] || '#555') + '55' : C.border}`, borderRadius: 10, padding: '12px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                 {p ? (
                   <>
-                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: F1_TEAM_COLORS[p.team] || '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#fff', boxShadow: 'inset 0 0 10px rgba(0,0,0,0.2)' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: F1_TEAM_COLORS[p.team] || '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, color: '#fff', boxShadow: 'inset 0 0 10px rgba(0,0,0,0.2)' }}>
                       {p.abbreviation}
                     </div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: C.textPri, textAlign: 'center', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{p.name.split(' ').slice(-1)[0]}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: C.textPri, textAlign: 'center', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{p.name.split(' ').slice(-1)[0]}</div>
                   </>
                 ) : (
-                  <div style={{ color: C.textSec, fontSize: 10, textAlign: 'center', marginTop: 10 }}>SLOT<br />VUOTO</div>
+                  <div style={{ color: C.textSec, fontSize: 12, textAlign: 'center', marginTop: 10 }}>SLOT<br />VUOTO</div>
                 )}
               </div>
             );
@@ -284,14 +284,14 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
           <div style={{ background: C.surface2, border: `1px dashed ${C.border}`, borderRadius: 10, padding: '12px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, opacity: 0.7 }}>
             {benchPilots[0] ? (
               <>
-                <div style={{ width: 34, height: 34, borderRadius: '50%', background: C.surface, border: `2px solid ${F1_TEAM_COLORS[benchPilots[0].team] || '#555'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: C.textSec }}>
+                <div style={{ width: 34, height: 34, borderRadius: '50%', background: C.surface, border: `2px solid ${F1_TEAM_COLORS[benchPilots[0].team] || '#555'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, color: C.textSec }}>
                   {benchPilots[0].abbreviation}
                 </div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: C.textSec, textAlign: 'center', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{benchPilots[0].name.split(' ').slice(-1)[0]}</div>
-                <div style={{ fontSize: 9, background: C.surface, color: C.textSec, padding: '2px 6px', borderRadius: 4, marginTop: -2 }}>SUB</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.textSec, textAlign: 'center', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{benchPilots[0].name.split(' ').slice(-1)[0]}</div>
+                <div style={{ fontSize: 12, background: C.surface, color: C.textSec, padding: '2px 6px', borderRadius: 4, marginTop: -2 }}>SUB</div>
               </>
             ) : (
-              <div style={{ color: C.textSec, fontSize: 10, textAlign: 'center', marginTop: 10 }}>NESSUN<br />SUB</div>
+              <div style={{ color: C.textSec, fontSize: 12, textAlign: 'center', marginTop: 10 }}>NESSUN<br />SUB</div>
             )}
           </div>
         </div>
@@ -302,12 +302,12 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
             <div>
-              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, color: lastRace?.isSprint ? C.amber : C.textSec, marginBottom: 2 }}>{lastRace?.isSprint ? 'ULTIMA SPRINT' : 'ULTIMO GP'}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.textPri }}>{lastRaceEvent?.location || '—'}</div>
+              <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, color: lastRace?.isSprint ? C.amber : C.textSec, marginBottom: 2 }}>{lastRace?.isSprint ? 'ULTIMA SPRINT' : 'ULTIMO GP'}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: C.textPri }}>{lastRaceEvent?.location || '—'}</div>
             </div>
-            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 22, fontWeight: 900, color: C.red, textAlign: 'right', lineHeight: 1 }}>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 24, fontWeight: 900, color: C.red, textAlign: 'right', lineHeight: 1 }}>
               {lastRaceScore.toFixed(1)}
-              <span style={{ fontSize: 10, fontWeight: 400, color: C.textSec, display: 'block' }}>PUNTI TEAM</span>
+              <span style={{ fontSize: 12, fontWeight: 400, color: C.textSec, display: 'block' }}>PUNTI TEAM</span>
             </div>
           </div>
 
@@ -316,24 +316,24 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, background: C.surface2, padding: '8px 12px', borderRadius: 10 }}>
                 <div style={{ width: 3, height: 26, background: F1_TEAM_COLORS[r.pilot?.team] || '#555', borderRadius: 2 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: C.textPri }}>{r.pilot?.abbreviation} <span style={{ color: C.textSec, fontWeight: 500, fontSize: 11 }}>{r.pilot?.name.split(' ').slice(-1)[0]}</span></div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: C.textPri }}>{r.pilot?.abbreviation} <span style={{ color: C.textSec, fontWeight: 500, fontSize: 13 }}>{r.pilot?.name.split(' ').slice(-1)[0]}</span></div>
                   <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
-                    {r.subbedIn && <span style={{ fontSize: 9, padding: '2px 6px', background: C.amber + '22', color: C.amber, borderRadius: 10, fontWeight: 700 }}>SUB IN ⇡</span>}
-                    {r.dnf && !r.subbedIn && <span style={{ fontSize: 9, padding: '2px 6px', background: C.red + '22', color: C.red, borderRadius: 10, fontWeight: 700 }}>DNF</span>}
-                    {!r.dnf && <span style={{ fontSize: 9, padding: '2px 6px', background: C.surface, color: C.textSec, borderRadius: 10 }}>P{r.position}</span>}
-                    {r.overtakes > 0 && <span style={{ fontSize: 9, padding: '2px 6px', background: C.surface, color: C.textSec, borderRadius: 10 }}>OVT +{r.overtakes}</span>}
-                    {r.dotdRank === 1 && <span style={{ fontSize: 9, padding: '2px 6px', background: '#FFD70033', color: '#FFD700', borderRadius: 10, fontWeight: 800, border: '1px solid #FFD70066' }}>🥇 1° DOTD</span>}
-                    {r.dotdRank === 2 && <span style={{ fontSize: 9, padding: '2px 6px', background: '#C0C0C033', color: '#C0C0C0', borderRadius: 10, fontWeight: 800, border: '1px solid #C0C0C066' }}>🥈 2° DOTD</span>}
-                    {r.dotdRank === 3 && <span style={{ fontSize: 9, padding: '2px 6px', background: '#CD7F3233', color: '#CD7F32', borderRadius: 10, fontWeight: 800, border: '1px solid #CD7F3266' }}>🥉 3° DOTD</span>}
+                    {r.subbedIn && <span style={{ fontSize: 12, padding: '2px 6px', background: C.amber + '22', color: C.amber, borderRadius: 10, fontWeight: 700 }}>SUB IN ⇡</span>}
+                    {r.dnf && !r.subbedIn && <span style={{ fontSize: 12, padding: '2px 6px', background: C.red + '22', color: C.red, borderRadius: 10, fontWeight: 700 }}>DNF</span>}
+                    {!r.dnf && <span style={{ fontSize: 12, padding: '2px 6px', background: C.surface, color: C.textSec, borderRadius: 10 }}>P{r.position}</span>}
+                    {r.overtakes > 0 && <span style={{ fontSize: 12, padding: '2px 6px', background: C.surface, color: C.textSec, borderRadius: 10 }}>OVT +{r.overtakes}</span>}
+                    {r.dotdRank === 1 && <span style={{ fontSize: 12, padding: '2px 6px', background: '#FFD70033', color: '#FFD700', borderRadius: 10, fontWeight: 800, border: '1px solid #FFD70066' }}>🥇 1° DOTD</span>}
+                    {r.dotdRank === 2 && <span style={{ fontSize: 12, padding: '2px 6px', background: '#C0C0C033', color: '#C0C0C0', borderRadius: 10, fontWeight: 800, border: '1px solid #C0C0C066' }}>🥈 2° DOTD</span>}
+                    {r.dotdRank === 3 && <span style={{ fontSize: 12, padding: '2px 6px', background: '#CD7F3233', color: '#CD7F32', borderRadius: 10, fontWeight: 800, border: '1px solid #CD7F3266' }}>🥉 3° DOTD</span>}
                   </div>
                 </div>
-                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 15, fontWeight: 900, color: C.green }}>
+                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 16, fontWeight: 900, color: C.green }}>
                   +{r.pts.total.toFixed(1)}
                 </div>
               </div>
             ))}
             {lastRaceMyBreakdown.length === 0 && (
-              <div style={{ fontSize: 11, color: C.textSec, textAlign: 'center', padding: '10px 0' }}>Nessun dato per l'ultima corsa.</div>
+              <div style={{ fontSize: 13, color: C.textSec, textAlign: 'center', padding: '10px 0' }}>Nessun dato per l'ultima corsa.</div>
             )}
           </div>
         </div>
@@ -341,24 +341,24 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
         {/* CLASSIFICA COMPATTA */}
         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>CLASSIFICA</div>
+            <div style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>CLASSIFICA</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {top3Teams.map(t => (
               <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: t.id === currentUser?.id ? C.surface2 : 'transparent', border: t.id === currentUser?.id ? `1px solid ${C.red}44` : 'none', padding: '6px 8px', borderRadius: 8 }}>
-                <div style={{ width: 18, fontSize: 12, fontWeight: 900, color: t.rank === 1 ? MEDALS[0] : t.rank === 2 ? MEDALS[1] : MEDALS[2], textAlign: 'center' }}>{t.rank}</div>
-                <div style={{ flex: 1, fontSize: 12, fontWeight: t.id === currentUser?.id ? 700 : 500, color: t.id === currentUser?.id ? C.textPri : C.textSec }}>{t.name}</div>
-                <div style={{ fontSize: 12, fontFamily: "'Orbitron', monospace", fontWeight: 700, color: C.textPri }}>{t.score.toFixed(1)}</div>
+                <div style={{ width: 18, fontSize: 14, fontWeight: 900, color: t.rank === 1 ? MEDALS[0] : t.rank === 2 ? MEDALS[1] : MEDALS[2], textAlign: 'center' }}>{t.rank}</div>
+                <div style={{ flex: 1, fontSize: 14, fontWeight: t.id === currentUser?.id ? 700 : 500, color: t.id === currentUser?.id ? C.textPri : C.textSec }}>{t.name}</div>
+                <div style={{ fontSize: 14, fontFamily: "'Orbitron', monospace", fontWeight: 700, color: C.textPri }}>{t.score.toFixed(1)}</div>
               </div>
             ))}
             {myRank > 3 && (
               <>
-                <div style={{ textAlign: 'center', color: C.textSec, fontSize: 10, margin: '2px 0' }}>•••</div>
+                <div style={{ textAlign: 'center', color: C.textSec, fontSize: 12, margin: '2px 0' }}>•••</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: C.surface2, border: `1px solid ${C.red}44`, padding: '6px 8px', borderRadius: 8 }}>
-                  <div style={{ width: 18, fontSize: 12, fontWeight: 900, color: C.textSec, textAlign: 'center' }}>{myRank}</div>
-                  <div style={{ flex: 1, fontSize: 12, fontWeight: 700, color: C.textPri }}>TU ({currentUser?.name})</div>
-                  <div style={{ fontSize: 12, fontFamily: "'Orbitron', monospace", fontWeight: 700, color: C.textPri }}>{myScore.toFixed(1)}</div>
-                  <div style={{ fontSize: 10, color: C.textSec }}>(-{(top3Teams[0]?.score - myScore).toFixed(1)})</div>
+                  <div style={{ width: 18, fontSize: 14, fontWeight: 900, color: C.textSec, textAlign: 'center' }}>{myRank}</div>
+                  <div style={{ flex: 1, fontSize: 14, fontWeight: 700, color: C.textPri }}>TU ({currentUser?.name})</div>
+                  <div style={{ fontSize: 14, fontFamily: "'Orbitron', monospace", fontWeight: 700, color: C.textPri }}>{myScore.toFixed(1)}</div>
+                  <div style={{ fontSize: 12, color: C.textSec }}>(-{(top3Teams[0]?.score - myScore).toFixed(1)})</div>
                 </div>
               </>
             )}
@@ -372,33 +372,33 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span style={{ fontSize: 14 }}>💰</span>
-              <span style={{ fontSize: 10, textTransform: 'uppercase', color: C.textSec, fontWeight: 700 }}>Budget</span>
+              <span style={{ fontSize: 16 }}>💰</span>
+              <span style={{ fontSize: 12, textTransform: 'uppercase', color: C.textSec, fontWeight: 700 }}>Budget</span>
             </div>
-            <div style={{ fontSize: 20, fontFamily: "'Orbitron', monospace", fontWeight: 900, color: '#FFD700' }}>{currentUser?.budget} M</div>
+            <div style={{ fontSize: 22, fontFamily: "'Orbitron', monospace", fontWeight: 900, color: '#FFD700' }}>{currentUser?.budget} M</div>
           </div>
           <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span style={{ fontSize: 14 }}>🔄</span>
-              <span style={{ fontSize: 10, textTransform: 'uppercase', color: C.textSec, fontWeight: 700 }}>Switch</span>
+              <span style={{ fontSize: 16 }}>🔄</span>
+              <span style={{ fontSize: 12, textTransform: 'uppercase', color: C.textSec, fontWeight: 700 }}>Switch</span>
             </div>
-            <div style={{ fontSize: 20, fontFamily: "'Orbitron', monospace", fontWeight: 900, color: C.textPri }}>
-              {MAX_SWITCHES - (currentUser?.switchesUsed || 0)}<span style={{ fontSize: 12, color: C.textSec }}>/5</span>
+            <div style={{ fontSize: 22, fontFamily: "'Orbitron', monospace", fontWeight: 900, color: C.textPri }}>
+              {MAX_SWITCHES - (currentUser?.switchesUsed || 0)}<span style={{ fontSize: 14, color: C.textSec }}>/5</span>
             </div>
           </div>
         </div>
 
         {/* Timeline */}
         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: '14px 14px 14px 20px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: C.textSec, marginBottom: 14 }}>PROSSIMI EVENTI</div>
+          <div style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', color: C.textSec, marginBottom: 14 }}>PROSSIMI EVENTI</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative' }}>
             <div style={{ position: 'absolute', left: 4, top: 6, bottom: 6, width: 2, background: C.border }} />
             {nextEvents.map((ev, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 1 }}>
                 <div style={{ width: 10, height: 10, borderRadius: ev.type === 'auction' ? 2 : '50%', background: ev.type === 'auction' ? C.amber : C.red, border: `2px solid ${C.surface}` }} />
                 <div style={{ transform: 'translateY(-2px)' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: ev.type === 'auction' ? C.amber : C.textPri, lineHeight: 1.1 }}>{ev.location}</div>
-                  <div style={{ fontSize: 10, color: C.textSec, marginTop: 3 }}>{ev.date}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: ev.type === 'auction' ? C.amber : C.textPri, lineHeight: 1.1 }}>{ev.location}</div>
+                  <div style={{ fontSize: 12, color: C.textSec, marginTop: 3 }}>{ev.date}</div>
                 </div>
               </div>
             ))}
@@ -409,8 +409,8 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
       {/* 7) Notifiche intelligenti */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {daysUntil !== null && daysUntil <= 1 && !activeRaceInfo?.timeLocked && (
-          <div style={{ background: C.amber + '15', border: `1px solid ${C.amber}44`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.amber, fontSize: 12, fontWeight: 600 }}>
-            <span style={{ fontSize: 16 }}>⏱️</span>
+          <div style={{ background: C.amber + '15', border: `1px solid ${C.amber}44`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.amber, fontSize: 14, fontWeight: 600 }}>
+            <span style={{ fontSize: 17 }}>⏱️</span>
             <div>Mancano poche ore alla chiusura schieramento!</div>
           </div>
         )}
@@ -419,8 +419,8 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
           const diff = Math.ceil((aucD - SIMULATED_TODAY.getTime()) / 86400000);
           if (diff <= 3 && diff >= 0) {
             return (
-              <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.textPri, fontSize: 12, fontWeight: 600 }}>
-                <span style={{ fontSize: 16 }}>💰</span>
+              <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.textPri, fontSize: 14, fontWeight: 600 }}>
+                <span style={{ fontSize: 17 }}>💰</span>
                 <div>Asta {diff === 0 ? 'OGGI' : `tra ${diff} giorni`}: prepara il budget!</div>
               </div>
             );
@@ -428,8 +428,8 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
           return null;
         })()}
         {(MAX_SWITCHES - (currentUser?.switchesUsed || 0)) <= 1 && (
-          <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.textSec, fontSize: 12, fontWeight: 600 }}>
-            <span style={{ fontSize: 16 }}>⚠️</span>
+          <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.textSec, fontSize: 14, fontWeight: 600 }}>
+            <span style={{ fontSize: 17 }}>⚠️</span>
             <div>Attenzione: ti restano pochissimi Switch stagionali.</div>
           </div>
         )}

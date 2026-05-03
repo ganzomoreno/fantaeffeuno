@@ -61,7 +61,7 @@ export default function Calendario({ calendar, races }) {
             key={f.id}
             onClick={() => setFilter(f.id)}
             style={{
-              padding: '8px 16px', border: 'none', cursor: 'pointer', fontSize: 11,
+              padding: '8px 16px', border: 'none', cursor: 'pointer', fontSize: 13,
               fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1,
               background: filter === f.id ? C.red : 'transparent',
               color: filter === f.id ? '#fff' : C.textSec,
@@ -120,27 +120,27 @@ export default function Calendario({ calendar, races }) {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 4 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: isCancelled ? C.textSec : isSprint ? C.amber : C.textPri, textDecoration: isCancelled ? 'line-through' : 'none' }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: isCancelled ? C.textSec : isSprint ? C.amber : C.textPri, textDecoration: isCancelled ? 'line-through' : 'none' }}>
                       {isRace ? `🏁 ${ev.location}` : isSprint ? `🏎️ SPRINT - ${ev.location}` : `💰 ${ev.location}`}
                     </div>
-                    <div style={{ fontSize: 11, color: C.textSec, marginTop: 2, textDecoration: isCancelled ? 'line-through' : 'none' }}>{ev.date}</div>
+                    <div style={{ fontSize: 13, color: C.textSec, marginTop: 2, textDecoration: isCancelled ? 'line-through' : 'none' }}>{ev.date}</div>
                   </div>
 
                   {/* Status badge */}
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
                     {isCancelled && (
-                      <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#E1060033', color: '#FF8585', border: `1px solid #5A2A2A`, fontWeight: 700 }}>
+                      <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#E1060033', color: '#FF8585', border: `1px solid #5A2A2A`, fontWeight: 700 }}>
                         ✕ ANNULLATA
                       </span>
                     )}
                     {isDone && (
-                      <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#EDEEF322', color: C.textSec, border: `1px solid ${C.border}`, fontWeight: 700 }}>
+                      <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#EDEEF322', color: C.textSec, border: `1px solid ${C.border}`, fontWeight: 700 }}>
                         ✓ COMPLETATO
                       </span>
                     )}
                     {isNext && (
                       <span style={{
-                        fontSize: 10, padding: '2px 8px', borderRadius: 10, fontWeight: 700,
+                        fontSize: 12, padding: '2px 8px', borderRadius: 10, fontWeight: 700,
                         background: (isRace||isSprint) ? C.red + '33' : C.amber + '33',
                         color: (isRace||isSprint) ? C.red : C.amber,
                         border: `1px solid ${(isRace||isSprint) ? C.red + '66' : C.amber + '66'}`,
@@ -150,7 +150,7 @@ export default function Calendario({ calendar, races }) {
                       </span>
                     )}
                     {daysUntil != null && isNext && (
-                      <span style={{ fontSize: 10, color: daysUntil <= 3 ? C.amber : C.textSec }}>
+                      <span style={{ fontSize: 12, color: daysUntil <= 3 ? C.amber : C.textSec }}>
                         {daysUntil === 0 ? 'OGGI' : daysUntil < 0 ? 'IN CORSO' : `tra ${daysUntil}g`}
                       </span>
                     )}
@@ -161,11 +161,11 @@ export default function Calendario({ calendar, races }) {
                 {isNext && !isDone && (
                   <div style={{ marginTop: 8 }}>
                     {(isRace||isSprint) ? (
-                      <div style={{ fontSize: 11, color: C.textSec }}>
+                      <div style={{ fontSize: 13, color: C.textSec }}>
                         ⚡ Imposta la formazione nella sezione <strong style={{ color: C.textPri }}>Squadre</strong>
                       </div>
                     ) : (
-                      <div style={{ fontSize: 11, color: C.textSec }}>
+                      <div style={{ fontSize: 13, color: C.textSec }}>
                         💡 L&apos;asta viene gestita dall&apos;admin
                       </div>
                     )}
@@ -177,7 +177,7 @@ export default function Calendario({ calendar, races }) {
         })}
 
         {filtered.length === 0 && (
-          <div style={{ textAlign: 'center', padding: 40, color: C.textSec, fontSize: 13 }}>
+          <div style={{ textAlign: 'center', padding: 40, color: C.textSec, fontSize: 15 }}>
             Nessun evento trovato.
           </div>
         )}

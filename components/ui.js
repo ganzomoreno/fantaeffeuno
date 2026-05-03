@@ -3,23 +3,23 @@
 // ─── INLINE STYLES ───────────────────────────────────────────────────────────
 export const selectStyle = {
   background: "#1a1a1a", border: "1px solid #333", borderRadius: 8,
-  color: "#fff", padding: "8px 12px", fontSize: 13, width: "100%",
+  color: "#fff", padding: "8px 12px", fontSize: 15, width: "100%",
 };
 
 export const inputStyle = {
   background: "#1a1a1a", border: "1px solid #333", borderRadius: 8,
-  color: "#fff", padding: "8px 12px", fontSize: 13,
+  color: "#fff", padding: "8px 12px", fontSize: 15,
 };
 
 export const btnPrimary = {
   background: "#e10600", border: "none", borderRadius: 8,
   color: "#fff", padding: "10px 20px", cursor: "pointer",
-  fontWeight: 700, fontSize: 13, textTransform: "uppercase", letterSpacing: 1,
+  fontWeight: 700, fontSize: 15, textTransform: "uppercase", letterSpacing: 1,
 };
 
 export const btnSmall = {
   background: "transparent", border: "1px solid #333", borderRadius: 6,
-  color: "#aaa", padding: "4px 10px", cursor: "pointer", fontSize: 11, fontWeight: 600,
+  color: "#aaa", padding: "4px 10px", cursor: "pointer", fontSize: 13, fontWeight: 600,
 };
 
 // ─── SECTION TITLE ───────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ export function SectionTitle({ children, sub }) {
 export function Chip({ label, color }) {
   return (
     <span style={{
-      fontSize: 10, fontWeight: 700, padding: "3px 10px",
+      fontSize: 12, fontWeight: 700, padding: "3px 10px",
       borderRadius: 20, background: color + "22", color,
       border: `1px solid ${color}44`, letterSpacing: 0.5, whiteSpace: "nowrap",
     }}>
@@ -62,7 +62,7 @@ export function AdminCard({ title, children }) {
       marginBottom: 16, border: "1px solid #222",
     }}>
       <h3 style={{
-        fontSize: 14, fontWeight: 700, marginBottom: 12,
+        fontSize: 16, fontWeight: 700, marginBottom: 12,
         color: "#e10600", textTransform: "uppercase", letterSpacing: 1,
       }}>
         {title}
@@ -76,12 +76,12 @@ export function AdminCard({ title, children }) {
 export function MiniInput({ label, type = "text", value, onChange, width = 100 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      {label && <span style={{ fontSize: 10, opacity: 0.5, marginBottom: 2 }}>{label}</span>}
+      {label && <span style={{ fontSize: 12, opacity: 0.5, marginBottom: 2 }}>{label}</span>}
       <input
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
-        style={{ ...inputStyle, width, padding: "4px 8px", fontSize: 12 }}
+        style={{ ...inputStyle, width, padding: "4px 8px", fontSize: 14 }}
       />
     </div>
   );

@@ -82,7 +82,7 @@ export default function LoginPage({ onLoginSuccess }) {
         </div>
         <p style={{
           margin: 0,
-          fontSize: 11,
+          fontSize: 13,
           opacity: 0.4,
           letterSpacing: 4,
           textTransform: "uppercase",
@@ -101,7 +101,7 @@ export default function LoginPage({ onLoginSuccess }) {
         maxWidth: 400,
       }}>
         <div style={{
-          fontSize: 13,
+          fontSize: 15,
           fontWeight: 600,
           textTransform: "uppercase",
           letterSpacing: 2,
@@ -124,7 +124,7 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: 10,
               color: "#e8e8e8",
               padding: "14px 16px",
-              fontSize: 14,
+              fontSize: 16,
               fontFamily: "'Titillium Web', sans-serif",
               marginBottom: 12,
               outline: "none"
@@ -143,7 +143,7 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: 10,
               color: "#e8e8e8",
               padding: "14px 16px",
-              fontSize: 14,
+              fontSize: 16,
               fontFamily: "'Titillium Web', sans-serif",
               marginBottom: 16,
               outline: "none"
@@ -151,7 +151,7 @@ export default function LoginPage({ onLoginSuccess }) {
           />
 
           {error && (
-            <div style={{ fontSize: 12, color: "#e10600", marginBottom: 12 }}>{error}</div>
+            <div style={{ fontSize: 14, color: "#e10600", marginBottom: 12 }}>{error}</div>
           )}
 
           <button
@@ -164,7 +164,7 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: 10,
               color: "#fff",
               padding: "14px 0",
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: 700,
               fontFamily: "'Orbitron', monospace",
               letterSpacing: 2,

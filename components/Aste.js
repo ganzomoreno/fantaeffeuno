@@ -114,12 +114,12 @@ export default function Aste({ calendar }) {
     }, [lots, calendar]);
 
     if (loading) {
-        return <div style={{ textAlign: 'center', padding: 40, color: C.textSec, fontSize: 13, fontFamily: "'Orbitron', monospace", letterSpacing: 2 }}>CARICAMENTO ASTE...</div>;
+        return <div style={{ textAlign: 'center', padding: 40, color: C.textSec, fontSize: 15, fontFamily: "'Orbitron', monospace", letterSpacing: 2 }}>CARICAMENTO ASTE...</div>;
     }
 
     if (groupedAuctions.length === 0) {
         return (
-            <div style={{ textAlign: 'center', padding: 60, color: C.textSec, fontSize: 13 }}>
+            <div style={{ textAlign: 'center', padding: 60, color: C.textSec, fontSize: 15 }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>🔨</div>
                 Nessuna asta disputata finora.
             </div>
@@ -131,8 +131,8 @@ export default function Aste({ calendar }) {
             {/* ── HEADER ────────────────────────────────────────── */}
             <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: C.amber, fontWeight: 900, marginBottom: 4 }}>STORICO ACQUISTI</div>
-                    <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 20, fontWeight: 900, color: C.textPri, lineHeight: 1.1 }}>CRONOLOGIA ASTE</div>
+                    <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 2, color: C.amber, fontWeight: 900, marginBottom: 4 }}>STORICO ACQUISTI</div>
+                    <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 22, fontWeight: 900, color: C.textPri, lineHeight: 1.1 }}>CRONOLOGIA ASTE</div>
                 </div>
                 <div style={{ background: C.surface2, borderRadius: 50, padding: 8, border: `1px solid ${C.amber}44`, color: C.amber, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon type="hammer" size={20} />
@@ -150,12 +150,12 @@ export default function Aste({ calendar }) {
                             border: `1px solid ${activeAuctionNum === a.number ? C.amber : C.border}`,
                             color: activeAuctionNum === a.number ? C.textPri : C.textSec,
                             padding: '12px 20px', borderRadius: 12, cursor: 'pointer',
-                            fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1,
+                            fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1,
                             whiteSpace: 'nowrap', transition: 'all 0.2s',
                             boxShadow: activeAuctionNum === a.number ? `0 4px 12px ${C.amber}22` : 'none'
                         }}
                     >
-                        Sessione {a.number} <span style={{ opacity: 0.5, marginLeft: 8, fontSize: 10 }}>{a.date}</span>
+                        Sessione {a.number} <span style={{ opacity: 0.5, marginLeft: 8, fontSize: 12 }}>{a.date}</span>
                     </button>
                 ))}
             </div>
@@ -169,7 +169,7 @@ export default function Aste({ calendar }) {
 
                         {/* BUDGET RECAP CARD */}
                         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
-                            <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 16 }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 16 }}>
                                 RIEPILOGO FINANZIARIO E COMPOSIZIONE SQUADRE
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -177,16 +177,16 @@ export default function Aste({ calendar }) {
                                     <div key={t.team.id} style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                                             <div>
-                                                <div style={{ fontSize: 13, fontWeight: 800, color: C.textPri, marginBottom: 4 }}>{idx + 1}. {t.team.name}</div>
+                                                <div style={{ fontSize: 15, fontWeight: 800, color: C.textPri, marginBottom: 4 }}>{idx + 1}. {t.team.name}</div>
                                                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                                                    <div style={{ fontSize: 10, color: C.textSec }}>START: <span style={{ color: C.textPri, fontWeight: 700 }}>{t.start} FM</span></div>
-                                                    <div style={{ fontSize: 10, color: C.red }}>SPESI: <span style={{ fontWeight: 700 }}>{t.spent} FM</span></div>
-                                                    <div style={{ fontSize: 10, color: C.amber }}>END: <span style={{ fontWeight: 700 }}>{t.end} FM</span></div>
+                                                    <div style={{ fontSize: 12, color: C.textSec }}>START: <span style={{ color: C.textPri, fontWeight: 700 }}>{t.start} FM</span></div>
+                                                    <div style={{ fontSize: 12, color: C.red }}>SPESI: <span style={{ fontWeight: 700 }}>{t.spent} FM</span></div>
+                                                    <div style={{ fontSize: 12, color: C.amber }}>END: <span style={{ fontWeight: 700 }}>{t.end} FM</span></div>
                                                 </div>
                                             </div>
                                             <div style={{ textAlign: 'right' }}>
-                                                <div style={{ fontSize: 11, fontWeight: 900, color: C.textPri, fontFamily: "'Orbitron', monospace" }}>{t.end} <span style={{ fontSize: 8, color: C.textSec }}>FM</span></div>
-                                                <div style={{ fontSize: 9, color: C.textSec, textTransform: 'uppercase' }}>Residuo</div>
+                                                <div style={{ fontSize: 13, fontWeight: 900, color: C.textPri, fontFamily: "'Orbitron', monospace" }}>{t.end} <span style={{ fontSize: 12, color: C.textSec }}>FM</span></div>
+                                                <div style={{ fontSize: 12, color: C.textSec, textTransform: 'uppercase' }}>Residuo</div>
                                             </div>
                                         </div>
 
@@ -194,14 +194,14 @@ export default function Aste({ calendar }) {
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                                             {t.pilotsWon.length > 0 ? t.pilotsWon.map(p => (
                                                 <div key={p.id} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: '4px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                    <div style={{ width: 14, height: 14, borderRadius: '50%', background: F1_TEAM_COLORS[p.team] || '#555', fontSize: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff' }}>
+                                                    <div style={{ width: 14, height: 14, borderRadius: '50%', background: F1_TEAM_COLORS[p.team] || '#555', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff' }}>
                                                         {p.abbreviation}
                                                     </div>
-                                                    <div style={{ fontSize: 10, fontWeight: 600, color: C.textSec }}>{p.name}</div>
-                                                    <div style={{ fontSize: 10, fontWeight: 900, color: C.amber, marginLeft: 4, paddingLeft: 8, borderLeft: `1px solid ${C.border}` }}>{p.price} <span style={{ fontSize: 7, opacity: 0.7 }}>FM</span></div>
+                                                    <div style={{ fontSize: 12, fontWeight: 600, color: C.textSec }}>{p.name}</div>
+                                                    <div style={{ fontSize: 12, fontWeight: 900, color: C.amber, marginLeft: 4, paddingLeft: 8, borderLeft: `1px solid ${C.border}` }}>{p.price} <span style={{ fontSize: 11, opacity: 0.7 }}>FM</span></div>
                                                 </div>
                                             )) : (
-                                                <div style={{ fontSize: 10, fontStyle: 'italic', color: C.border }}>Nessun acquisto in questa sessione</div>
+                                                <div style={{ fontSize: 12, fontStyle: 'italic', color: C.border }}>Nessun acquisto in questa sessione</div>
                                             )}
                                         </div>
                                     </div>
@@ -213,7 +213,7 @@ export default function Aste({ calendar }) {
                         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
                             <div style={{ overflowX: 'auto' }}>
                                 <div style={{ minWidth: 500 }}>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '50px 1fr 1fr 80px', padding: '10px 16px', background: C.surface2, borderBottom: `1px solid ${C.border}`, fontSize: 10, fontWeight: 800, color: C.textSec, letterSpacing: 1 }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '50px 1fr 1fr 80px', padding: '10px 16px', background: C.surface2, borderBottom: `1px solid ${C.border}`, fontSize: 12, fontWeight: 800, color: C.textSec, letterSpacing: 1 }}>
                                         <div style={{ textAlign: 'center' }}>LOTTO</div>
                                         <div>PILOTA ACQUISTATO</div>
                                         <div>SQUADRA ACQUIRENTE</div>
@@ -224,24 +224,24 @@ export default function Aste({ calendar }) {
                                         {auction.lots.map((lot, i) => (
                                             <div key={lot.id} style={{ display: 'grid', gridTemplateColumns: '50px 1fr 1fr 80px', padding: '12px 16px', borderBottom: i < auction.lots.length - 1 ? `1px solid ${C.border}` : 'none', alignItems: 'center' }}>
                                                 {/* Lot Num */}
-                                                <div style={{ textAlign: 'center', fontSize: 11, color: C.textSec, fontWeight: 600 }}>#{lot.lotOrder}</div>
+                                                <div style={{ textAlign: 'center', fontSize: 13, color: C.textSec, fontWeight: 600 }}>#{lot.lotOrder}</div>
                                                 {/* Pilot */}
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: F1_TEAM_COLORS[lot.pilot.team] || '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, fontWeight: 900, color: '#fff', border: `1px solid ${C.border}` }}>
+                                                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: F1_TEAM_COLORS[lot.pilot.team] || '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#fff', border: `1px solid ${C.border}` }}>
                                                         {lot.pilot.abbreviation}
                                                     </div>
-                                                    <div style={{ fontSize: 13, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lot.pilot.name}</div>
+                                                    <div style={{ fontSize: 15, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lot.pilot.name}</div>
                                                 </div>
                                                 {/* Buyer Team */}
-                                                <div style={{ fontSize: 13, fontWeight: 600, color: C.textSec, display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                    <div style={{ width: 16, height: 16, borderRadius: '50%', background: C.red, display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#fff' }}>
+                                                <div style={{ fontSize: 15, fontWeight: 600, color: C.textSec, display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                    <div style={{ width: 16, height: 16, borderRadius: '50%', background: C.red, display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#fff' }}>
                                                         {lot.team.name.charAt(0)}
                                                     </div>
                                                     {lot.team.name}
                                                 </div>
                                                 {/* Price */}
-                                                <div style={{ textAlign: 'right', fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 900, color: C.amber }}>
-                                                    {lot.finalPrice} <span style={{ fontSize: 9, color: C.textSec }}>FM</span>
+                                                <div style={{ textAlign: 'right', fontFamily: "'Orbitron', monospace", fontSize: 16, fontWeight: 900, color: C.amber }}>
+                                                    {lot.finalPrice} <span style={{ fontSize: 12, color: C.textSec }}>FM</span>
                                                 </div>
                                             </div>
                                         ))}

@@ -144,7 +144,7 @@ export default function FantaF1() {
 
   if (loading) {
     return (
-      <div style={{ background: "#0B0C10", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Orbitron', monospace", color: "#e10600", fontSize: 13, letterSpacing: 4 }}>
+      <div style={{ background: "#0B0C10", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Orbitron', monospace", color: "#e10600", fontSize: 15, letterSpacing: 4 }}>
         CARICAMENTO...
       </div>
     );
@@ -153,8 +153,8 @@ export default function FantaF1() {
   if (error) {
     return (
       <div style={{ background: "#0B0C10", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, fontFamily: "'Titillium Web', sans-serif", color: "#e8e8e8" }}>
-        <div style={{ color: "#e10600", fontSize: 14 }}>Errore connessione DB</div>
-        <div style={{ fontSize: 12, color: "#555" }}>{error}</div>
+        <div style={{ color: "#e10600", fontSize: 16 }}>Errore connessione DB</div>
+        <div style={{ fontSize: 14, color: "#555" }}>{error}</div>
         <button onClick={refresh} style={{ background: "#e10600", border: "none", borderRadius: 8, color: "#fff", padding: "10px 24px", cursor: "pointer", fontWeight: 700 }}>Riprova</button>
       </div>
     );
@@ -200,10 +200,10 @@ export default function FantaF1() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           {/* Logo */}
           <div>
-            <h1 style={{ fontFamily: "'Orbitron', monospace", fontSize: 26, fontWeight: 900, margin: 0, letterSpacing: 2, textTransform: "uppercase" }}>
+            <h1 style={{ fontFamily: "'Orbitron', monospace", fontSize: 28, fontWeight: 900, margin: 0, letterSpacing: 2, textTransform: "uppercase" }}>
               FANTA<span style={{ opacity: 0.5 }}>F1</span>
             </h1>
-            <p style={{ margin: "3px 0 0", fontSize: 10, opacity: 0.5, letterSpacing: 4, textTransform: "uppercase" }}>2026 Season</p>
+            <p style={{ margin: "3px 0 0", fontSize: 12, opacity: 0.5, letterSpacing: 4, textTransform: "uppercase" }}>2026 Season</p>
           </div>
 
           {/* Right: user badge + admin */}
@@ -214,11 +214,11 @@ export default function FantaF1() {
               borderRadius: 100, padding: "5px 12px 5px 8px",
               display: "flex", alignItems: "center", gap: 8,
             }}>
-              <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#e10600", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900 }}>
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#e10600", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900 }}>
                 {currentTeam?.name?.charAt(0)}
               </div>
-              <span style={{ fontWeight: 700, fontSize: 12, color: "#fff" }}>{currentTeam?.name}</span>
-              <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 100, color: "#aaa", cursor: "pointer", fontSize: 10, padding: "2px 8px", fontWeight: 600 }}>
+              <span style={{ fontWeight: 700, fontSize: 14, color: "#fff" }}>{currentTeam?.name}</span>
+              <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 100, color: "#aaa", cursor: "pointer", fontSize: 12, padding: "2px 8px", fontWeight: 600 }}>
                 Esci
               </button>
             </div>
@@ -229,7 +229,7 @@ export default function FantaF1() {
                 <button onClick={() => window.location.href = '/asta'} style={{
                   background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
                   borderRadius: 100, color: "#fff", padding: "5px 12px", cursor: "pointer",
-                  fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 5,
+                  fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 5,
                 }}>
                   🔨 Aste
                 </button>
@@ -237,7 +237,7 @@ export default function FantaF1() {
                   background: showAdmin ? "#e10600" : "rgba(255,255,255,0.08)",
                   border: `1px solid ${showAdmin ? "#e10600" : "rgba(255,255,255,0.15)"}`,
                   borderRadius: 100, color: "#fff", padding: "5px 12px", cursor: "pointer",
-                  fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 5,
+                  fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 5,
                 }}>
                   <Icon type="settings" size={13} /> Admin
                 </button>
@@ -313,7 +313,7 @@ export default function FantaF1() {
                 color: active ? "#fff" : "#666",
                 cursor: "pointer",
                 transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                fontSize: 8,
+                fontSize: 12,
                 fontWeight: 700,
                 textTransform: "uppercase",
                 letterSpacing: active ? 0.3 : 0.5,

@@ -33,7 +33,9 @@
       "Bash(where psql:*)",
       "Bash(where node:*)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git commit -m 'style: bump tipografia in linea con standard web \\(Twitter/GitHub/Slack\\) *)"
     ]
   }
 }
