@@ -9,7 +9,7 @@ const C = {
     surface2: '#1A1B24',
     border: '#2A2D3A',
     textPri: '#EDEEF3',
-    textSec: '#A9ABBA',
+    textSec: '#C8CCDA',
     red: '#E10600',
     green: '#00FF41',
     amber: '#FFB700',
@@ -93,7 +93,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
 
     if (races.length === 0) {
         return (
-            <div style={{ textAlign: 'center', padding: 60, color: C.textSec, fontSize: 15 }}>
+            <div style={{ textAlign: 'center', padding: 60, color: C.textSec, fontSize: 17 }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>🏁</div>
                 Nessuna gara disponibile per le statistiche.
             </div>
@@ -106,7 +106,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
             {/* ── HEADER ────────────────────────────────────────── */}
             <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec, fontWeight: 900, marginBottom: 4 }}>ANALISI DATI</div>
+                    <div style={{ fontSize: 14, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec, fontWeight: 900, marginBottom: 4 }}>ANALISI DATI</div>
                     <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 22, fontWeight: 900, color: C.textPri, lineHeight: 1.1 }}>RISULTATI E STATISTICHE</div>
                 </div>
                 <div style={{ display: 'flex', background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 8, overflow: 'hidden' }}>
@@ -114,7 +114,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                         <button
                             key={v} onClick={() => setActiveTab(v)}
                             style={{
-                                padding: '8px 14px', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700,
+                                padding: '8px 14px', border: 'none', cursor: 'pointer', fontSize: 15, fontWeight: 700,
                                 textTransform: 'uppercase', letterSpacing: 1,
                                 background: activeTab === v ? C.red : 'transparent',
                                 color: activeTab === v ? '#fff' : C.textSec,
@@ -139,19 +139,19 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
 
                     {/* TOTAL PILOT LEADERBOARD BAR CHART */}
                     <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 16 }}>PUNTEGGI CUMULATI PILOTI</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 16 }}>PUNTEGGI CUMULATI PILOTI</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                             {[...pilotStats].sort((a, b) => b.totalPts - a.totalPts).map((s, i) => {
                                 const maxPts = pilotStats.reduce((m, x) => Math.max(m, x.totalPts), 1);
                                 const widthPct = Math.max(5, (s.totalPts / maxPts) * 100);
                                 return (
                                     <div key={s.pilot.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                        <div style={{ width: 14, fontSize: 12, color: C.textSec, textAlign: 'right' }}>{i + 1}</div>
-                                        <div style={{ width: 40, fontSize: 13, fontWeight: 700, color: C.textPri }}>{s.pilot.abbreviation}</div>
+                                        <div style={{ width: 14, fontSize: 14, color: C.textSec, textAlign: 'right' }}>{i + 1}</div>
+                                        <div style={{ width: 40, fontSize: 15, fontWeight: 700, color: C.textPri }}>{s.pilot.abbreviation}</div>
                                         <div style={{ flex: 1, height: 20, background: C.surface2, borderRadius: 4, overflow: 'hidden' }}>
                                             <div style={{ width: `${widthPct}%`, height: '100%', background: F1_TEAM_COLORS[s.pilot.team] || C.textSec, transition: 'width 0.5s ease-out' }} />
                                         </div>
-                                        <div style={{ width: 40, fontFamily: "'Orbitron', monospace", fontSize: 14, color: C.textPri, textAlign: 'right' }}>{s.totalPts.toFixed(1)}</div>
+                                        <div style={{ width: 40, fontFamily: "'Orbitron', monospace", fontSize: 16, color: C.textPri, textAlign: 'right' }}>{s.totalPts.toFixed(1)}</div>
                                     </div>
                                 );
                             })}
@@ -162,14 +162,14 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                     {races.length > 0 && selectedRaceIdx !== null && (
                         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
-                                <div style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>
+                                <div style={{ fontSize: 16, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>
                                     CLASSIFICA SINGOLA GARA
                                 </div>
                                 <div style={{ display: 'flex', gap: 8 }}>
                                     <select
                                         value={selectedRaceIdx}
                                         onChange={e => setSelectedRaceIdx(Number(e.target.value))}
-                                        style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.textPri, padding: '4px 8px', borderRadius: 6, fontSize: 13, outline: 'none', cursor: 'pointer' }}
+                                        style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.textPri, padding: '4px 8px', borderRadius: 6, fontSize: 15, outline: 'none', cursor: 'pointer' }}
                                     >
                                         {races.map(r => (
                                             <option key={r.calendarIndex} value={r.calendarIndex}>{r.location}</option>
@@ -178,7 +178,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                                     <select
                                         value={sessionView}
                                         onChange={e => setSessionView(e.target.value)}
-                                        style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.textPri, padding: '4px 8px', borderRadius: 6, fontSize: 13, outline: 'none', cursor: 'pointer' }}
+                                        style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.textPri, padding: '4px 8px', borderRadius: 6, fontSize: 15, outline: 'none', cursor: 'pointer' }}
                                     >
                                         <option value="gara">🏁 Gara</option>
                                         <option value="qualifica">⏱ Qualifica</option>
@@ -189,7 +189,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                 {(() => {
                                     const race = races.find(r => r.calendarIndex === selectedRaceIdx);
-                                    if (!race || !race.results) return <div style={{ color: C.textSec, fontSize: 14 }}>Nessun risultato.</div>;
+                                    if (!race || !race.results) return <div style={{ color: C.textSec, fontSize: 16 }}>Nessun risultato.</div>;
 
                                     // Preparare classifica
                                     let list = race.results.map(res => {
@@ -212,17 +212,17 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
 
                                         return (
                                             <div key={item.pilotId} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px', borderRadius: 6, background: index % 2 === 0 ? 'transparent' : `${C.surface2}66` }}>
-                                                <div style={{ width: 24, fontSize: 13, fontWeight: 900, color: color, textAlign: 'right' }}>
+                                                <div style={{ width: 24, fontSize: 15, fontWeight: 900, color: color, textAlign: 'right' }}>
                                                     {posText}
                                                 </div>
-                                                <div style={{ width: 40, fontSize: 14, fontWeight: 700, color: isDnf ? '#777' : C.textPri }}>
+                                                <div style={{ width: 40, fontSize: 16, fontWeight: 700, color: isDnf ? '#777' : C.textPri }}>
                                                     {item.pilot.abbreviation}
                                                 </div>
-                                                <div style={{ flex: 1, fontSize: 13, color: C.textSec, opacity: isDnf ? 0.5 : 1 }}>
+                                                <div style={{ flex: 1, fontSize: 15, color: C.textSec, opacity: isDnf ? 0.5 : 1 }}>
                                                     {item.pilot.team}
                                                 </div>
                                                 {sessionView === 'gara' && !isDnf && (
-                                                    <div style={{ display: 'flex', gap: 8, fontSize: 12, fontWeight: 700 }}>
+                                                    <div style={{ display: 'flex', gap: 8, fontSize: 14, fontWeight: 700 }}>
                                                         {item.overtakes > 0 && <span style={{ color: C.green }}>+{item.overtakes}</span>}
                                                         {item.overtakes < 0 && <span style={{ color: C.red }}>{item.overtakes}</span>}
                                                         {item.dotdRank === 1 && <span style={{ color: '#FFD700', marginLeft: 4 }}>👑 DOTD</span>}
@@ -242,7 +242,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     {/* PROGRESSIVE LINE SVG CHART */}
                     <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 16 }}>PROGRESSIONE CAMPIONATO</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 16 }}>PROGRESSIONE CAMPIONATO</div>
                         <div style={{ width: '100%', height: 260, position: 'relative' }}>
                             {/* CSS SVG Chart */}
                             <svg width="100%" height="100%" viewBox={`0 0 ${races.length * 100} 200`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
@@ -289,7 +289,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                                 {races.map((r, i) => {
                                     const loc = r.location || "Gara";
                                     const synthetic = `(${loc.slice(0, 5).toLowerCase()})`;
-                                    return <div key={i} style={{ fontSize: 12, color: C.textSec, textTransform: 'uppercase', fontWeight: 700 }}>{synthetic}</div>
+                                    return <div key={i} style={{ fontSize: 14, color: C.textSec, textTransform: 'uppercase', fontWeight: 700 }}>{synthetic}</div>
                                 })}
                             </div>
                         </div>
@@ -297,7 +297,7 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
 
                     {/* TOTALS BAR CHART */}
                     <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 16 }}>PUNTEGGI CUMULATI SCUDERIE</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 16 }}>PUNTEGGI CUMULATI SCUDERIE</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                             {teamProgression.map((tp, i) => {
                                 const finalScore = tp.progression[tp.progression.length - 1];
@@ -311,12 +311,12 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                                             onMouseEnter={() => setHoveredTeamId(tp.team.id)}
                                             onMouseLeave={() => setHoveredTeamId(null)}
                                         >
-                                            <div style={{ width: 14, fontSize: 12, fontWeight: 900, color: i < 3 ? MEDALS[i] : C.textSec, textAlign: 'right' }}>{i + 1}</div>
-                                            <div style={{ width: 120, fontSize: 13, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tp.team.name}</div>
+                                            <div style={{ width: 14, fontSize: 14, fontWeight: 900, color: i < 3 ? MEDALS[i] : C.textSec, textAlign: 'right' }}>{i + 1}</div>
+                                            <div style={{ width: 120, fontSize: 15, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tp.team.name}</div>
                                             <div style={{ flex: 1, height: 26, background: C.surface2, borderRadius: 6, overflow: 'hidden', border: `1px solid ${i === 0 ? C.red + '44' : C.border}` }}>
                                                 <div style={{ width: `${widthPct}%`, height: '100%', background: i === 0 ? C.red : C.textSec, opacity: 0.8, transition: 'width 0.5s ease-out' }} />
                                             </div>
-                                            <div style={{ width: 45, fontFamily: "'Orbitron', monospace", fontSize: 16, color: i === 0 ? C.red : C.textPri, textAlign: 'right', fontWeight: 900 }}>{finalScore.toFixed(1)}</div>
+                                            <div style={{ width: 45, fontFamily: "'Orbitron', monospace", fontSize: 18, color: i === 0 ? C.red : C.textPri, textAlign: 'right', fontWeight: 900 }}>{finalScore.toFixed(1)}</div>
                                         </div>
 
                                         {/* TEAM BREAKDOWN UI */}
@@ -353,16 +353,16 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
 
                                                     return (
                                                         <div key={race.id} style={{ marginBottom: rIdx < races.length - 1 ? 16 : 0 }}>
-                                                            <div style={{ fontSize: 12, fontWeight: 800, color: C.textSec, textTransform: 'uppercase', marginBottom: 6 }}>
+                                                            <div style={{ fontSize: 14, fontWeight: 800, color: C.textSec, textTransform: 'uppercase', marginBottom: 6 }}>
                                                                 {race.location}
                                                             </div>
-                                                            {tLineup.length < 3 && <div style={{ fontSize: 13, color: C.red, marginBottom: 4 }}>⚠ Formazione incompleta (-5 pt)</div>}
+                                                            {tLineup.length < 3 && <div style={{ fontSize: 15, color: C.red, marginBottom: 4 }}>⚠ Formazione incompleta (-5 pt)</div>}
                                                             {scorers.map((s, idx) => (
                                                                 <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: `1px solid ${C.border}44` }}>
-                                                                    <div style={{ fontSize: 13, color: C.textPri, fontWeight: 600 }}>
-                                                                        {s.pilot?.abbreviation} {s.isReserve ? <span style={{ color: C.textSec, fontSize: 12 }}>(Riserva)</span> : ''}
+                                                                    <div style={{ fontSize: 15, color: C.textPri, fontWeight: 600 }}>
+                                                                        {s.pilot?.abbreviation} {s.isReserve ? <span style={{ color: C.textSec, fontSize: 14 }}>(Riserva)</span> : ''}
                                                                     </div>
-                                                                    <div style={{ display: 'flex', gap: 8, fontSize: 12, color: C.textSec, alignItems: 'center' }}>
+                                                                    <div style={{ display: 'flex', gap: 8, fontSize: 14, color: C.textSec, alignItems: 'center' }}>
                                                                         <span>Pos: <span style={{ color: C.textPri }}>{s.pts.base}</span></span>
                                                                         {s.pts.overtakes > 0 && <span style={{ color: C.green }}>Sorp: +{s.pts.overtakes}</span>}
                                                                         {s.pts.dotd > 0 && <span style={{ color: '#FFD700' }}>DOTD: +{s.pts.dotd}</span>}
@@ -393,12 +393,12 @@ function StatCard({ title, icon, pilotStat, value, color }) {
     if (!pilotStat) return null;
     return (
         <div style={{ flex: 1, minWidth: 100, background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', color: C.textSec, letterSpacing: 1 }}>{title}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', color: C.textSec, letterSpacing: 1 }}>{title}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ fontSize: 26 }}>{icon}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pilotStat.pilot.abbreviation}</div>
-                    <div style={{ fontSize: 12, color }}>{value}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: C.textPri, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pilotStat.pilot.abbreviation}</div>
+                    <div style={{ fontSize: 14, color }}>{value}</div>
                 </div>
             </div>
         </div>

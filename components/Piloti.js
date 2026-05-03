@@ -25,7 +25,7 @@ export default function Piloti({ pilots, teams }) {
               background: F1_TEAM_COLORS[team] || "#555",
             }}/>
             <span style={{
-              fontWeight: 700, fontSize: 15,
+              fontWeight: 700, fontSize: 17,
               textTransform: "uppercase", letterSpacing: 1,
             }}>
               {team}
@@ -40,7 +40,7 @@ export default function Piloti({ pilots, teams }) {
                 borderLeft: `3px solid ${F1_TEAM_COLORS[p.team] || "#555"}`,
               }}>
                 <div style={{ flex: 1 }}>
-                  <span style={{ fontWeight: 600, fontSize: 16 }}>{p.name}</span>
+                  <span style={{ fontWeight: 600, fontSize: 18 }}>{p.name}</span>
                 </div>
                 {p.owner ? (
                   <Chip label={ownerTeam?.name || "?"} color="#e10600"/>
@@ -48,7 +48,7 @@ export default function Piloti({ pilots, teams }) {
                   <Chip label="Free Agent" color="#444"/>
                 )}
                 {p.price > 0 && (
-                  <span style={{ fontFamily: "'Orbitron'", fontSize: 14, opacity: 0.6 }}>
+                  <span style={{ fontFamily: "'Orbitron'", fontSize: 16, opacity: 0.6 }}>
                     {p.price}M
                   </span>
                 )}

@@ -49,7 +49,7 @@ export default function AdminPanel({ teams, pilots, races, lineups, onRefresh, o
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               padding: "8px 16px", borderRadius: 8, border: "none",
               background: tab === t.id ? "#e10600" : "#222",
-              color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 600,
+              color: "#fff", cursor: "pointer", fontSize: 16, fontWeight: 600,
             }}>
               {t.label}
             </button>
@@ -103,7 +103,7 @@ function AdminAsta({ teams, pilots, onRefresh }) {
     <div>
       <AdminCard title="Assegna Pilota (Asta)">
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <label style={{ fontSize: 14, fontWeight: 600 }}>Pilota</label>
+          <label style={{ fontSize: 16, fontWeight: 600 }}>Pilota</label>
           <select value={selectedPilot} onChange={e => setSelectedPilot(e.target.value)} style={selectStyle}>
             <option value="">-- Seleziona pilota --</option>
             {freePilots.map(p => (
@@ -111,7 +111,7 @@ function AdminAsta({ teams, pilots, onRefresh }) {
             ))}
           </select>
 
-          <label style={{ fontSize: 14, fontWeight: 600 }}>Squadra</label>
+          <label style={{ fontSize: 16, fontWeight: 600 }}>Squadra</label>
           <select value={selectedTeam} onChange={e => setSelectedTeam(e.target.value)} style={selectStyle}>
             <option value="">-- Seleziona squadra --</option>
             {teams.map(t => (
@@ -119,7 +119,7 @@ function AdminAsta({ teams, pilots, onRefresh }) {
             ))}
           </select>
 
-          <label style={{ fontSize: 14, fontWeight: 600 }}>Prezzo (FantaMilioni)</label>
+          <label style={{ fontSize: 16, fontWeight: 600 }}>Prezzo (FantaMilioni)</label>
           <input type="number" min="1" value={price}
             onChange={e => setPrice(Number(e.target.value))} style={inputStyle}/>
 
@@ -136,10 +136,10 @@ function AdminAsta({ teams, pilots, onRefresh }) {
             <div key={p.id} style={{ padding: "8px 0", borderBottom: "1px solid #222" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 5, height: 22, borderRadius: 3, background: F1_TEAM_COLORS[p.team], flexShrink: 0 }}/>
-                <span style={{ flex: 1, fontSize: 15, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <span style={{ flex: 1, fontSize: 17, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {p.name}
                 </span>
-                <span style={{ fontSize: 14, fontFamily: "'Orbitron'", color: "#e10600", fontWeight: 700, flexShrink: 0 }}>
+                <span style={{ fontSize: 16, fontFamily: "'Orbitron'", color: "#e10600", fontWeight: 700, flexShrink: 0 }}>
                   {p.price}M
                 </span>
               </div>
@@ -216,7 +216,7 @@ function AdminRisultati({ races, pilots, onRefresh }) {
 
         {selectedRace !== "" && (
           <div style={{ marginTop: 12 }}>
-            <p style={{ fontSize: 13, opacity: 0.5, marginBottom: 8 }}>
+            <p style={{ fontSize: 15, opacity: 0.5, marginBottom: 8 }}>
               Per ogni pilota: posizione (1-22), sorpassi, giro veloce, DOTD rank (1-3), DNF
             </p>
             <div style={{ maxHeight: 440, overflowY: "auto" }}>
@@ -226,13 +226,13 @@ function AdminRisultati({ races, pilots, onRefresh }) {
                   <div key={p.id} style={{ padding: "7px 0", borderBottom: "1px solid #1a1a1a" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
                       <div style={{ width: 4, height: 18, borderRadius: 2, background: F1_TEAM_COLORS[p.team], flexShrink: 0 }}/>
-                      <span style={{ flex: 1, fontSize: 14, fontWeight: 700 }}>{abbrevName(p.name)}</span>
-                      <label style={{ fontSize: 13, display: "flex", alignItems: "center", gap: 3, cursor: "pointer" }}>
+                      <span style={{ flex: 1, fontSize: 16, fontWeight: 700 }}>{abbrevName(p.name)}</span>
+                      <label style={{ fontSize: 15, display: "flex", alignItems: "center", gap: 3, cursor: "pointer" }}>
                         <input type="checkbox" checked={!!res.fastestLap}
                           onChange={e => updateResult(p.id, "fastestLap", e.target.checked)}/>
                         <span style={{ color: "#f0c040" }}>FL</span>
                       </label>
-                      <label style={{ fontSize: 13, display: "flex", alignItems: "center", gap: 3, color: "#ff4444", cursor: "pointer" }}>
+                      <label style={{ fontSize: 15, display: "flex", alignItems: "center", gap: 3, color: "#ff4444", cursor: "pointer" }}>
                         <input type="checkbox" checked={!!res.dnf}
                           onChange={e => updateResult(p.id, "dnf", e.target.checked)}/> DNF
                       </label>
@@ -244,10 +244,10 @@ function AdminRisultati({ races, pilots, onRefresh }) {
                         { label: "DOTD", field: "dotdRank",  val: res.dotdRank  || 0 },
                       ].map(({ label, field, val }) => (
                         <div key={field} style={{ flex: 1 }}>
-                          <span style={{ fontSize: 12, opacity: 0.5, display: "block", marginBottom: 2 }}>{label}</span>
+                          <span style={{ fontSize: 14, opacity: 0.5, display: "block", marginBottom: 2 }}>{label}</span>
                           <input type="number" value={val}
                             onChange={e => updateResult(p.id, field, Number(e.target.value))}
-                            style={{ ...inputStyle, width: "100%", boxSizing: "border-box", padding: "4px 6px", fontSize: 14 }}/>
+                            style={{ ...inputStyle, width: "100%", boxSizing: "border-box", padding: "4px 6px", fontSize: 16 }}/>
                         </div>
                       ))}
                     </div>
@@ -264,7 +264,7 @@ function AdminRisultati({ races, pilots, onRefresh }) {
       </AdminCard>
 
       <AdminCard title="Gare Salvate">
-        {races.length === 0 && <p style={{ opacity: 0.4, fontSize: 15 }}>Nessuna gara salvata</p>}
+        {races.length === 0 && <p style={{ opacity: 0.4, fontSize: 17 }}>Nessuna gara salvata</p>}
         {races.map(r => {
           const ev = CALENDAR[r.calendarIndex];
           return (
@@ -272,7 +272,7 @@ function AdminRisultati({ races, pilots, onRefresh }) {
               display: "flex", justifyContent: "space-between",
               alignItems: "center", padding: "8px 0", borderBottom: "1px solid #222",
             }}>
-              <span style={{ fontSize: 15 }}>🏁 {ev?.location} ({ev?.date})</span>
+              <span style={{ fontSize: 17 }}>🏁 {ev?.location} ({ev?.date})</span>
               <div style={{ display: "flex", gap: 6 }}>
                 <button onClick={() => initResults(String(r.calendarIndex))} style={btnSmall}>
                   Modifica
@@ -324,7 +324,7 @@ function AdminTeams({ teams, onRefresh }) {
             <MiniInput label="Switch"  type="number" value={t.switchesUsed}
               onChange={v => updateLocal(t.id, "switchesUsed", Number(v))} width={60}/>
             <button onClick={() => saveTeam(t)} disabled={busy}
-              style={{ ...btnPrimary, padding: "6px 14px", fontSize: 14 }}>
+              style={{ ...btnPrimary, padding: "6px 14px", fontSize: 16 }}>
               Salva
             </button>
           </div>
@@ -371,10 +371,10 @@ function AdminPiloti({ pilots, teams, onRefresh }) {
             <MiniInput label="Nome"     value={p.name}  onChange={v => updateLocal(p.id, "name", v)}  width={140}/>
             <MiniInput label="Scuderia" value={p.team}  onChange={v => updateLocal(p.id, "team", v)}  width={120}/>
             <div>
-              <span style={{ fontSize: 12, opacity: 0.5 }}>Owner</span>
+              <span style={{ fontSize: 14, opacity: 0.5 }}>Owner</span>
               <select value={p.owner || ""}
                 onChange={e => updateLocal(p.id, "owner", e.target.value || null)}
-                style={{ ...selectStyle, width: 130, padding: "4px 6px", fontSize: 13 }}>
+                style={{ ...selectStyle, width: 130, padding: "4px 6px", fontSize: 15 }}>
                 <option value="">Free Agent</option>
                 {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
@@ -382,7 +382,7 @@ function AdminPiloti({ pilots, teams, onRefresh }) {
             <MiniInput label="Prezzo" type="number" value={p.price}
               onChange={v => updateLocal(p.id, "price", Number(v))} width={60}/>
             <button onClick={() => savePilot(p)} disabled={busy}
-              style={{ ...btnPrimary, padding: "6px 14px", fontSize: 14 }}>
+              style={{ ...btnPrimary, padding: "6px 14px", fontSize: 16 }}>
               Salva
             </button>
           </div>
@@ -427,7 +427,7 @@ function AdminBudget({ teams, onRefresh }) {
 
   return (
     <AdminCard title="Gestione Budget">
-      <p style={{ fontSize: 14, opacity: 0.5, marginBottom: 12 }}>
+      <p style={{ fontSize: 16, opacity: 0.5, marginBottom: 12 }}>
         Dopo ogni asta, aggiungi +100 FantaMilioni al budget residuo di ogni squadra.
       </p>
       <button onClick={addBudgetAll} disabled={busy}
@@ -439,8 +439,8 @@ function AdminBudget({ teams, onRefresh }) {
           display: "flex", alignItems: "center", gap: 10,
           padding: "8px 0", borderBottom: "1px solid #222",
         }}>
-          <span style={{ flex: 1, fontSize: 15, fontWeight: 600 }}>{t.name}</span>
-          <span style={{ fontFamily: "'Orbitron'", fontSize: 17, fontWeight: 700, color: "#e10600" }}>
+          <span style={{ flex: 1, fontSize: 17, fontWeight: 600 }}>{t.name}</span>
+          <span style={{ fontFamily: "'Orbitron'", fontSize: 19, fontWeight: 700, color: "#e10600" }}>
             {t.budget}M
           </span>
           <button onClick={() => adjustBudget(t.id, +10)} disabled={busy} style={btnSmall}>+10</button>
@@ -478,7 +478,7 @@ function AdminFormazioni({ onRefresh }) {
 
   return (
     <AdminCard title="Gestione Formazioni">
-      <p style={{ fontSize: 14, color: '#A9ABBA', marginBottom: 16 }}>
+      <p style={{ fontSize: 16, color: '#A9ABBA', marginBottom: 16 }}>
         Usa questa sezione per operazioni speciali sulle formazioni dei team.
       </p>
 
@@ -487,10 +487,10 @@ function AdminFormazioni({ onRefresh }) {
         border: '1px solid #2A2D3A', borderRadius: 10, padding: 16, marginBottom: 12,
         background: '#1A1B24',
       }}>
-        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: '#FFB700' }}>
+        <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 6, color: '#FFB700' }}>
           🏎️ Copia formazioni Sprint → GP Cina
         </div>
-        <p style={{ fontSize: 14, color: '#A9ABBA', margin: '0 0 12px' }}>
+        <p style={{ fontSize: 16, color: '#A9ABBA', margin: '0 0 12px' }}>
           Imposta le formazioni del <strong style={{ color: '#EDEEF3' }}>GP Cina (domenica)</strong> uguali
           a quelle già salvate per la <strong style={{ color: '#EDEEF3' }}>Sprint Cina (sabato)</strong>.
           Le formazioni esistenti per il GP saranno sovrascritte.
@@ -510,7 +510,7 @@ function AdminFormazioni({ onRefresh }) {
 
         {msg && (
           <div style={{
-            marginTop: 10, fontSize: 14, padding: '8px 12px', borderRadius: 6,
+            marginTop: 10, fontSize: 16, padding: '8px 12px', borderRadius: 6,
             background: msg.ok ? 'rgba(0,255,65,0.08)' : 'rgba(225,6,0,0.1)',
             color: msg.ok ? '#00FF41' : '#ff6b6b',
             border: `1px solid ${msg.ok ? 'rgba(0,255,65,0.2)' : 'rgba(225,6,0,0.3)'}`,

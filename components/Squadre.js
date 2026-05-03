@@ -8,7 +8,7 @@ const C = {
   surface2: '#1A1B24',
   border: '#2A2D3A',
   textPri: '#EDEEF3',
-  textSec: '#A9ABBA',
+  textSec: '#C8CCDA',
   red: '#E10600',
   green: '#00FF41',
   amber: '#FFB700',
@@ -122,22 +122,22 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
       {/* ── HEADER: My Team ───────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
         <div>
-          <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec }}>LA TUA SCUDERIA</div>
-          <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, fontSize: 20, color: C.textPri, marginTop: 2 }}>
+          <div style={{ fontSize: 14, textTransform: 'uppercase', letterSpacing: 2, color: C.textSec }}>LA TUA SCUDERIA</div>
+          <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, fontSize: 22, color: C.textPri, marginTop: 2 }}>
             {myTeam?.name || '—'}
           </div>
-          <div style={{ fontSize: 13, color: C.textSec, marginTop: 2 }}>{myTeam?.owner}</div>
+          <div style={{ fontSize: 15, color: C.textSec, marginTop: 2 }}>{myTeam?.owner}</div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: (MAX_SWITCHES - (myTeam?.switchesUsed || 0)) === 0 ? C.red + '22' : C.surface2, color: (MAX_SWITCHES - (myTeam?.switchesUsed || 0)) === 0 ? C.red : C.textSec, border: `1px solid ${C.border}` }}>
+          <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 14, fontWeight: 700, background: (MAX_SWITCHES - (myTeam?.switchesUsed || 0)) === 0 ? C.red + '22' : C.surface2, color: (MAX_SWITCHES - (myTeam?.switchesUsed || 0)) === 0 ? C.red : C.textSec, border: `1px solid ${C.border}` }}>
             Switch Rimanenti: {MAX_SWITCHES - (myTeam?.switchesUsed || 0)}
           </span>
-          <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: C.surface2, color: C.textSec, border: `1px solid ${C.border}` }}>
+          <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 14, fontWeight: 700, background: C.surface2, color: C.textSec, border: `1px solid ${C.border}` }}>
             {myTeam?.budget || 0}M budget
           </span>
           {nextRaceEvent && (
             <span style={{
-              padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700,
+              padding: '4px 10px', borderRadius: 20, fontSize: 14, fontWeight: 700,
               background: isLocked ? C.red + '22' : lineupConfirmed ? C.green + '22' : C.amber + '22',
               color: isLocked ? C.red : lineupConfirmed ? C.green : C.amber,
               border: `1px solid ${isLocked ? C.red + '55' : lineupConfirmed ? C.green + '55' : C.amber + '55'}`,
@@ -150,11 +150,11 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
 
       {/* ── SECTION A: Lineup Builder ─────────────────────────────────────────── */}
       <div style={{ background: C.surface, border: `1px solid ${lineupConfirmed && !isLocked ? C.green + '44' : C.border}`, borderRadius: 12, padding: 16 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: nextRaceEvent?.type === 'sprint' ? C.amber : C.textSec, marginBottom: 4 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: nextRaceEvent?.type === 'sprint' ? C.amber : C.textSec, marginBottom: 4 }}>
           {nextRaceEvent?.type === 'sprint' ? '🏎️ SCHIERAMENTO SPRINT — ' : 'SCHIERAMENTO — '}{nextRaceEvent ? nextRaceEvent.location : 'Nessuna gara disponibile'}
         </div>
         {nextRaceEvent && (
-          <div style={{ fontSize: 13, color: C.textSec, marginBottom: 14 }}>{nextRaceEvent.date}</div>
+          <div style={{ fontSize: 15, color: C.textSec, marginBottom: 14 }}>{nextRaceEvent.date}</div>
         )}
 
         {/* 3 titolare slots */}
@@ -170,18 +170,18 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                 borderStyle: pilot ? 'solid' : 'dashed',
                 minHeight: 64,
               }}>
-                <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 6 }}>
+                <div style={{ fontSize: 14, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 6 }}>
                   TITOLARE {i + 1}
                 </div>
                 {pilot ? (
                   <>
-                    <div style={{ fontWeight: 700, fontSize: 14, color: C.textPri, lineHeight: 1.3 }}>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: C.textPri, lineHeight: 1.3 }}>
                       {pilot.name} [{pilot.abbreviation}]
                     </div>
-                    <div style={{ fontSize: 12, color: C.textSec, marginTop: 2 }}>{pilot.team}</div>
+                    <div style={{ fontSize: 14, color: C.textSec, marginTop: 2 }}>{pilot.team}</div>
                   </>
                 ) : (
-                  <div style={{ fontSize: 13, color: C.border }}>— vuoto —</div>
+                  <div style={{ fontSize: 15, color: C.border }}>— vuoto —</div>
                 )}
               </div>
             );
@@ -198,12 +198,12 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
               background: C.surface2, border: `1px solid ${C.border}`,
               display: 'flex', alignItems: 'center', gap: 10,
             }}>
-              <span style={{ fontSize: 13, color: C.textSec }}>🪑 PANCHINA:</span>
-              <span style={{ fontSize: 15, fontWeight: 600, color: C.textPri }}>
+              <span style={{ fontSize: 15, color: C.textSec }}>🪑 PANCHINA:</span>
+              <span style={{ fontSize: 17, fontWeight: 600, color: C.textPri }}>
                 {benchPilot.name} [{benchPilot.abbreviation}]
               </span>
-              <span style={{ fontSize: 12, color: C.textSec }}>{benchPilot.team}</span>
-              <span style={{ marginLeft: 'auto', fontSize: 12, color: C.textSec }}>
+              <span style={{ fontSize: 14, color: C.textSec }}>{benchPilot.team}</span>
+              <span style={{ marginLeft: 'auto', fontSize: 14, color: C.textSec }}>
                 Auto-entra in caso di DNF
               </span>
             </div>
@@ -211,7 +211,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
         })()}
 
         {/* Info regola */}
-        <div style={{ fontSize: 12, color: C.textSec, marginBottom: 12, padding: '6px 10px', background: C.surface2, borderRadius: 8, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 14, color: C.textSec, marginBottom: 12, padding: '6px 10px', background: C.surface2, borderRadius: 8, lineHeight: 1.5 }}>
           ⚡ 3 titolari obbligatori · DNF → entra panchina · Mancato schieramento = −5 punti
         </div>
 
@@ -225,7 +225,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                 background: saveSuccess ? C.green : isSaving ? '#555' : C.green,
                 borderRadius: 8, border: 'none', color: '#000', fontWeight: 900,
                 cursor: isSaving ? 'not-allowed' : 'pointer',
-                fontSize: 14, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6,
+                fontSize: 16, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6,
                 opacity: isSaving ? 0.7 : 1,
                 transition: 'all 0.2s'
               }}
@@ -237,7 +237,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                 : '✓ SALVA FORMAZIONE GARA'}
             </button>
             {saveError && (
-              <div style={{ textAlign: 'center', padding: '8px 12px', background: '#E1060022', borderRadius: 8, border: '1px solid #E1060055', fontSize: 13, color: '#E10600', marginBottom: 8 }}>
+              <div style={{ textAlign: 'center', padding: '8px 12px', background: '#E1060022', borderRadius: 8, border: '1px solid #E1060055', fontSize: 15, color: '#E10600', marginBottom: 8 }}>
                 ❌ {saveError}
               </div>
             )}
@@ -245,13 +245,13 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
         )}
 
         {isDBConfirmed && (
-          <div style={{ textAlign: 'center', padding: '10px', background: C.green + '15', borderRadius: 8, border: `1px solid ${C.green}33`, fontSize: 14, color: C.green }}>
+          <div style={{ textAlign: 'center', padding: '10px', background: C.green + '15', borderRadius: 8, border: `1px solid ${C.green}33`, fontSize: 16, color: C.green }}>
             ✓ Formazione salvata e confermata per questa gara.
           </div>
         )}
 
         {isLocked && !isDBConfirmed && (
-          <div style={{ textAlign: 'center', padding: '10px', background: C.red + '15', borderRadius: 8, border: `1px solid ${C.red}33`, fontSize: 14, color: C.red }}>
+          <div style={{ textAlign: 'center', padding: '10px', background: C.red + '15', borderRadius: 8, border: `1px solid ${C.red}33`, fontSize: 16, color: C.red }}>
             🔒 Tempo scaduto — formazione bloccata per questa gara
           </div>
         )}
@@ -259,12 +259,12 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
 
       {/* ── SECTION B: Pilot Roster (tap to toggle lineup) ────────────────────── */}
       <div>
-        <div style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 10 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 10 }}>
           ROSA PILOTI ({myPilots.length})
         </div>
 
         {myPilots.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 32, background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`, color: C.textSec, fontSize: 15 }}>
+          <div style={{ textAlign: 'center', padding: 32, background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`, color: C.textSec, fontSize: 17 }}>
             Nessun pilota assegnato. Attendi la prossima asta!
           </div>
         ) : (
@@ -292,22 +292,22 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                 >
                   <div style={{ width: 4, height: 36, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0, opacity: isLocked ? 0.4 : 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15, color: C.textPri }}>{p.name} <span style={{ color: C.textSec }}>[{p.abbreviation}]</span></div>
-                    <div style={{ fontSize: 13, color: C.textSec }}>{p.team} · {p.price}M</div>
+                    <div style={{ fontWeight: 700, fontSize: 17, color: C.textPri }}>{p.name} <span style={{ color: C.textSec }}>[{p.abbreviation}]</span></div>
+                    <div style={{ fontSize: 15, color: C.textSec }}>{p.team} · {p.price}M</div>
                   </div>
                   <div style={{ flexShrink: 0, opacity: isLocked ? 0.4 : 1 }}>
                     {inLineup && (
-                      <span style={{ fontSize: 12, padding: '3px 8px', borderRadius: 10, background: C.green + '22', color: C.green, border: `1px solid ${C.green}44`, fontWeight: 700 }}>
+                      <span style={{ fontSize: 14, padding: '3px 8px', borderRadius: 10, background: C.green + '22', color: C.green, border: `1px solid ${C.green}44`, fontWeight: 700 }}>
                         TITOLARE
                       </span>
                     )}
                     {isBench && (
-                      <span style={{ fontSize: 12, padding: '3px 8px', borderRadius: 10, background: C.surface2, color: C.textSec, border: `1px solid ${C.border}`, fontWeight: 700 }}>
+                      <span style={{ fontSize: 14, padding: '3px 8px', borderRadius: 10, background: C.surface2, color: C.textSec, border: `1px solid ${C.border}`, fontWeight: 700 }}>
                         PANCHINA
                       </span>
                     )}
                     {!inLineup && !isBench && nextRaceIdx >= 0 && !isLocked && (
-                      <span style={{ fontSize: 12, padding: '3px 8px', borderRadius: 10, background: C.surface2, color: C.textSec, border: `1px dashed ${C.border}` }}>
+                      <span style={{ fontSize: 14, padding: '3px 8px', borderRadius: 10, background: C.surface2, color: C.textSec, border: `1px dashed ${C.border}` }}>
                         + AGGIUNGI
                       </span>
                     )}
@@ -321,7 +321,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
 
       {/* ── ALTRE SQUADRE ─────────────────────────────────────────────────────── */}
       <div>
-        <div style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 10 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 10 }}>
           ALTRE SQUADRE
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -338,13 +338,13 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                     width: 36, height: 36, borderRadius: 8, flexShrink: 0,
                     background: 'linear-gradient(135deg, #e10600, #900)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: "'Orbitron', monospace", fontWeight: 900, fontSize: 16,
+                    fontFamily: "'Orbitron', monospace", fontWeight: 900, fontSize: 18,
                   }}>
                     {t.name.charAt(0)}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15, color: C.textPri }}>{t.name}</div>
-                    <div style={{ fontSize: 13, color: C.textSec }}>{t.owner} · {tPilots.length} piloti</div>
+                    <div style={{ fontWeight: 700, fontSize: 17, color: C.textPri }}>{t.name}</div>
+                    <div style={{ fontSize: 15, color: C.textSec }}>{t.owner} · {tPilots.length} piloti</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                     {(() => {
@@ -353,7 +353,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                       const isScudemaria = t.name.toLowerCase().includes('scudemaria');
                       return (
                         <span style={{
-                          fontSize: 12, fontWeight: 800, padding: '3px 8px', borderRadius: 4,
+                          fontSize: 14, fontWeight: 800, padding: '3px 8px', borderRadius: 4,
                           background: isSchierata ? C.green + '22' : C.red + '22',
                           color: isSchierata ? C.green : C.red,
                           border: `1px solid ${isSchierata ? C.green + '44' : C.red + '44'}`,
@@ -363,16 +363,16 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                         </span>
                       );
                     })()}
-                    <span style={{ fontFamily: "'Orbitron'", fontWeight: 700, color: C.red, fontSize: 16 }}>
+                    <span style={{ fontFamily: "'Orbitron'", fontWeight: 700, color: C.red, fontSize: 18 }}>
                       {(scores[t.id] || 0).toFixed(1)}
                     </span>
-                    <span style={{ fontSize: 17, transition: '0.2s', transform: open ? 'rotate(180deg)' : 'none', color: C.textSec }}>▾</span>
+                    <span style={{ fontSize: 19, transition: '0.2s', transform: open ? 'rotate(180deg)' : 'none', color: C.textSec }}>▾</span>
                   </div>
                 </div>
                 {open && (
                   <div style={{ padding: '0 14px 12px', borderTop: `1px solid ${C.border}` }}>
                     {tPilots.length === 0 ? (
-                      <p style={{ color: C.textSec, fontSize: 14, margin: '10px 0' }}>Nessun pilota assegnato</p>
+                      <p style={{ color: C.textSec, fontSize: 16, margin: '10px 0' }}>Nessun pilota assegnato</p>
                     ) : tPilots.map(p => {
                       const tLineup = nextRaceIdx >= 0 ? (dbLineups[`race_${nextRaceIdx}`] || {})[t.id] || [] : [];
                       const isStarter = tLineup.some(l => (l.id || l) === p.id);
@@ -384,10 +384,10 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                         }}>
                           <div style={{ width: 4, height: 26, borderRadius: 2, background: F1_TEAM_COLORS[p.team] || '#555', flexShrink: 0 }} />
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 600, fontSize: 14, color: C.textPri }}>
-                              {p.name} {isStarter && <span style={{ color: C.green, fontSize: 12, marginLeft: 6, fontWeight: 800 }}>[TITOLARE]</span>}
+                            <div style={{ fontWeight: 600, fontSize: 16, color: C.textPri }}>
+                              {p.name} {isStarter && <span style={{ color: C.green, fontSize: 14, marginLeft: 6, fontWeight: 800 }}>[TITOLARE]</span>}
                             </div>
-                            <div style={{ fontSize: 12, color: C.textSec }}>{p.team} · {p.price}M</div>
+                            <div style={{ fontSize: 14, color: C.textSec }}>{p.team} · {p.price}M</div>
                           </div>
                         </div>
                       );

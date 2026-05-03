@@ -21,27 +21,27 @@ function PasswordScreen({ onAuth, onClose }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "#050505", zIndex: 2000, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 13, letterSpacing: 6, color: "#e10600", textTransform: "uppercase", marginBottom: 8, opacity: 0.8 }}>
+      <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 15, letterSpacing: 6, color: "#e10600", textTransform: "uppercase", marginBottom: 8, opacity: 0.8 }}>
         Area Riservata
       </div>
       <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 32, fontWeight: 900, color: "#fff", marginBottom: 4, letterSpacing: 2 }}>
         ASTA LIVE
       </div>
-      <div style={{ fontSize: 14, color: "#555", marginBottom: 40, letterSpacing: 3 }}>2026 Season</div>
+      <div style={{ fontSize: 16, color: "#555", marginBottom: 40, letterSpacing: 3 }}>2026 Season</div>
       <div style={{ background: "#111", border: "1px solid #222", borderRadius: 16, padding: 32, width: 320, maxWidth: "calc(100vw - 32px)" }}>
-        <div style={{ fontSize: 13, color: "#888", textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Password Admin</div>
+        <div style={{ fontSize: 15, color: "#888", textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Password Admin</div>
         <input
           ref={inputRef} type="password" value={pw}
           onChange={e => { setPw(e.target.value); setError(''); }}
           onKeyDown={e => e.key === 'Enter' && submit()}
           placeholder="••••"
-          style={{ width: "100%", background: "#1a1a1a", border: error ? "1px solid #e10600" : "1px solid #2a2a2a", borderRadius: 10, color: "#fff", padding: "14px 16px", fontSize: 20, fontFamily: "'Orbitron', monospace", letterSpacing: 8, marginBottom: 8, boxSizing: "border-box" }}
+          style={{ width: "100%", background: "#1a1a1a", border: error ? "1px solid #e10600" : "1px solid #2a2a2a", borderRadius: 10, color: "#fff", padding: "14px 16px", fontSize: 22, fontFamily: "'Orbitron', monospace", letterSpacing: 8, marginBottom: 8, boxSizing: "border-box" }}
         />
-        {error && <div style={{ color: "#e10600", fontSize: 14, marginBottom: 8 }}>{error}</div>}
-        <button onClick={submit} style={{ width: "100%", background: "linear-gradient(135deg, #e10600, #a00)", border: "none", borderRadius: 10, color: "#fff", padding: "13px 0", fontSize: 15, fontWeight: 700, fontFamily: "'Orbitron', monospace", letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", marginBottom: 12 }}>
+        {error && <div style={{ color: "#e10600", fontSize: 16, marginBottom: 8 }}>{error}</div>}
+        <button onClick={submit} style={{ width: "100%", background: "linear-gradient(135deg, #e10600, #a00)", border: "none", borderRadius: 10, color: "#fff", padding: "13px 0", fontSize: 17, fontWeight: 700, fontFamily: "'Orbitron', monospace", letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", marginBottom: 12 }}>
           Accedi
         </button>
-        <button onClick={onClose} style={{ width: "100%", background: "transparent", border: "1px solid #222", borderRadius: 10, color: "#555", padding: "10px 0", fontSize: 14, cursor: "pointer" }}>
+        <button onClick={onClose} style={{ width: "100%", background: "transparent", border: "1px solid #222", borderRadius: 10, color: "#555", padding: "10px 0", fontSize: 16, cursor: "pointer" }}>
           Annulla
         </button>
       </div>
@@ -196,20 +196,20 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
           <div style={{ width: 4, height: 44, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
           <div>
-            <div style={{ fontSize: 13, color: teamColor, letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>
+            <div style={{ fontSize: 15, color: teamColor, letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>
               {spotPilot.team}
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
               <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 30, fontWeight: 900, letterSpacing: 2, color: isAssigned ? "#444" : teamColor, lineHeight: 1 }}>
                 {spotPilot.abbreviation}
               </span>
-              <span style={{ fontSize: 16, fontWeight: 600, color: isAssigned ? "#555" : "#aaa", lineHeight: 1 }}>
+              <span style={{ fontSize: 18, fontWeight: 600, color: isAssigned ? "#555" : "#aaa", lineHeight: 1 }}>
                 {spotPilot.name}
               </span>
             </div>
           </div>
           {isAssigned && (
-            <span style={{ marginLeft: "auto", fontSize: 13, padding: "3px 10px", borderRadius: 20, background: "#2a2a2a", color: "#555", border: "1px solid #333", flexShrink: 0 }}>
+            <span style={{ marginLeft: "auto", fontSize: 15, padding: "3px 10px", borderRadius: 20, background: "#2a2a2a", color: "#555", border: "1px solid #333", flexShrink: 0 }}>
               Già aggiudicato
             </span>
           )}
@@ -217,12 +217,12 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
 
         {isAssigned ? (
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", background: "rgba(0,0,0,0.3)", borderRadius: 10, padding: "10px 14px" }}>
-            <span style={{ fontSize: 15, color: "#888" }}>→</span>
-            <span style={{ fontWeight: 700, fontSize: 16, color: "#e8e8e8" }}>{ownerTeam?.name}</span>
-            <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, color: "#e10600", fontSize: 17 }}>
+            <span style={{ fontSize: 17, color: "#888" }}>→</span>
+            <span style={{ fontWeight: 700, fontSize: 18, color: "#e8e8e8" }}>{ownerTeam?.name}</span>
+            <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 900, color: "#e10600", fontSize: 19 }}>
               {spotPilot.price}M
             </span>
-            <button onClick={() => setConfirmRelease(spotPilot.id)} style={{ marginLeft: "auto", background: "transparent", border: "1px solid #3a1a1a", borderRadius: 6, color: "#ff4444", padding: "6px 14px", fontSize: 14, cursor: "pointer", fontWeight: 600 }}>
+            <button onClick={() => setConfirmRelease(spotPilot.id)} style={{ marginLeft: "auto", background: "transparent", border: "1px solid #3a1a1a", borderRadius: 6, color: "#ff4444", padding: "6px 14px", fontSize: 16, cursor: "pointer", fontWeight: 600 }}>
               Rilascia
             </button>
           </div>
@@ -233,12 +233,12 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
               onChange={e => setAssignPrice(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && assignPilot()}
               placeholder="FM"
-              style={{ width: 80, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, color: "#fff", padding: "10px 12px", fontSize: 20, fontFamily: "'Orbitron', monospace", fontWeight: 700, textAlign: "center", boxSizing: "border-box" }}
+              style={{ width: 80, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, color: "#fff", padding: "10px 12px", fontSize: 22, fontFamily: "'Orbitron', monospace", fontWeight: 700, textAlign: "center", boxSizing: "border-box" }}
             />
             <select
               value={assignTeam}
               onChange={e => setAssignTeam(e.target.value)}
-              style={{ flex: "1 1 160px", background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, color: assignTeam ? "#fff" : "#555", padding: "10px 12px", fontSize: 16, fontFamily: "'Titillium Web', sans-serif" }}
+              style={{ flex: "1 1 160px", background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, color: assignTeam ? "#fff" : "#555", padding: "10px 12px", fontSize: 18, fontFamily: "'Titillium Web', sans-serif" }}
             >
               <option value="">— Squadra aggiudicataria —</option>
               {teams.map(t => (
@@ -251,7 +251,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
               style={{
                 background: assignTeam && assignPrice ? `linear-gradient(135deg, ${teamColor}, ${teamColor}bb)` : "#1a1a1a",
                 border: "none", borderRadius: 8, color: "#fff",
-                padding: "10px 20px", fontSize: 16, fontWeight: 700,
+                padding: "10px 20px", fontSize: 18, fontWeight: 700,
                 fontFamily: "'Orbitron', monospace", letterSpacing: 1,
                 textTransform: "uppercase", cursor: assignTeam && assignPrice ? "pointer" : "not-allowed",
                 opacity: assignTeam && assignPrice ? 1 : 0.4, whiteSpace: "nowrap", transition: "all 0.15s",
@@ -289,24 +289,24 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ fontFamily: "'Orbitron', monospace", fontSize: isMobile ? 15 : 22, fontWeight: 900, color: "#e10600", letterSpacing: 2 }}>
             ASTA LIVE
-            <span style={{ fontSize: 12, color: "#555", fontWeight: 400, marginLeft: 8, letterSpacing: 3 }}>2026</span>
+            <span style={{ fontSize: 14, color: "#555", fontWeight: 400, marginLeft: 8, letterSpacing: 3 }}>2026</span>
           </div>
-          <div style={{ background: "rgba(225,6,0,0.1)", border: "1px solid rgba(225,6,0,0.3)", borderRadius: 20, padding: "3px 12px", fontSize: 14, color: "#e10600", fontWeight: 700 }}>
+          <div style={{ background: "rgba(225,6,0,0.1)", border: "1px solid rgba(225,6,0,0.3)", borderRadius: 20, padding: "3px 12px", fontSize: 16, color: "#e10600", fontWeight: 700 }}>
             {assignedCount}/22
           </div>
           {!isMobile && (
-            <div style={{ background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)", borderRadius: 20, padding: "3px 12px", fontSize: 14, color: "#4ade80", fontWeight: 700 }}>
+            <div style={{ background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)", borderRadius: 20, padding: "3px 12px", fontSize: 16, color: "#4ade80", fontWeight: 700 }}>
               {freeCount} disponibili
             </div>
           )}
           {/* Last assigned toast inline */}
           {lastAssigned && !isMobile && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)", borderRadius: 20, padding: "3px 14px", fontSize: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)", borderRadius: 20, padding: "3px 14px", fontSize: 16 }}>
               <span style={{ color: "#4ade80", fontWeight: 700 }}>{lastAssigned.pilotName}</span>
               <span style={{ color: "#555" }}>→</span>
               <span style={{ color: "#fff", fontWeight: 600 }}>{lastAssigned.teamName}</span>
               <span style={{ fontFamily: "'Orbitron', monospace", color: "#e10600", fontWeight: 900 }}>{lastAssigned.price}M</span>
-              <button onClick={() => setLastAssigned(null)} style={{ background: "none", border: "none", color: "#444", cursor: "pointer", fontSize: 15, padding: "0 0 0 4px" }}>✕</button>
+              <button onClick={() => setLastAssigned(null)} style={{ background: "none", border: "none", color: "#444", cursor: "pointer", fontSize: 17, padding: "0 0 0 4px" }}>✕</button>
             </div>
           )}
         </div>
@@ -317,27 +317,27 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
               background: "linear-gradient(135deg, #1a0000, #2a0000)",
               border: "1px solid #e10600", borderRadius: 100,
               color: "#e10600", padding: "7px 16px", cursor: "pointer",
-              fontSize: 13, fontWeight: 700, letterSpacing: 1,
+              fontSize: 15, fontWeight: 700, letterSpacing: 1,
             }}>
               🔒 CHIUDI ASTA {auction.auctionNumber}
             </button>
           )}
           {auction && isClosed && (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.3)", borderRadius: 100, padding: "5px 14px", fontSize: 13, color: "#4ade80", fontWeight: 700 }}>
+              <div style={{ background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.3)", borderRadius: 100, padding: "5px 14px", fontSize: 15, color: "#4ade80", fontWeight: 700 }}>
                 ✓ ASTA {auction.auctionNumber} CHIUSA
               </div>
               <button onClick={() => setShowOpenNext(true)} style={{
                 background: "linear-gradient(135deg, #001a00, #003000)",
                 border: "1px solid #4ade80", borderRadius: 100,
                 color: "#4ade80", padding: "7px 16px", cursor: "pointer",
-                fontSize: 13, fontWeight: 700, letterSpacing: 1,
+                fontSize: 15, fontWeight: 700, letterSpacing: 1,
               }}>
                 ⚡ APRI ASTA {auction.auctionNumber + 1} (+{auction.budgetAdded}M)
               </button>
             </div>
           )}
-          <button onClick={onClose} style={{ background: "transparent", border: "1px solid #2a2a2a", borderRadius: 100, color: "#666", padding: isMobile ? "6px 12px" : "7px 18px", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
+          <button onClick={onClose} style={{ background: "transparent", border: "1px solid #2a2a2a", borderRadius: 100, color: "#666", padding: isMobile ? "6px 12px" : "7px 18px", cursor: "pointer", fontSize: 16, fontWeight: 600 }}>
             {isMobile ? "✕" : "✕ Chiudi"}
           </button>
         </div>
@@ -350,12 +350,12 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
           borderBottom: "1px solid rgba(74,222,128,0.2)",
           padding: "10px 24px", display: "flex", alignItems: "center", gap: 12,
         }}>
-          <span style={{ fontSize: 20 }}>🔒</span>
+          <span style={{ fontSize: 22 }}>🔒</span>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#4ade80", letterSpacing: 1 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#4ade80", letterSpacing: 1 }}>
               ASTA {auction.auctionNumber} CHIUSA — SOLA LETTURA
             </div>
-            <div style={{ fontSize: 13, color: "#555", marginTop: 1 }}>
+            <div style={{ fontSize: 15, color: "#555", marginTop: 1 }}>
               Per modificare le rose aprire l&apos;asta successiva (+{auction.budgetAdded}M a ogni squadra)
             </div>
           </div>
@@ -386,7 +386,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
                     border: `1px solid ${extracting ? "#e10600" : "#333"}`,
                     borderRadius: 8, color: extracting ? "#fff" : "#888",
                     padding: "8px 12px", cursor: extracting ? "not-allowed" : "pointer",
-                    fontSize: 17, lineHeight: 1,
+                    fontSize: 19, lineHeight: 1,
                     boxShadow: extracting ? "0 0 16px rgba(225,6,0,0.6)" : "none",
                     animation: extracting ? "extractPulse 0.4s ease-in-out infinite alternate" : "none",
                     transition: "box-shadow 0.2s, border-color 0.2s",
@@ -394,7 +394,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
                 >
                   🎲
                 </button>
-                <span style={{ fontSize: 13, color: "#555", letterSpacing: 1, whiteSpace: "nowrap" }}>PILOTA N°</span>
+                <span style={{ fontSize: 15, color: "#555", letterSpacing: 1, whiteSpace: "nowrap" }}>PILOTA N°</span>
                 <input
                   ref={spotInputRef}
                   type="number" min="1" max="22" value={spotNum}
@@ -417,23 +417,23 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
                 />
                 {spotPilot ? (
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, color: "#555", letterSpacing: 1 }}>{spotPilot.team}</div>
+                    <div style={{ fontSize: 14, color: "#555", letterSpacing: 1 }}>{spotPilot.team}</div>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-                      <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 17, fontWeight: 900, color: spotPilot.owner ? "#444" : "#e10600", letterSpacing: 1 }}>
+                      <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 19, fontWeight: 900, color: spotPilot.owner ? "#444" : "#e10600", letterSpacing: 1 }}>
                         {spotPilot.abbreviation}
                       </span>
-                      <span style={{ fontSize: 15, fontWeight: 600, color: spotPilot.owner ? "#444" : "#ccc", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <span style={{ fontSize: 17, fontWeight: 600, color: spotPilot.owner ? "#444" : "#ccc", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {spotPilot.name}
                       </span>
                     </div>
                   </div>
                 ) : (
-                  <div style={{ flex: 1, fontSize: 15, color: "#333" }}>
+                  <div style={{ flex: 1, fontSize: 17, color: "#333" }}>
                     {isMobile ? "oppure seleziona dalla lista →" : "Digita il numero o clicca un pilota dalla lista"}
                   </div>
                 )}
                 {spotPilot && (
-                  <button onClick={() => { setSpotNum(''); setAssignTeam(''); setAssignPrice(''); }} style={{ background: "none", border: "1px solid #2a2a2a", borderRadius: 6, color: "#555", cursor: "pointer", fontSize: 14, padding: "4px 10px" }}>✕</button>
+                  <button onClick={() => { setSpotNum(''); setAssignTeam(''); setAssignPrice(''); }} style={{ background: "none", border: "1px solid #2a2a2a", borderRadius: 6, color: "#555", cursor: "pointer", fontSize: 16, padding: "4px 10px" }}>✕</button>
                 )}
               </div>
               {/* Assignment panel (shows only when pilot selected) */}
@@ -442,7 +442,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
 
             {/* Pilot scrollable list */}
             <div ref={pilotListRef} style={{ flex: 1, overflowY: "auto", background: "#0a0a0a" }}>
-              <div style={{ padding: "5px 12px", fontSize: 12, letterSpacing: 2, color: "#444", textTransform: "uppercase", borderBottom: "1px solid #111", position: "sticky", top: 0, background: "#0a0a0a", zIndex: 1 }}>
+              <div style={{ padding: "5px 12px", fontSize: 14, letterSpacing: 2, color: "#444", textTransform: "uppercase", borderBottom: "1px solid #111", position: "sticky", top: 0, background: "#0a0a0a", zIndex: 1 }}>
                 Lista piloti
               </div>
               {pilots.map((p, i) => {
@@ -469,20 +469,20 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
                     }}
                   >
                     {/* Number */}
-                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 12, fontWeight: 700, color: isHighlighted ? "#e10600" : "#333", width: 18, textAlign: "right", flexShrink: 0 }}>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 700, color: isHighlighted ? "#e10600" : "#333", width: 18, textAlign: "right", flexShrink: 0 }}>
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     {/* Team color bar */}
                     <div style={{ width: 2, height: 16, borderRadius: 1, background: teamColor, flexShrink: 0 }} />
                     {/* Abbreviation */}
-                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 13, fontWeight: 900, color: isAssigned ? "#2a2a2a" : isHighlighted ? "#e10600" : "#777", letterSpacing: 0.5, width: 30, flexShrink: 0 }}>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 15, fontWeight: 900, color: isAssigned ? "#2a2a2a" : isHighlighted ? "#e10600" : "#777", letterSpacing: 0.5, width: 30, flexShrink: 0 }}>
                       {p.abbreviation}
                     </span>
                     {/* Name + team inline */}
-                    <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: isAssigned ? "#333" : "#bbb", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <span style={{ flex: 1, fontSize: 16, fontWeight: 600, color: isAssigned ? "#333" : "#bbb", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {p.name}
                     </span>
-                    <span style={{ fontSize: 12, color: isAssigned ? "#252525" : "#3a3a3a", flexShrink: 0, whiteSpace: "nowrap" }}>
+                    <span style={{ fontSize: 14, color: isAssigned ? "#252525" : "#3a3a3a", flexShrink: 0, whiteSpace: "nowrap" }}>
                       {p.team.replace('Red Bull Racing', 'RBR').replace('Racing Bulls', 'RB').replace('Aston Martin', 'AM')}
                     </span>
                     {/* Status dot */}
@@ -501,9 +501,9 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
         {/* ── RIGHT: TEAMS (sorted by budget desc) ── */}
         {(!isMobile || mobileTab === 'squadre') && (
           <div style={{ width: isMobile ? "100%" : 320, flexShrink: 0, borderLeft: isMobile ? "none" : "1px solid #141414", overflowY: "auto", background: "#090909" }}>
-            <div style={{ padding: "10px 16px", fontSize: 13, letterSpacing: 2, color: "#555", textTransform: "uppercase", borderBottom: "1px solid #111", position: "sticky", top: 0, background: "#090909", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ padding: "10px 16px", fontSize: 15, letterSpacing: 2, color: "#555", textTransform: "uppercase", borderBottom: "1px solid #111", position: "sticky", top: 0, background: "#090909", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span>Squadre</span>
-              <span style={{ fontSize: 12, color: "#333" }}>↓ budget</span>
+              <span style={{ fontSize: 14, color: "#333" }}>↓ budget</span>
             </div>
             {(() => {
               const maxPrice = Math.max(1, ...pilots.filter(p => p.owner && p.price > 0).map(p => p.price));
@@ -515,8 +515,8 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
                   <div key={t.id} style={{ padding: "5px 10px", borderBottom: "1px solid #0f0f0f" }}>
                     {/* Team header */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
-                      <div style={{ fontWeight: 700, fontSize: 14, color: "#e8e8e8" }}>{t.name}</div>
-                      <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 14, fontWeight: 900, color: budgetColor }}>
+                      <div style={{ fontWeight: 700, fontSize: 16, color: "#e8e8e8" }}>{t.name}</div>
+                      <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 16, fontWeight: 900, color: budgetColor }}>
                         {t.budget}M
                       </div>
                     </div>
@@ -535,16 +535,16 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
                               {/* Row: color bar | abbrev | price bar | price | ✕ */}
                               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                                 <div style={{ width: 2, height: 12, borderRadius: 1, background: color, flexShrink: 0 }} />
-                                <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 700, fontSize: 12, color: "#e0e0e0", letterSpacing: 0.5, width: 28, flexShrink: 0 }}>
+                                <span style={{ fontFamily: "'Orbitron', monospace", fontWeight: 700, fontSize: 14, color: "#e0e0e0", letterSpacing: 0.5, width: 28, flexShrink: 0 }}>
                                   {p.abbreviation || p.name.split(' ').pop().slice(0, 3).toUpperCase()}
                                 </span>
                                 {/* Inline price bar */}
                                 <div style={{ flex: 1, height: 2, background: "#1c1c1c", borderRadius: 1 }}>
                                   <div style={{ height: "100%", borderRadius: 1, background: color, width: `${pricePct}%`, opacity: 0.8, transition: "width 0.5s" }} />
                                 </div>
-                                <span style={{ fontSize: 12, color: "#555", fontFamily: "'Orbitron', monospace", fontWeight: 700, flexShrink: 0 }}>{p.price}M</span>
+                                <span style={{ fontSize: 14, color: "#555", fontFamily: "'Orbitron', monospace", fontWeight: 700, flexShrink: 0 }}>{p.price}M</span>
                                 <button onClick={() => setConfirmRelease(p.id)} title="Rilascia"
-                                  style={{ background: "none", border: "none", color: "#2a2a2a", cursor: "pointer", fontSize: 12, padding: "0", lineHeight: 1, transition: "color 0.15s", flexShrink: 0 }}
+                                  style={{ background: "none", border: "none", color: "#2a2a2a", cursor: "pointer", fontSize: 14, padding: "0", lineHeight: 1, transition: "color 0.15s", flexShrink: 0 }}
                                   onMouseEnter={e => e.target.style.color = "#ff4444"}
                                   onMouseLeave={e => e.target.style.color = "#2a2a2a"}
                                 >✕</button>
@@ -572,7 +572,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
               border: "none",
               borderTop: mobileTab === tab.id ? "2px solid #e10600" : "2px solid transparent",
               color: mobileTab === tab.id ? "#e10600" : "#555",
-              cursor: "pointer", fontSize: 15, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1,
+              cursor: "pointer", fontSize: 17, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1,
             }}>
               {tab.label}
             </button>
@@ -584,27 +584,27 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
       {showCloseConfirm && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ background: "#111", border: "1px solid #e10600", borderRadius: 16, padding: 28, width: 360, maxWidth: "calc(100vw - 32px)" }}>
-            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 17, fontWeight: 900, color: "#e10600", marginBottom: 8 }}>🔒 CHIUDI ASTA {auction?.auctionNumber}?</div>
-            <div style={{ fontSize: 14, color: "#aaa", marginBottom: 16, lineHeight: 1.6 }}>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 19, fontWeight: 900, color: "#e10600", marginBottom: 8 }}>🔒 CHIUDI ASTA {auction?.auctionNumber}?</div>
+            <div style={{ fontSize: 16, color: "#aaa", marginBottom: 16, lineHeight: 1.6 }}>
               L&apos;asta verrà marcata come <strong style={{ color: "#fff" }}>chiusa</strong>. La rosa attuale di ogni squadra viene preservata come dato ufficiale.<br /><br />
               Potrai riaprire l&apos;asta successiva in qualsiasi momento (ogni squadra riceverà <strong style={{ color: "#4ade80" }}>+{auction?.budgetAdded ?? 100}M</strong>).
             </div>
-            <div style={{ fontSize: 13, color: "#555", marginBottom: 20, background: "#0a0a0a", borderRadius: 8, padding: "10px 12px" }}>
+            <div style={{ fontSize: 15, color: "#555", marginBottom: 20, background: "#0a0a0a", borderRadius: 8, padding: "10px 12px" }}>
               {teams.map(t => {
                 const tPilots = pilots.filter(p => p.owner === t.id);
                 return (
                   <div key={t.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                     <span style={{ color: "#888" }}>{t.name}</span>
-                    <span style={{ color: "#4ade80", fontFamily: "'Orbitron', monospace", fontSize: 12 }}>{tPilots.length} piloti · {t.budget}M</span>
+                    <span style={{ color: "#4ade80", fontFamily: "'Orbitron', monospace", fontSize: 14 }}>{tPilots.length} piloti · {t.budget}M</span>
                   </div>
                 );
               })}
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setShowCloseConfirm(false)} style={{ flex: 1, background: "transparent", border: "1px solid #333", borderRadius: 10, color: "#666", padding: "12px 0", cursor: "pointer", fontSize: 15 }}>
+              <button onClick={() => setShowCloseConfirm(false)} style={{ flex: 1, background: "transparent", border: "1px solid #333", borderRadius: 10, color: "#666", padding: "12px 0", cursor: "pointer", fontSize: 17 }}>
                 Annulla
               </button>
-              <button onClick={handleCloseAuction} disabled={auctionBusy} style={{ flex: 1, background: "linear-gradient(135deg, #e10600, #a00)", border: "none", borderRadius: 10, color: "#fff", padding: "12px 0", cursor: auctionBusy ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700, opacity: auctionBusy ? 0.6 : 1 }}>
+              <button onClick={handleCloseAuction} disabled={auctionBusy} style={{ flex: 1, background: "linear-gradient(135deg, #e10600, #a00)", border: "none", borderRadius: 10, color: "#fff", padding: "12px 0", cursor: auctionBusy ? "not-allowed" : "pointer", fontSize: 17, fontWeight: 700, opacity: auctionBusy ? 0.6 : 1 }}>
                 {auctionBusy ? "Chiusura…" : "✓ CONFERMA CHIUSURA"}
               </button>
             </div>
@@ -616,25 +616,25 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
       {showOpenNext && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ background: "#111", border: "1px solid #4ade80", borderRadius: 16, padding: 28, width: 360, maxWidth: "calc(100vw - 32px)" }}>
-            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 17, fontWeight: 900, color: "#4ade80", marginBottom: 8 }}>⚡ APRI ASTA {(auction?.auctionNumber ?? 0) + 1}</div>
-            <div style={{ fontSize: 14, color: "#aaa", marginBottom: 16, lineHeight: 1.6 }}>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 19, fontWeight: 900, color: "#4ade80", marginBottom: 8 }}>⚡ APRI ASTA {(auction?.auctionNumber ?? 0) + 1}</div>
+            <div style={{ fontSize: 16, color: "#aaa", marginBottom: 16, lineHeight: 1.6 }}>
               Ogni squadra riceverà <strong style={{ color: "#4ade80" }}>+{auction?.budgetAdded ?? 100}M</strong> di FantaMilioni aggiuntivi. I piloti in rosa restano invariati.
             </div>
-            <div style={{ fontSize: 13, color: "#555", marginBottom: 20, background: "#0a0a0a", borderRadius: 8, padding: "10px 12px" }}>
+            <div style={{ fontSize: 15, color: "#555", marginBottom: 20, background: "#0a0a0a", borderRadius: 8, padding: "10px 12px" }}>
               {teams.map(t => (
                 <div key={t.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                   <span style={{ color: "#888" }}>{t.name}</span>
-                  <span style={{ color: "#555", fontFamily: "'Orbitron', monospace", fontSize: 12 }}>
+                  <span style={{ color: "#555", fontFamily: "'Orbitron', monospace", fontSize: 14 }}>
                     {t.budget}M → <strong style={{ color: "#4ade80" }}>{t.budget + (auction?.budgetAdded ?? 100)}M</strong>
                   </span>
                 </div>
               ))}
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setShowOpenNext(false)} style={{ flex: 1, background: "transparent", border: "1px solid #333", borderRadius: 10, color: "#666", padding: "12px 0", cursor: "pointer", fontSize: 15 }}>
+              <button onClick={() => setShowOpenNext(false)} style={{ flex: 1, background: "transparent", border: "1px solid #333", borderRadius: 10, color: "#666", padding: "12px 0", cursor: "pointer", fontSize: 17 }}>
                 Annulla
               </button>
-              <button onClick={handleOpenNextAuction} disabled={auctionBusy} style={{ flex: 1, background: "linear-gradient(135deg, #003300, #004400)", border: "1px solid #4ade80", borderRadius: 10, color: "#4ade80", padding: "12px 0", cursor: auctionBusy ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700, opacity: auctionBusy ? 0.6 : 1 }}>
+              <button onClick={handleOpenNextAuction} disabled={auctionBusy} style={{ flex: 1, background: "linear-gradient(135deg, #003300, #004400)", border: "1px solid #4ade80", borderRadius: 10, color: "#4ade80", padding: "12px 0", cursor: auctionBusy ? "not-allowed" : "pointer", fontSize: 17, fontWeight: 700, opacity: auctionBusy ? 0.6 : 1 }}>
                 {auctionBusy ? "Apertura…" : "⚡ CONFERMA APERTURA"}
               </button>
             </div>
@@ -649,16 +649,16 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
         return (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{ background: "#141414", border: "1px solid #2a2a2a", borderRadius: 16, padding: 28, width: 300, maxWidth: "calc(100vw - 32px)", textAlign: "center" }}>
-              <div style={{ fontSize: 16, marginBottom: 8 }}>Rilascia pilota?</div>
-              <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 4 }}>{p?.name}</div>
-              <div style={{ fontSize: 14, color: "#666", marginBottom: 20 }}>
+              <div style={{ fontSize: 18, marginBottom: 8 }}>Rilascia pilota?</div>
+              <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}>{p?.name}</div>
+              <div style={{ fontSize: 16, color: "#666", marginBottom: 20 }}>
                 da {owner?.name} · restituisce {p?.price}M al budget
               </div>
               <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => setConfirmRelease(null)} style={{ flex: 1, background: "transparent", border: "1px solid #2a2a2a", borderRadius: 8, color: "#888", padding: "11px 0", cursor: "pointer", fontSize: 15 }}>
+                <button onClick={() => setConfirmRelease(null)} style={{ flex: 1, background: "transparent", border: "1px solid #2a2a2a", borderRadius: 8, color: "#888", padding: "11px 0", cursor: "pointer", fontSize: 17 }}>
                   Annulla
                 </button>
-                <button onClick={() => releasePilot(confirmRelease)} style={{ flex: 1, background: "#e10600", border: "none", borderRadius: 8, color: "#fff", padding: "11px 0", cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+                <button onClick={() => releasePilot(confirmRelease)} style={{ flex: 1, background: "#e10600", border: "none", borderRadius: 8, color: "#fff", padding: "11px 0", cursor: "pointer", fontSize: 17, fontWeight: 700 }}>
                   Rilascia
                 </button>
               </div>
