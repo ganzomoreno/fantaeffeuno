@@ -15,7 +15,25 @@
       "Bash(rm:*)",
       "Bash(node:*)",
       "Bash(curl:*)",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "WebSearch",
+      "WebFetch(domain:www.autosport.com)",
+      "WebFetch(domain:www.gpfans.com)",
+      "WebFetch(domain:www.motorsport.com)",
+      "WebFetch(domain:www.formulaonehistory.com)",
+      "WebFetch(domain:www.formula1.com)",
+      "WebFetch(domain:racingnews365.com)",
+      "WebFetch(domain:www.racefans.net)",
+      "WebFetch(domain:www.the-race.com)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:en.m.wikipedia.org)",
+      "WebFetch(domain:www.skysports.com)",
+      "WebFetch(domain:www.crash.net)",
+      "WebFetch(domain:www.motorsportweek.com)",
+      "Bash(where psql:*)",
+      "Bash(where node:*)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

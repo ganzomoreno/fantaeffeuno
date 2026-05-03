@@ -5,33 +5,32 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const pilotAssignments = [
-    { abbr: 'LEC', team: 'ZetaRacing', price: 54 },
-    { abbr: 'ALO', team: 'ZetaRacing', price: 15 },
     { abbr: 'LIN', team: 'ZetaRacing', price: 1 },
-    { abbr: 'ANT', team: 'ZetaRacing', price: 20 },
-
-    { abbr: 'PER', team: 'Abdull Mazzar', price: 1 },
-    { abbr: 'COL', team: 'Abdull Mazzar', price: 1 },
-    { abbr: 'BEA', team: 'Abdull Mazzar', price: 1 },
-    { abbr: 'BOT', team: 'Abdull Mazzar', price: 1 },
+    { abbr: 'LEC', team: 'ZetaRacing', price: 54 },
+    { abbr: 'ANT', team: 'ZetaRacing', price: 36 },
+    { abbr: 'ALO', team: 'ZetaRacing', price: 1 },
 
     { abbr: 'VER', team: 'SF – Scuderia Fainelli', price: 46 },
     { abbr: 'HAM', team: 'SF – Scuderia Fainelli', price: 34 },
     { abbr: 'ALB', team: 'SF – Scuderia Fainelli', price: 8 },
-    { abbr: 'GAS', team: 'SF – Scuderia Fainelli', price: 10 },
+    { abbr: 'GAS', team: 'SF – Scuderia Fainelli', price: 9 },
 
     { abbr: 'RUS', team: 'Ranocchiettos', price: 68 },
     { abbr: 'HUL', team: 'Ranocchiettos', price: 12 },
     { abbr: 'LAW', team: 'Ranocchiettos', price: 2 },
-    { abbr: 'STR', team: 'Ranocchiettos', price: 5 },
 
-    { abbr: 'NOR', team: 'Scudemaria Ferrari', price: 41 },
+    { abbr: 'BOT', team: 'Abdull Mazzar', price: 1 },
+    { abbr: 'PER', team: 'Abdull Mazzar', price: 1 },
+    { abbr: 'COL', team: 'Abdull Mazzar', price: 1 },
+    { abbr: 'BEA', team: 'Abdull Mazzar', price: 22 },
+
+    { abbr: 'OCO', team: 'Alpha Chiro Racing', price: 6 },
+    { abbr: 'HAD', team: 'Alpha Chiro Racing', price: 17 },
+    { abbr: 'PIA', team: 'Alpha Chiro Racing', price: 51 },
+
     { abbr: 'SAI', team: 'Scudemaria Ferrari', price: 5 },
     { abbr: 'BOR', team: 'Scudemaria Ferrari', price: 10 },
-
-    { abbr: 'PIA', team: 'Alpha Chiro Racing', price: 51 },
-    { abbr: 'HAD', team: 'Alpha Chiro Racing', price: 17 },
-    { abbr: 'OCO', team: 'Alpha Chiro Racing', price: 6 }
+    { abbr: 'NOR', team: 'Scudemaria Ferrari', price: 41 }
 ];
 
 async function run() {

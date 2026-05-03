@@ -24,9 +24,9 @@ export default function Calendario({ calendar, races }) {
   const completedSet = useMemo(() => new Set(races.map(r => r.calendarIndex)), [races]);
   const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
 
-  // Find next upcoming event index
+  // Find next upcoming event index (skip cancelled)
   const nextEventIdx = useMemo(() => {
-    return calendar.findIndex((ev, i) => !completedSet.has(i) && parseDateItalian(ev.date) >= today);
+    return calendar.findIndex((ev, i) => !ev.cancelled && !completedSet.has(i) && parseDateItalian(ev.date) >= today);
   }, [calendar, completedSet, today]);
 
   const filtered = useMemo(() => {
@@ -36,10 +36,12 @@ export default function Calendario({ calendar, races }) {
         if (filter === 'gare') return ev.type === 'race' || ev.type === 'sprint';
         if (filter === 'aste') return ev.type === 'auction';
         return true;
-      });
+      })
+      .sort((a, b) => parseDateItalian(a.date) - parseDateItalian(b.date));
   }, [calendar, filter]);
 
   function getStatus(ev) {
+    if (ev.cancelled) return 'cancelled';
     if (completedSet.has(ev.index)) return 'done';
     if (ev.index === nextEventIdx) return 'next';
     return 'future';
@@ -82,13 +84,14 @@ export default function Calendario({ calendar, races }) {
           const isSprint = ev.type === 'sprint';
           const isDone = status === 'done';
           const isNext = status === 'next';
+          const isCancelled = status === 'cancelled';
 
-          const dotColor = isDone ? '#555' : isNext ? ((isRace||isSprint) ? C.red : C.amber) : (isRace||isSprint) ? C.border : '#FFD70066';
-          const dotBorder = isDone ? '#555' : isNext ? ((isRace||isSprint) ? C.red : C.amber) : (isRace||isSprint) ? '#444' : '#FFD70066';
-          const cardBorderColor = isDone ? C.border : isNext ? ((isRace||isSprint) ? C.red : C.amber) : C.border;
-          const cardBorderLeft = isDone ? `1px solid ${C.border}` : isNext ? ((isRace||isSprint) ? `3px solid ${C.red}` : `3px solid ${C.amber}`) : `1px solid ${C.border}`;
+          const dotColor = isCancelled ? '#3A1A1A' : isDone ? '#555' : isNext ? ((isRace||isSprint) ? C.red : C.amber) : (isRace||isSprint) ? C.border : '#FFD70066';
+          const dotBorder = isCancelled ? '#7A2A2A' : isDone ? '#555' : isNext ? ((isRace||isSprint) ? C.red : C.amber) : (isRace||isSprint) ? '#444' : '#FFD70066';
+          const cardBorderColor = isCancelled ? '#5A2A2A' : isDone ? C.border : isNext ? ((isRace||isSprint) ? C.red : C.amber) : C.border;
+          const cardBorderLeft = isCancelled ? `1px solid #5A2A2A` : isDone ? `1px solid ${C.border}` : isNext ? ((isRace||isSprint) ? `3px solid ${C.red}` : `3px solid ${C.amber}`) : `1px solid ${C.border}`;
 
-          const daysUntil = !isDone && ev.date ? (() => {
+          const daysUntil = !isDone && !isCancelled && ev.date ? (() => {
             const evDate = parseDateItalian(ev.date);
             evDate.setHours(0, 0, 0, 0);
             const diff = Math.ceil((evDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -108,23 +111,28 @@ export default function Calendario({ calendar, races }) {
 
               {/* Card */}
               <div style={{
-                flex: 1, background: isNext ? ((isRace||isSprint) ? C.red + '0D' : C.amber + '0D') : C.surface,
+                flex: 1, background: isCancelled ? '#2A1A1A' : isNext ? ((isRace||isSprint) ? C.red + '0D' : C.amber + '0D') : C.surface,
                 borderRadius: 10, padding: '10px 14px',
                 border: `1px solid ${cardBorderColor}`,
                 borderLeft: cardBorderLeft,
-                opacity: isDone ? 0.45 : 1,
+                opacity: isDone ? 0.45 : isCancelled ? 0.55 : 1,
                 transition: 'all 0.15s',
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 4 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: isSprint ? C.amber : C.textPri }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: isCancelled ? C.textSec : isSprint ? C.amber : C.textPri, textDecoration: isCancelled ? 'line-through' : 'none' }}>
                       {isRace ? `🏁 ${ev.location}` : isSprint ? `🏎️ SPRINT - ${ev.location}` : `💰 ${ev.location}`}
                     </div>
-                    <div style={{ fontSize: 11, color: C.textSec, marginTop: 2 }}>{ev.date}</div>
+                    <div style={{ fontSize: 11, color: C.textSec, marginTop: 2, textDecoration: isCancelled ? 'line-through' : 'none' }}>{ev.date}</div>
                   </div>
 
                   {/* Status badge */}
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+                    {isCancelled && (
+                      <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#E1060033', color: '#FF8585', border: `1px solid #5A2A2A`, fontWeight: 700 }}>
+                        ✕ ANNULLATA
+                      </span>
+                    )}
                     {isDone && (
                       <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#EDEEF322', color: C.textSec, border: `1px solid ${C.border}`, fontWeight: 700 }}>
                         ✓ COMPLETATO

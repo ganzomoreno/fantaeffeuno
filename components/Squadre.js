@@ -42,45 +42,36 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
   // Determine active race based on strict timeline rules.
   // Priority: first event with OPEN lineup window (before midnight of race day).
   // Fallback: the most recent LOCKED event (race is ongoing today).
-  const activeRaceInfo = useMemo(() => {
-    let openIdx = -1;
-    let lockedIdx = -1;
+  const completedSet = useMemo(
+    () => new Set((races || []).filter(r => (r.results || []).length > 0).map(r => r.calendarIndex)),
+    [races]
+  );
 
+  // Find first race/sprint not yet completed (no results in DB).
+  // Until results are entered, the event remains the active target — even
+  // if its date has passed. Status = open if before deadline, locked otherwise.
+  const activeRaceInfo = useMemo(() => {
     for (let i = 0; i < calendar.length; i++) {
       const ev = calendar[i];
+      if (ev.cancelled) continue;
       if (ev.type !== 'race' && ev.type !== 'sprint') continue;
+      if (completedSet.has(i)) continue;
 
       const raceDate = parseDate(ev.date);
       if (isNaN(raceDate.getTime())) continue;
 
-      // Deadline = 23:59:59.999 of the day BEFORE the race
+      // Deadline schieramento: 22:00 locale del giorno gara (lights-out Miami)
       const deadline = new Date(raceDate);
-      deadline.setHours(0, 0, 0, 0);
-      deadline.setMilliseconds(-1);
+      deadline.setHours(22, 0, 0, 0);
 
       if (SIMULATED_TODAY <= deadline) {
-        // Window is open! Terminate search here: this is our next target.
-        openIdx = i;
-        break;
-      } else {
-        // Window is past deadline. Check if the race day is still in progress.
-        const endOfRaceDay = new Date(raceDate);
-        endOfRaceDay.setHours(23, 59, 59, 999);
-
-        if (SIMULATED_TODAY <= endOfRaceDay) {
-          // We are currently in the race/sprint day itself. This is "LOCKED".
-          // Continue searching ONLY after a sprint (to find the Sunday race of the same weekend).
-          // If it's a main race, stop here — today IS the race, show it as locked.
-          lockedIdx = i;
-          if (ev.type !== 'sprint') break;
-        }
+        return { activeIdx: i, timeLocked: false };
       }
+      // Past deadline (race in progress, or finished but results not yet entered)
+      return { activeIdx: i, timeLocked: true };
     }
-
-    if (openIdx >= 0) return { activeIdx: openIdx, timeLocked: false };
-    if (lockedIdx >= 0) return { activeIdx: lockedIdx, timeLocked: true };
     return { activeIdx: -1, timeLocked: false };
-  }, [calendar]);
+  }, [calendar, completedSet]);
 
 
   const nextRaceIdx = activeRaceInfo.activeIdx;

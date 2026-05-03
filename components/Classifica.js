@@ -42,40 +42,41 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
   // Determine active race based on strict timeline rules.
   // Priority: first event with OPEN lineup window (before midnight of race day).
   // Fallback: the most recent LOCKED event (race is ongoing today).
-  const activeRaceInfo = useMemo(() => {
-    let openIdx = -1;
-    let lockedIdx = -1;
+  const completedSet = useMemo(
+    () => new Set((races || []).filter(r => (r.results || []).length > 0).map(r => r.calendarIndex)),
+    [races]
+  );
 
+  // Active race = first non-cancelled, non-completed race/sprint in calendar.
+  // Stays active (locked) past race day until results are entered.
+  const activeRaceInfo = useMemo(() => {
     for (let i = 0; i < calendar.length; i++) {
       const ev = calendar[i];
+      if (ev.cancelled) continue;
       if (ev.type !== 'race' && ev.type !== 'sprint') continue;
+      if (completedSet.has(i)) continue;
 
       const raceDate = parseDate(ev.date);
       if (isNaN(raceDate.getTime())) continue;
 
+      // Deadline schieramento: 22:00 locale del giorno gara (lights-out Miami)
       const deadline = new Date(raceDate);
-      deadline.setHours(0, 0, 0, 0);
-      deadline.setMilliseconds(-1);
+      deadline.setHours(22, 0, 0, 0);
 
-      if (SIMULATED_TODAY <= deadline) {
-        openIdx = i;
-        break;
-      } else {
-        const endOfRaceDay = new Date(raceDate);
-        endOfRaceDay.setHours(23, 59, 59, 999);
-        if (SIMULATED_TODAY <= endOfRaceDay) {
-          lockedIdx = i;
-        }
-      }
+      if (SIMULATED_TODAY <= deadline) return { activeIdx: i, timeLocked: false };
+      return { activeIdx: i, timeLocked: true };
     }
-
-    if (openIdx >= 0) return { activeIdx: openIdx, timeLocked: false };
-    if (lockedIdx >= 0) return { activeIdx: lockedIdx, timeLocked: true };
     return { activeIdx: -1, timeLocked: false };
-  }, [calendar]);
+  }, [calendar, completedSet]);
 
   const nextRaceIdx = activeRaceInfo.activeIdx;
   const nextRaceEvent = nextRaceIdx >= 0 ? calendar[nextRaceIdx] : null;
+
+  // Races sorted chronologically by calendar position (DB returns them unordered)
+  const sortedRaces = useMemo(
+    () => [...races].sort((a, b) => (a.calendarIndex ?? 0) - (b.calendarIndex ?? 0)),
+    [races]
+  );
 
   // Days until next race
   const daysUntil = useMemo(() => {
@@ -96,8 +97,8 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
   const benchPilots = myPilots.filter(p => !myNextLineup.includes(p.id));
   const lineupConfirmed = myNextLineup.length === 3;
 
-  // Last completed race
-  const lastRace = races.length > 0 ? races[races.length - 1] : null;
+  // Last completed race (chronologically last race actually run, with results)
+  const lastRace = sortedRaces.length > 0 ? sortedRaces[sortedRaces.length - 1] : null;
   const lastRaceEvent = lastRace ? calendar[lastRace.calendarIndex] : null;
   const lastRaceScore = useMemo(
     () => lastRace && currentUser ? calculateRaceTeamScore(lastRace, lineups, reserves, pilots, currentUser.id) : 0,
@@ -121,35 +122,46 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
 
   // Trend: last 5 races bar chart data
   const trendData = useMemo(() => {
-    return races.slice(-5).map(race => ({
+    return sortedRaces.slice(-5).map(race => ({
       label: (calendar[race.calendarIndex]?.location || '?').slice(0, 3).toUpperCase(),
       pts: calculateRaceTeamScore(race, lineups, reserves, pilots, currentUser?.id),
     }));
-  }, [races, calendar, lineups, reserves, pilots, currentUser]);
+  }, [sortedRaces, calendar, lineups, reserves, pilots, currentUser]);
   const maxTrend = Math.max(...trendData.map(d => d.pts), 1);
 
   // Rank delta vs pre-last-race
   const rankDelta = useMemo(() => {
-    if (races.length < 2 || !currentUser) return null;
-    const prevRaces = races.slice(0, -1);
+    if (sortedRaces.length < 2 || !currentUser) return null;
+    const prevRaces = sortedRaces.slice(0, -1);
     const prevScores = {};
     teams.forEach(t => { prevScores[t.id] = prevRaces.reduce((s, r) => s + calculateRaceTeamScore(r, lineups, reserves, pilots, t.id), 0); });
     const prevRank = [...teams].sort((a, b) => (prevScores[b.id] || 0) - (prevScores[a.id] || 0)).findIndex(t => t.id === currentUser.id) + 1;
     return prevRank - myRank;
-  }, [races, teams, lineups, pilots, currentUser, myRank]);
+  }, [sortedRaces, teams, lineups, reserves, pilots, currentUser, myRank]);
 
-  // Next 3 Events (from SIMULATED_TODAY)
+  // Next 3 Events (today or future, cancelled excluded, chronological)
+  const startOfToday = useMemo(() => {
+    const d = new Date(SIMULATED_TODAY); d.setHours(0, 0, 0, 0); return d;
+  }, [SIMULATED_TODAY]);
   const nextEvents = useMemo(() => {
-    return calendar.filter(ev => {
-      const d = parseDate(ev.date);
-      return d >= SIMULATED_TODAY || (d.getUTCDate() === SIMULATED_TODAY.getUTCDate() && d.getUTCMonth() === SIMULATED_TODAY.getUTCMonth());
-    }).slice(0, 3);
-  }, [calendar]);
+    return calendar
+      .filter(ev => !ev.cancelled)
+      .filter(ev => {
+        const d = parseDate(ev.date); d.setHours(0, 0, 0, 0);
+        return d.getTime() >= startOfToday.getTime();
+      })
+      .sort((a, b) => parseDate(a.date) - parseDate(b.date))
+      .slice(0, 3);
+  }, [calendar, startOfToday]);
 
   // Next Auction
   const nextAuction = useMemo(() => {
-    return calendar.find(ev => ev.type === 'auction' && parseDate(ev.date) >= SIMULATED_TODAY);
-  }, [calendar]);
+    return calendar
+      .filter(ev => !ev.cancelled && ev.type === 'auction')
+      .map(ev => ({ ev, d: (() => { const d = parseDate(ev.date); d.setHours(0,0,0,0); return d; })() }))
+      .filter(x => x.d.getTime() >= startOfToday.getTime())
+      .sort((a, b) => a.d - b.d)[0]?.ev || null;
+  }, [calendar, startOfToday]);
 
   // Top 3 Leaderboard
   const top3Teams = useMemo(() => {
@@ -205,12 +217,25 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
 
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: C.red, fontWeight: 900, marginBottom: 4 }}>RACE WEEK</div>
-            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 22, fontWeight: 900, color: C.textPri, lineHeight: 1.1 }}>{nextRaceEvent?.location || '?'}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: C.red, fontWeight: 900 }}>
+                {daysUntil === 0 ? 'GARA OGGI' : 'PROSSIMA GARA'}
+              </div>
+              {daysUntil === 0 && (
+                <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 100, background: C.red, color: '#fff', fontWeight: 900, letterSpacing: 1, animation: 'pulse 1.6s ease-in-out infinite' }}>
+                  LIVE
+                </span>
+              )}
+            </div>
+            <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 22, fontWeight: 900, color: C.textPri, lineHeight: 1.1 }}>
+              {nextRaceEvent?.type === 'sprint' ? '🏎️ SPRINT — ' : ''}{nextRaceEvent?.location || '?'}
+            </div>
             <div style={{ fontSize: 12, color: C.textSec, marginTop: 4 }}>{nextRaceEvent?.date}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 10, textTransform: 'uppercase', color: C.textSec, marginBottom: 4 }}>SCHIERAMENTO</div>
+            <div style={{ fontSize: 10, textTransform: 'uppercase', color: C.textSec, marginBottom: 4 }}>
+              {daysUntil === 0 ? (activeRaceInfo?.timeLocked ? 'IN CORSO' : 'SCHIERAMENTO') : 'SCHIERAMENTO'}
+            </div>
             {daysUntil !== null ? (
               <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 24, fontWeight: 900, color: daysUntil <= 1 ? C.amber : C.textPri, lineHeight: 1 }}>
                 {daysUntil === 0 ? 'OGGI' : daysUntil < 0 ? 'IN CORSO' : `-${daysUntil}g`}
@@ -277,7 +302,7 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
             <div>
-              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec, marginBottom: 2 }}>ULTIMO GP</div>
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, color: lastRace?.isSprint ? C.amber : C.textSec, marginBottom: 2 }}>{lastRace?.isSprint ? 'ULTIMA SPRINT' : 'ULTIMO GP'}</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: C.textPri }}>{lastRaceEvent?.location || '—'}</div>
             </div>
             <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 22, fontWeight: 900, color: C.red, textAlign: 'right', lineHeight: 1 }}>
