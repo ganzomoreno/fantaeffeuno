@@ -335,16 +335,18 @@ export default function Risultati({ races, pilots, teams, scores, lineups, reser
                                                         if (!res) return;
                                                         if (tReserve && starter.subbedOutFor === tReserve.id) return;
 
+                                                        // No auto-sub: DNF titolare = 0 pt, lo lasciamo nel breakdown senza punti
                                                         if (res.dnf) {
-                                                            hasDnf = true;
+                                                            scorers.push({ pilot: pilots.find(p => p.id === starter.id), pts: calculatePilotPoints(res, race.isSprint), dnf: true });
                                                         } else {
                                                             scorers.push({ pilot: pilots.find(p => p.id === starter.id), pts: calculatePilotPoints(res, race.isSprint) });
                                                         }
                                                     });
 
-                                                    if (tReserve) {
+                                                    // Riserva entra solo se manualmente subbed in
+                                                    if (tReserve && tReserve.subbedInManually) {
                                                         const resRes = race.results.find(r => r.pilotId === tReserve.id);
-                                                        if (resRes && !resRes.dnf && (tReserve.subbedInManually || hasDnf)) {
+                                                        if (resRes && !resRes.dnf) {
                                                             scorers.push({ pilot: pilots.find(p => p.id === tReserve.id), pts: calculatePilotPoints(resRes, race.isSprint), isReserve: true });
                                                         }
                                                     }

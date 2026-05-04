@@ -176,8 +176,8 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                 ? calculatePilotPoints(result, selectedRace?.isSprint) 
                 : { total: 0, base: 0, overtakes: 0, fastestLap: 0, dotd: 0 };
 
-              // explicitly check if manually subbed in 
-              const subbedIn = teamReserveObj.subbedInManually || (dnfCount > 0 && !(result?.dnf));
+              // La riserva entra in classifica SOLO con switch manuale (no auto-sub su DNF).
+              const subbedIn = !!teamReserveObj.subbedInManually;
 
               pilotDetails.push({ pilot, result, pts, isReserve: true, subbedIn, rawId: resId });
             }
@@ -308,9 +308,9 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                             <span style={{ fontSize: 14, padding: '3px 8px', borderRadius: 10, background: C.surface2, color: C.textSec, border: `1px solid ${C.border}` }}>
                               Switches: {t.switchesUsed || 0}/5
                             </span>
-                            {teamReserveObj && (pilotDetails.find(p => p.isReserve)?.subbedIn) && (
+                            {teamReserveObj?.subbedInManually && (
                               <span style={{ fontSize: 14, padding: '3px 8px', borderRadius: 10, background: C.amber + '22', color: C.amber, border: `1px solid ${C.amber}44` }}>
-                                {teamReserveObj.subbedInManually ? (selectedEvent?.type === 'sprint' ? 'Sub Sprint' : 'Switch Manuale Usato') : (dnfCount > 0 ? '1 Switch Usato per DNF' : 'Switch Applicato')}
+                                {selectedEvent?.type === 'sprint' ? 'Sub Sprint' : 'Switch Manuale Usato'}
                               </span>
                             )}
                           </div>

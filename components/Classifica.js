@@ -176,9 +176,7 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
     const reserveObj = (reserves[`race_${lastRace.calendarIndex}`] || {})[currentUser.id];
     const reserveId = reserveObj?.id || reserveObj;
 
-    let dnfCount = 0;
     const resData = (lastRace.results || []).filter(r => lineup.includes(r.pilotId));
-    resData.forEach(r => { if (r.dnf) dnfCount++; });
 
     let drivers = resData.map(r => ({
       ...r,
@@ -186,7 +184,9 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
       pts: calculatePilotPoints(r, lastRace.isSprint)
     }));
 
-    if (dnfCount > 0 && reserveId) {
+    // Riserva nel breakdown SOLO se manualmente subbed in (no auto-sub su DNF)
+    const reserveSubbedIn = !!reserveObj?.subbedInManually;
+    if (reserveSubbedIn && reserveId) {
       const resResult = (lastRace.results || []).find(r => r.pilotId === reserveId);
       if (resResult && !resResult.dnf) {
         drivers.push({
