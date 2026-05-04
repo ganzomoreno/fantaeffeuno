@@ -261,7 +261,15 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                           </div>
 
                           {pilotDetails.map(({ pilot, result, pts, isReserve, subbedIn, isSwappedOut, rawId }, j) => {
-                            const canManualSwitch = isMe && !isReserve && !isSwappedOut && !result?.dnf && teamReserveObj && (5 - (t.switchesUsed || 0) > 0) && !pilotDetails.find(p => p.isReserve)?.subbedIn;
+                            // Switch manuale permesso anche su titolari DNF: lascia che il manager
+                            // decida liberamente di sostituirli con la riserva. Blocchi solo:
+                            // - non e' il proprio team
+                            // - il pilota e' la riserva (non si sostituisce a se stessa)
+                            // - il pilota e' gia' stato swappato fuori
+                            // - il team non ha riserva (rosa = 3)
+                            // - switch esauriti (5/5)
+                            // - la riserva e' gia' entrata (un solo switch per gara)
+                            const canManualSwitch = isMe && !isReserve && !isSwappedOut && teamReserveObj && (5 - (t.switchesUsed || 0) > 0) && !pilotDetails.find(p => p.isReserve)?.subbedIn;
 
                             return (
                               <div key={j} style={{
