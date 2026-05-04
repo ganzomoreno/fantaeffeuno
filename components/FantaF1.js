@@ -15,9 +15,54 @@ import Aste from './Aste';
 import AdminPanel from './AdminPanel';
 import LoginPage from './LoginPage';
 
-export default function FantaF1() {
-  const [page, setPage] = useState("classifica");
+// Mapping bidirezionale URL ↔ pagina applicativa
+const PAGE_TO_PATH = {
+  classifica: '/',
+  squadre: '/scuderia',
+  calendario: '/calendario',
+  gara: '/gara',
+  risultati: '/risultati',
+  aste: '/aste',
+};
+const PATH_TO_PAGE = {
+  '/': 'classifica',
+  '/scuderia': 'squadre',
+  '/calendario': 'calendario',
+  '/gara': 'gara',
+  '/risultati': 'risultati',
+  '/aste': 'aste',
+};
+
+export default function FantaF1({ initialPage = 'classifica' }) {
+  // Determina la pagina iniziale dall'URL (priorita) o dal prop
+  const resolveInitial = () => {
+    if (typeof window === 'undefined') return initialPage;
+    const path = window.location.pathname.replace(/\/$/, '') || '/';
+    return PATH_TO_PAGE[path] || initialPage;
+  };
+  const [page, setPageState] = useState(resolveInitial);
   const [showAdmin, setShowAdmin] = useState(false);
+
+  // setPage aggiorna anche l'URL (history.pushState) senza ricaricare la pagina
+  const setPage = useCallback((nextPage) => {
+    setPageState(nextPage);
+    if (typeof window !== 'undefined') {
+      const path = PAGE_TO_PATH[nextPage] || '/';
+      if (window.location.pathname !== path) {
+        window.history.pushState({ page: nextPage }, '', path);
+      }
+    }
+  }, []);
+
+  // Sincronizza state quando l'utente usa back/forward del browser
+  useEffect(() => {
+    const onPop = () => {
+      const path = window.location.pathname.replace(/\/$/, '') || '/';
+      setPageState(PATH_TO_PAGE[path] || 'classifica');
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const [session, setSession] = useState(null);
   const [currentUser, setCurrentUser] = useState(null); // team matched to user
