@@ -41,12 +41,16 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
     return s;
   }, [races, teams, lineups, reserves, pilots]);
 
-  // Pilot leaderboard for selected race
+  // Pilot leaderboard for selected race (TUTTI i piloti, ordinati per punti
+  // e a parità per posizione di arrivo). Include DNF in coda.
   const pilotLeaderboard = useMemo(() => {
     if (!selectedRace) return [];
     return getRaceBreakdown(selectedRace, pilots)
-      .filter(p => p.points > 0 || p.dnf)
-      .sort((a, b) => b.points - a.points);
+      .sort((a, b) => {
+        if (a.dnf !== b.dnf) return a.dnf ? 1 : -1;
+        if (b.points !== a.points) return b.points - a.points;
+        return (a.position || 99) - (b.position || 99);
+      });
   }, [selectedRace, pilots]);
 
   const handleManualSwitch = async (calendarIndex, teamId, starterId, reserveId) => {
@@ -329,9 +333,27 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
         </div>
       )}
 
-      {/* ── VISTA PILOTI ──────────────────────────────────────────────────────── */}
+      {/* ── VISTA PILOTI (tabella trasparente con breakdown punti) ───────────── */}
       {view === 'piloti' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden' }}>
+          {/* Header */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '32px 1fr 56px 56px 56px 56px 56px 64px',
+            gap: 8, padding: '10px 12px', alignItems: 'center',
+            background: C.surface2, borderBottom: `1px solid ${C.border}`,
+            fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.6, color: C.textSec,
+          }}>
+            <div style={{ textAlign: 'center' }}>#</div>
+            <div>Pilota</div>
+            <div style={{ textAlign: 'center' }} title="Posizione di partenza in griglia">Grid</div>
+            <div style={{ textAlign: 'center' }} title="Posizione di arrivo">Arr.</div>
+            <div style={{ textAlign: 'right' }} title="Punti base da posizione di arrivo (P1=25 ... P10=11 ... P20=1)">Base</div>
+            <div style={{ textAlign: 'right' }} title="Bonus sorpassi: +0,5 per sorpasso, max +3 pt (cap 6 sorpassi)">Sorp.</div>
+            <div style={{ textAlign: 'right' }} title="Driver of the Day: 1°=+3, 2°=+2, 3°=+1">DOTD</div>
+            <div style={{ textAlign: 'right' }}>Totale</div>
+          </div>
+
           {pilotLeaderboard.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 32, color: C.textSec, fontSize: 17 }}>
               Nessun risultato disponibile.
@@ -339,45 +361,88 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
           ) : pilotLeaderboard.map((entry, i) => {
             const teamColor = F1_TEAM_COLORS[entry.f1Team] || '#555';
             const isMyPilot = pilots.find(p => p.id === entry.pilotId)?.owner === currentUser?.id;
+            const bk = entry.breakdown || {};
+            const ovtRaw = entry.overtakes || 0;
+            const ovtCapped = Math.min(ovtRaw, 6);
+            const dotdLabel = entry.dotdRank === 1 ? '1°' : entry.dotdRank === 2 ? '2°' : entry.dotdRank === 3 ? '3°' : '';
+            const dotdColor = entry.dotdRank === 1 ? '#FFD700' : entry.dotdRank === 2 ? '#C0C0C0' : entry.dotdRank === 3 ? '#CD7F32' : C.textSec;
             return (
               <div key={entry.pilotId} style={{
-                background: isMyPilot ? C.green + '10' : C.surface,
-                border: `1px solid ${isMyPilot ? C.green + '44' : i < 3 ? MEDALS[i] + '44' : C.border}`,
-                borderRadius: 10, padding: '10px 14px',
-                display: 'flex', alignItems: 'center', gap: 12,
+                display: 'grid',
+                gridTemplateColumns: '32px 1fr 56px 56px 56px 56px 56px 64px',
+                gap: 8, padding: '10px 12px', alignItems: 'center',
+                background: isMyPilot ? C.green + '0E' : 'transparent',
+                borderBottom: `1px solid ${C.border}55`,
+                borderLeft: isMyPilot ? `3px solid ${C.green}` : '3px solid transparent',
               }}>
+                {/* Rank */}
                 <div style={{
-                  width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+                  width: 26, height: 26, borderRadius: '50%',
                   background: i < 3 ? MEDALS[i] : C.surface2,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 15, fontWeight: 900, color: i < 3 ? '#000' : C.textSec,
-                }}>
-                  {i + 1}
-                </div>
-                <div style={{ width: 4, height: 30, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: 17, color: C.textPri }}>
-                    {pilots.find(p => p.id === entry.pilotId)?.abbreviation || entry.pilotName?.substring(0, 3).toUpperCase() || '?'}
-                    {isMyPilot && <span style={{ fontSize: 14, color: C.green, marginLeft: 6 }}>★ MIO</span>}
+                  fontSize: 13, fontWeight: 900, color: i < 3 ? '#000' : C.textSec,
+                }}>{i + 1}</div>
+
+                {/* Pilota */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                  <div style={{ width: 4, height: 28, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 800, fontSize: 16, color: C.textPri, whiteSpace: 'nowrap' }}>
+                      {pilots.find(p => p.id === entry.pilotId)?.abbreviation || entry.pilotName?.substring(0, 3).toUpperCase() || '?'}
+                      {isMyPilot && <span style={{ fontSize: 12, color: C.green, marginLeft: 6, fontWeight: 700 }}>★ MIO</span>}
+                    </div>
+                    <div style={{ fontSize: 12, color: C.textSec, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {entry.f1Team}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 14, color: C.textSec }}>
-                    {entry.f1Team}
-                    {entry.position > 0 && ` · P${entry.position}`}
-                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-                  {entry.gridPosition && <span style={{ fontSize: 14, color: C.textSec }}>Start <b style={{ color: C.textPri }}>P{entry.gridPosition}</b></span>}
-                  {entry.dotdRank === 1 && <span style={{ fontSize: 14, padding: '2px 6px', borderRadius: 12, background: '#FFD70033', color: '#FFD700', border: '1px solid #FFD70066', fontWeight: 800 }}>🥇 1° DOTD</span>}
-                  {entry.dotdRank === 2 && <span style={{ fontSize: 14, padding: '2px 6px', borderRadius: 12, background: '#C0C0C033', color: '#C0C0C0', border: '1px solid #C0C0C066', fontWeight: 800 }}>🥈 2° DOTD</span>}
-                  {entry.dotdRank === 3 && <span style={{ fontSize: 14, padding: '2px 6px', borderRadius: 12, background: '#CD7F3233', color: '#CD7F32', border: '1px solid #CD7F3266', fontWeight: 800 }}>🥉 3° DOTD</span>}
-                  {entry.dnf && <span style={{ fontSize: 14, padding: '2px 6px', borderRadius: 12, background: C.red + '22', color: C.red, border: `1px solid ${C.red}44`, fontWeight: 800 }}>DNF</span>}
-                  <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 22, fontWeight: 900, color: entry.dnf ? C.textSec : C.red, marginLeft: 8 }}>
-                    {entry.points.toFixed(1)}
-                  </span>
+
+                {/* Grid */}
+                <div style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: C.textSec, fontFamily: "'Orbitron', monospace" }}>
+                  {entry.gridPosition ? `P${entry.gridPosition}` : '—'}
+                </div>
+
+                {/* Arrivo */}
+                <div style={{ textAlign: 'center', fontSize: 14, fontWeight: 800, color: entry.dnf ? C.red : C.textPri, fontFamily: "'Orbitron', monospace" }}>
+                  {entry.dnf ? 'DNF' : (entry.position > 0 ? `P${entry.position}` : '—')}
+                </div>
+
+                {/* Base pts */}
+                <div style={{ textAlign: 'right', fontSize: 14, fontFamily: "'Orbitron', monospace", color: bk.base > 0 ? C.textPri : C.textSec, fontWeight: 700 }}>
+                  {(bk.base ?? 0).toFixed(0)}
+                </div>
+
+                {/* Sorpassi */}
+                <div style={{ textAlign: 'right', fontSize: 14, fontFamily: "'Orbitron', monospace", color: bk.overtakes > 0 ? C.green : C.textSec, fontWeight: 700 }} title={`${ovtRaw} sorpass${ovtRaw === 1 ? 'o' : 'i'}${ovtRaw > 6 ? ' (cap a 6)' : ''}`}>
+                  {bk.overtakes > 0 ? `+${bk.overtakes.toFixed(1)}` : '—'}
+                  {ovtRaw > 0 && (
+                    <div style={{ fontSize: 11, color: C.textSec, fontWeight: 500, fontFamily: "'Titillium Web', sans-serif" }}>
+                      ({ovtCapped})
+                    </div>
+                  )}
+                </div>
+
+                {/* DOTD */}
+                <div style={{ textAlign: 'right', fontSize: 14, fontFamily: "'Orbitron', monospace", color: bk.dotd > 0 ? dotdColor : C.textSec, fontWeight: 800 }}>
+                  {bk.dotd > 0 ? `+${bk.dotd}` : '—'}
+                  {dotdLabel && <div style={{ fontSize: 11, color: dotdColor, fontWeight: 700, fontFamily: "'Titillium Web', sans-serif" }}>{dotdLabel}</div>}
+                </div>
+
+                {/* Totale */}
+                <div style={{ textAlign: 'right', fontFamily: "'Orbitron', monospace", fontSize: 18, fontWeight: 900, color: entry.dnf ? C.textSec : C.red }}>
+                  {entry.points.toFixed(1)}
                 </div>
               </div>
             );
           })}
+
+          {/* Footer legenda */}
+          <div style={{ padding: '10px 12px', background: C.surface2, fontSize: 12, color: C.textSec, borderTop: `1px solid ${C.border}`, lineHeight: 1.6 }}>
+            <strong style={{ color: C.textPri }}>Come si calcola</strong> · <b>Base</b>: P1=25, P2=22, P3=20, P4=18, … P10=11, … P20=1, P21+=0.
+            {' '}<b>Sorp.</b>: +0,5 per sorpasso (cap 6 → max +3 pt).
+            {' '}<b>DOTD</b>: 1°=+3, 2°=+2, 3°=+1.
+            {' '}<b>DNF</b>: 0 pt (nessun bonus). <b>Sprint</b>: solo Base 8→1, niente bonus.
+          </div>
         </div>
       )}
 
