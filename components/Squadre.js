@@ -129,8 +129,8 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
           <div style={{ fontSize: 15, color: C.textSec, marginTop: 2 }}>{myTeam?.owner}</div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 14, fontWeight: 700, background: (MAX_SWITCHES - (myTeam?.switchesUsed || 0)) === 0 ? C.red + '22' : C.surface2, color: (MAX_SWITCHES - (myTeam?.switchesUsed || 0)) === 0 ? C.red : C.textSec, border: `1px solid ${C.border}` }}>
-            Switch Rimanenti: {MAX_SWITCHES - (myTeam?.switchesUsed || 0)}
+          <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 14, fontWeight: 700, background: (myTeam?.switchesUsed || 0) >= MAX_SWITCHES ? C.red + '22' : C.surface2, color: (myTeam?.switchesUsed || 0) >= MAX_SWITCHES ? C.red : C.textSec, border: `1px solid ${C.border}` }}>
+            Switch usati: {myTeam?.switchesUsed || 0}/{MAX_SWITCHES}
           </span>
           <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 14, fontWeight: 700, background: C.surface2, color: C.textSec, border: `1px solid ${C.border}` }}>
             {myTeam?.budget || 0}M budget

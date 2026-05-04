@@ -201,10 +201,160 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
     return drivers;
   }, [lastRace, currentUser, lineups, reserves, pilots]);
 
+  // Cumulative team scores per race (for trend chart)
+  const teamProgression = useMemo(() => {
+    const tally = {};
+    teams.forEach(t => { tally[t.id] = { running: 0, points: [] }; });
+    sortedRaces.forEach(race => {
+      teams.forEach(t => {
+        const raceScore = calculateRaceTeamScore(race, lineups, reserves, pilots, t.id);
+        tally[t.id].running += raceScore;
+        tally[t.id].points.push(tally[t.id].running);
+      });
+    });
+    return tally;
+  }, [sortedRaces, teams, lineups, reserves, pilots]);
+
+  // Smart actions
+  const smartActions = useMemo(() => {
+    const out = [];
+    if (nextRaceEvent && !lineupConfirmed && !activeRaceInfo?.timeLocked) {
+      out.push({
+        kind: 'lineup',
+        label: `Schiera la formazione per ${nextRaceEvent.location}`,
+        cta: 'Schiera →',
+        onClick: () => onNavigate?.('squadre'),
+        color: C.amber,
+      });
+    }
+    if (lastRaceMyBreakdown.some(r => r.dnf && !r.subbedIn)) {
+      const switchesLeft = MAX_SWITCHES - (currentUser?.switchesUsed || 0);
+      if (switchesLeft > 0) {
+        out.push({
+          kind: 'dnf',
+          label: `DNF nell'ultima gara — usa uno switch?`,
+          cta: 'Vedi gara →',
+          onClick: () => onNavigate?.('gara'),
+          color: C.red,
+        });
+      }
+    }
+    if (nextAuction) {
+      const aucD = parseDate(nextAuction.date); aucD.setHours(0,0,0,0);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const diff = Math.ceil((aucD - today) / 86400000);
+      if (diff >= 0 && diff <= 7) {
+        out.push({
+          kind: 'auction',
+          label: `Asta ${diff === 0 ? 'OGGI' : `tra ${diff}g`} — prepara il budget`,
+          cta: null,
+          color: C.amber,
+        });
+      }
+    }
+    return out.slice(0, 2);
+  }, [nextRaceEvent, lineupConfirmed, activeRaceInfo, lastRaceMyBreakdown, currentUser, nextAuction]);
+
+  // Render trend chart inline SVG
+  const renderTrend = () => {
+    if (sortedRaces.length === 0) return null;
+    const W = 560, H = 180, padL = 12, padR = 12, padT = 12, padB = 26;
+    const innerW = W - padL - padR, innerH = H - padT - padB;
+    const maxPts = Math.max(1, ...Object.values(teamProgression).flatMap(t => t.points));
+    const xStep = sortedRaces.length > 1 ? innerW / (sortedRaces.length - 1) : 0;
+    const xAt = i => padL + i * xStep;
+    const yAt = v => padT + innerH - (v / maxPts) * innerH;
+    const myColor = C.green;
+    return (
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', display: 'block', borderRadius: 8 }} preserveAspectRatio="none">
+        {/* gridlines */}
+        {[0.25, 0.5, 0.75].map(g => (
+          <line key={g} x1={padL} x2={W - padR} y1={padT + innerH * g} y2={padT + innerH * g} stroke={C.border} strokeDasharray="2 4" strokeWidth="1" />
+        ))}
+        {/* lines: other teams */}
+        {teams.filter(t => t.id !== currentUser?.id).map(t => {
+          const pts = teamProgression[t.id]?.points || [];
+          const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${xAt(i)},${yAt(p)}`).join(' ');
+          return <path key={t.id} d={d} fill="none" stroke={C.textSec} strokeOpacity="0.35" strokeWidth="1.5" />;
+        })}
+        {/* line: my team */}
+        {currentUser && (() => {
+          const pts = teamProgression[currentUser.id]?.points || [];
+          const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${xAt(i)},${yAt(p)}`).join(' ');
+          return (
+            <>
+              <path d={d} fill="none" stroke={myColor} strokeWidth="3" filter="drop-shadow(0 0 4px rgba(0,255,65,0.6))" />
+              {pts.map((p, i) => (
+                <circle key={i} cx={xAt(i)} cy={yAt(p)} r="3.5" fill={myColor} />
+              ))}
+            </>
+          );
+        })()}
+        {/* x labels: race location 3-letter abbr */}
+        {sortedRaces.map((r, i) => {
+          const loc = (calendar[r.calendarIndex]?.location || '?').slice(0, 3).toUpperCase();
+          return (
+            <text key={i} x={xAt(i)} y={H - 8} fill={C.textSec} fontSize="11" textAnchor="middle" fontFamily="monospace">{loc}</text>
+          );
+        })}
+      </svg>
+    );
+  };
+
+  const switchesUsed = currentUser?.switchesUsed || 0;
+  const auctionDays = nextAuction ? Math.ceil((parseDate(nextAuction.date).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000) : null;
+
+  // Full leaderboard (6 teams with bars)
+  const fullLeaderboard = useMemo(() => {
+    const maxScore = Math.max(1, ...teams.map(t => scores[t.id] || 0));
+    return teams.map((t, i) => ({
+      ...t, rank: i + 1, score: scores[t.id] || 0, pct: ((scores[t.id] || 0) / maxScore) * 100,
+    }));
+  }, [teams, scores]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-      {/* 1) Header “Race Week” */}
+      {/* HERO 1 — KPI giganti */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: '14px 12px', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: C.textSec, textTransform: 'uppercase', marginBottom: 4 }}>Posizione</div>
+          <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 32, fontWeight: 900, color: myRank === 1 ? '#FFD700' : myRank === 2 ? '#C0C0C0' : myRank === 3 ? '#CD7F32' : C.textPri, lineHeight: 1 }}>
+            #{myRank}
+            <span style={{ fontSize: 16, color: C.textSec, fontWeight: 400 }}>/{teams.length}</span>
+          </div>
+          {rankDelta != null && rankDelta !== 0 && (
+            <div style={{ fontSize: 12, color: rankDelta > 0 ? C.green : C.red, marginTop: 2, fontWeight: 700 }}>
+              {rankDelta > 0 ? `▲ ${rankDelta}` : `▼ ${Math.abs(rankDelta)}`}
+            </div>
+          )}
+        </div>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: '14px 12px', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: C.textSec, textTransform: 'uppercase', marginBottom: 4 }}>Punti totali</div>
+          <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 32, fontWeight: 900, color: C.red, lineHeight: 1 }}>{myScore.toFixed(0)}</div>
+          <div style={{ fontSize: 12, color: C.textSec, marginTop: 2 }}>stagione</div>
+        </div>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: '14px 12px', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: C.textSec, textTransform: 'uppercase', marginBottom: 4 }}>Ultima gara</div>
+          <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 32, fontWeight: 900, color: C.green, lineHeight: 1 }}>+{lastRaceScore.toFixed(0)}</div>
+          <div style={{ fontSize: 12, color: C.textSec, marginTop: 2 }}>{lastRaceEvent?.location?.slice(0, 12) || '—'}</div>
+        </div>
+      </div>
+
+      {/* HERO 2 — Trend campionato */}
+      {sortedRaces.length > 0 && (
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: 1, color: C.textPri, textTransform: 'uppercase' }}>📈 Trend campionato</div>
+            <div style={{ fontSize: 12, color: C.textSec }}>
+              <span style={{ color: C.green, fontWeight: 700 }}>━ Tu</span> · <span style={{ opacity: 0.6 }}>━ Altri team</span>
+            </div>
+          </div>
+          {renderTrend()}
+        </div>
+      )}
+
+      {/* HERO 3 — Race card */}
       <div style={{
         background: `linear-gradient(135deg, ${C.surface2} 0%, #0B0B0F 100%)`,
         border: `1px solid ${C.border}`,
@@ -244,15 +394,102 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
           </div>
         </div>
 
-        <div style={{ position: 'relative', zIndex: 1, marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'rgba(0,0,0,0.4)', borderRadius: 10, border: `1px solid ${lineupConfirmed && !activeRaceInfo?.timeLocked ? C.green + '44' : C.border}` }}>
-          <span style={{ fontSize: 19 }}>{lineupConfirmed ? '✅' : '⚠️'}</span>
-          <span style={{ fontSize: 16, fontWeight: 700, color: lineupConfirmed ? C.green : C.amber }}>
-            {activeRaceInfo?.timeLocked ? 'Formazione Bloccata (In Gara)' : lineupConfirmed ? 'Formazione inviata e pronta' : 'Formazione da inviare!'}
+        <button
+          onClick={() => onNavigate?.('squadre')}
+          style={{
+            position: 'relative', zIndex: 1, marginTop: 16,
+            width: '100%', padding: '14px 16px', borderRadius: 12,
+            border: `1px solid ${activeRaceInfo?.timeLocked ? C.border : lineupConfirmed ? C.green + '88' : C.amber + '88'}`,
+            background: activeRaceInfo?.timeLocked ? 'rgba(0,0,0,0.4)' : lineupConfirmed ? C.green + '15' : C.amber + '15',
+            color: activeRaceInfo?.timeLocked ? C.textSec : lineupConfirmed ? C.green : C.amber,
+            fontSize: 17, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1,
+            cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 22 }}>{activeRaceInfo?.timeLocked ? '🔒' : lineupConfirmed ? '✅' : '⚠️'}</span>
+            {activeRaceInfo?.timeLocked ? 'Formazione bloccata' : lineupConfirmed ? 'Formazione confermata' : 'Schiera ora'}
           </span>
+          <span style={{ fontSize: 18 }}>→</span>
+        </button>
+      </div>
+
+      {/* SMART ACTIONS — solo se rilevanti, max 2 */}
+      {smartActions.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {smartActions.map((a, i) => (
+            <div key={i} onClick={a.onClick} style={{
+              cursor: a.onClick ? 'pointer' : 'default',
+              background: a.color + '12', border: `1px solid ${a.color}55`, borderRadius: 12,
+              padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12,
+            }}>
+              <span style={{ fontSize: 22 }}>
+                {a.kind === 'lineup' ? '⚡' : a.kind === 'dnf' ? '🚨' : '💰'}
+              </span>
+              <div style={{ flex: 1, fontSize: 15, fontWeight: 700, color: a.color }}>{a.label}</div>
+              {a.cta && <div style={{ fontSize: 13, color: a.color, fontWeight: 800 }}>{a.cta}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* CLASSIFICA COMPLETA con barre */}
+      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16 }}>
+        <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: 1, color: C.textPri, textTransform: 'uppercase', marginBottom: 12 }}>🏆 Classifica</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {fullLeaderboard.map(t => {
+            const isMe = t.id === currentUser?.id;
+            return (
+              <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{
+                  width: 24, height: 24, borderRadius: '50%',
+                  background: t.rank === 1 ? '#FFD700' : t.rank === 2 ? '#C0C0C0' : t.rank === 3 ? '#CD7F32' : C.surface2,
+                  color: t.rank <= 3 ? '#000' : C.textSec,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 13, fontWeight: 900, flexShrink: 0,
+                }}>{t.rank}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                    <span style={{ fontSize: 15, fontWeight: isMe ? 800 : 600, color: isMe ? C.textPri : C.textSec, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {isMe ? '★ ' : ''}{t.name}
+                    </span>
+                    <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 16, fontWeight: 900, color: isMe ? C.green : C.textPri, flexShrink: 0 }}>
+                      {t.score.toFixed(1)}
+                    </span>
+                  </div>
+                  <div style={{ height: 6, background: C.surface2, borderRadius: 6, marginTop: 4, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${t.pct}%`, background: isMe ? `linear-gradient(90deg, ${C.green}, ${C.green}aa)` : `linear-gradient(90deg, ${C.red}88, ${C.red}44)`, borderRadius: 6 }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* 2) Card “La tua formazione” */}
+      {/* INFO STRIP compatta */}
+      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: '12px 14px', display: 'flex', justifyContent: 'space-around', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ textAlign: 'center', minWidth: 70 }}>
+          <div style={{ fontSize: 11, color: C.textSec, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>💰 Budget</div>
+          <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 18, fontWeight: 800, color: '#FFD700' }}>{currentUser?.budget || 0}<span style={{ fontSize: 12, color: C.textSec }}>M</span></div>
+        </div>
+        <div style={{ textAlign: 'center', minWidth: 70 }}>
+          <div style={{ fontSize: 11, color: C.textSec, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>🔄 Switch</div>
+          <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 18, fontWeight: 800, color: switchesUsed >= MAX_SWITCHES ? C.red : C.textPri }}>{switchesUsed}<span style={{ fontSize: 12, color: C.textSec }}>/{MAX_SWITCHES}</span></div>
+        </div>
+        <div style={{ textAlign: 'center', minWidth: 70 }}>
+          <div style={{ fontSize: 11, color: C.textSec, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>👥 Piloti</div>
+          <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 18, fontWeight: 800, color: C.textPri }}>{myPilots.length}</div>
+        </div>
+        <div style={{ textAlign: 'center', minWidth: 90 }}>
+          <div style={{ fontSize: 11, color: C.textSec, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>📅 Asta</div>
+          <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 18, fontWeight: 800, color: auctionDays != null && auctionDays <= 7 ? C.amber : C.textPri }}>
+            {auctionDays != null ? (auctionDays === 0 ? 'OGGI' : `${auctionDays}g`) : '—'}
+          </div>
+        </div>
+      </div>
+
+      {/* 2) Card "La tua formazione" */}
       <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ fontSize: 16, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>LA TUA FORMAZIONE</div>
@@ -338,101 +575,28 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
           </div>
         </div>
 
-        {/* CLASSIFICA COMPATTA */}
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: C.textSec }}>CLASSIFICA</div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {top3Teams.map(t => (
-              <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: t.id === currentUser?.id ? C.surface2 : 'transparent', border: t.id === currentUser?.id ? `1px solid ${C.red}44` : 'none', padding: '6px 8px', borderRadius: 8 }}>
-                <div style={{ width: 18, fontSize: 16, fontWeight: 900, color: t.rank === 1 ? MEDALS[0] : t.rank === 2 ? MEDALS[1] : MEDALS[2], textAlign: 'center' }}>{t.rank}</div>
-                <div style={{ flex: 1, fontSize: 16, fontWeight: t.id === currentUser?.id ? 700 : 500, color: t.id === currentUser?.id ? C.textPri : C.textSec }}>{t.name}</div>
-                <div style={{ fontSize: 16, fontFamily: "'Orbitron', monospace", fontWeight: 700, color: C.textPri }}>{t.score.toFixed(1)}</div>
-              </div>
-            ))}
-            {myRank > 3 && (
-              <>
-                <div style={{ textAlign: 'center', color: C.textSec, fontSize: 14, margin: '2px 0' }}>•••</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: C.surface2, border: `1px solid ${C.red}44`, padding: '6px 8px', borderRadius: 8 }}>
-                  <div style={{ width: 18, fontSize: 16, fontWeight: 900, color: C.textSec, textAlign: 'center' }}>{myRank}</div>
-                  <div style={{ flex: 1, fontSize: 16, fontWeight: 700, color: C.textPri }}>TU ({currentUser?.name})</div>
-                  <div style={{ fontSize: 16, fontFamily: "'Orbitron', monospace", fontWeight: 700, color: C.textPri }}>{myScore.toFixed(1)}</div>
-                  <div style={{ fontSize: 14, color: C.textSec }}>(-{(top3Teams[0]?.score - myScore).toFixed(1)})</div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
       </div>
 
-      {/* 5) Wallet + mercato e 6) Timeline */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        {/* Wallet */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span style={{ fontSize: 18 }}>💰</span>
-              <span style={{ fontSize: 14, textTransform: 'uppercase', color: C.textSec, fontWeight: 700 }}>Budget</span>
-            </div>
-            <div style={{ fontSize: 22, fontFamily: "'Orbitron', monospace", fontWeight: 900, color: '#FFD700' }}>{currentUser?.budget} M</div>
-          </div>
-          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span style={{ fontSize: 18 }}>🔄</span>
-              <span style={{ fontSize: 14, textTransform: 'uppercase', color: C.textSec, fontWeight: 700 }}>Switch</span>
-            </div>
-            <div style={{ fontSize: 22, fontFamily: "'Orbitron', monospace", fontWeight: 900, color: C.textPri }}>
-              {MAX_SWITCHES - (currentUser?.switchesUsed || 0)}<span style={{ fontSize: 16, color: C.textSec }}>/5</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Timeline */}
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: '14px 14px 14px 20px' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, textTransform: 'uppercase', color: C.textSec, marginBottom: 14 }}>PROSSIMI EVENTI</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative' }}>
-            <div style={{ position: 'absolute', left: 4, top: 6, bottom: 6, width: 2, background: C.border }} />
-            {nextEvents.map((ev, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 1 }}>
-                <div style={{ width: 10, height: 10, borderRadius: ev.type === 'auction' ? 2 : '50%', background: ev.type === 'auction' ? C.amber : C.red, border: `2px solid ${C.surface}` }} />
-                <div style={{ transform: 'translateY(-2px)' }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: ev.type === 'auction' ? C.amber : C.textPri, lineHeight: 1.1 }}>{ev.location}</div>
-                  <div style={{ fontSize: 14, color: C.textSec, marginTop: 3 }}>{ev.date}</div>
+      {/* TIMELINE prossimi eventi (sezione finale) */}
+      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: '14px 14px 14px 20px' }}>
+        <div style={{ fontSize: 14, fontWeight: 800, textTransform: 'uppercase', color: C.textPri, marginBottom: 12 }}>📅 Prossimi eventi</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
+          <div style={{ position: 'absolute', left: 4, top: 6, bottom: 6, width: 2, background: C.border }} />
+          {nextEvents.map((ev, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 1 }}>
+              <div style={{ width: 10, height: 10, borderRadius: ev.type === 'auction' ? 2 : '50%', background: ev.type === 'auction' ? C.amber : C.red, border: `2px solid ${C.surface}`, flexShrink: 0 }} />
+              <div style={{ flex: 1, transform: 'translateY(-2px)' }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: ev.type === 'auction' ? C.amber : C.textPri, lineHeight: 1.2 }}>
+                  {ev.type === 'sprint' ? '🏎️ ' : ev.type === 'race' ? '🏁 ' : '💰 '}{ev.location}
                 </div>
+                <div style={{ fontSize: 13, color: C.textSec, marginTop: 2 }}>{ev.date}</div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+          {nextEvents.length === 0 && (
+            <div style={{ fontSize: 14, color: C.textSec, textAlign: 'center', padding: 20 }}>Nessun evento futuro</div>
+          )}
         </div>
-      </div>
-
-      {/* 7) Notifiche intelligenti */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {daysUntil !== null && daysUntil <= 1 && !activeRaceInfo?.timeLocked && (
-          <div style={{ background: C.amber + '15', border: `1px solid ${C.amber}44`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.amber, fontSize: 16, fontWeight: 600 }}>
-            <span style={{ fontSize: 19 }}>⏱️</span>
-            <div>Mancano poche ore alla chiusura schieramento!</div>
-          </div>
-        )}
-        {nextAuction && (() => {
-          const aucD = parseDate(nextAuction.date);
-          const diff = Math.ceil((aucD - SIMULATED_TODAY.getTime()) / 86400000);
-          if (diff <= 3 && diff >= 0) {
-            return (
-              <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.textPri, fontSize: 16, fontWeight: 600 }}>
-                <span style={{ fontSize: 19 }}>💰</span>
-                <div>Asta {diff === 0 ? 'OGGI' : `tra ${diff} giorni`}: prepara il budget!</div>
-              </div>
-            );
-          }
-          return null;
-        })()}
-        {(MAX_SWITCHES - (currentUser?.switchesUsed || 0)) <= 1 && (
-          <div style={{ background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, color: C.textSec, fontSize: 16, fontWeight: 600 }}>
-            <span style={{ fontSize: 19 }}>⚠️</span>
-            <div>Attenzione: ti restano pochissimi Switch stagionali.</div>
-          </div>
-        )}
       </div>
 
     </div>

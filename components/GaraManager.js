@@ -53,6 +53,27 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
       });
   }, [selectedRace, pilots]);
 
+  // Mappa pilot_id → fanta team owner per la gara selezionata.
+  // Storico fedele: usa le lineups effettive di quella race (titolari + riserva).
+  const pilotToFantaTeam = useMemo(() => {
+    if (!selectedRace) return {};
+    const raceKey = `race_${selectedRace.calendarIndex}`;
+    const raceLineups = lineups[raceKey] || {};
+    const raceReserves = reserves[raceKey] || {};
+    const map = {};
+    teams.forEach(t => {
+      const starters = raceLineups[t.id] || [];
+      starters.forEach(s => {
+        const pid = s?.id || s;
+        if (pid) map[pid] = t;
+      });
+      const res = raceReserves[t.id];
+      const resId = res?.id || res;
+      if (resId) map[resId] = t;
+    });
+    return map;
+  }, [selectedRace, lineups, reserves, teams]);
+
   const handleManualSwitch = async (calendarIndex, teamId, starterId, reserveId) => {
     if (!confirm('Vuoi usare 1 dei tuoi Switch per sostituire questo pilota con la riserva? Questa azione è IRREVERSIBILE.')) return;
     try {
@@ -336,20 +357,22 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
       {/* ── VISTA PILOTI (tabella trasparente con breakdown punti) ───────────── */}
       {view === 'piloti' && (
         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden' }}>
-          {/* Header */}
+          {/* Header — colonne: # | Pilota | Team | Grid | Arr | Δ | Sorp | Base | DOTD | Totale */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '32px 1fr 56px 56px 56px 56px 56px 64px',
-            gap: 8, padding: '10px 12px', alignItems: 'center',
+            gridTemplateColumns: '28px minmax(110px, 1fr) minmax(96px, 1.2fr) 48px 48px 36px 56px 48px 56px 60px',
+            gap: 6, padding: '10px 10px', alignItems: 'center',
             background: C.surface2, borderBottom: `1px solid ${C.border}`,
             fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.6, color: C.textSec,
           }}>
             <div style={{ textAlign: 'center' }}>#</div>
             <div>Pilota</div>
+            <div title="Fanta team che aveva questo pilota in formazione in questa gara">Team</div>
             <div style={{ textAlign: 'center' }} title="Posizione di partenza in griglia">Grid</div>
             <div style={{ textAlign: 'center' }} title="Posizione di arrivo">Arr.</div>
-            <div style={{ textAlign: 'right' }} title="Punti base da posizione di arrivo (P1=25 ... P10=11 ... P20=1)">Base</div>
+            <div style={{ textAlign: 'center' }} title="Variazione tra grid e arrivo">Δ</div>
             <div style={{ textAlign: 'right' }} title="Bonus sorpassi: +0,5 per sorpasso, max +3 pt (cap 6 sorpassi)">Sorp.</div>
+            <div style={{ textAlign: 'right' }} title="Punti base da posizione di arrivo (P1=25 ... P20=1)">Base</div>
             <div style={{ textAlign: 'right' }} title="Driver of the Day: 1°=+3, 2°=+2, 3°=+1">DOTD</div>
             <div style={{ textAlign: 'right' }}>Totale</div>
           </div>
@@ -360,24 +383,38 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
             </div>
           ) : pilotLeaderboard.map((entry, i) => {
             const teamColor = F1_TEAM_COLORS[entry.f1Team] || '#555';
-            const isMyPilot = pilots.find(p => p.id === entry.pilotId)?.owner === currentUser?.id;
+            const fantaTeam = pilotToFantaTeam[entry.pilotId] || null;
+            const isMyPilot = fantaTeam?.id === currentUser?.id;
             const bk = entry.breakdown || {};
             const ovtRaw = entry.overtakes || 0;
             const ovtCapped = Math.min(ovtRaw, 6);
             const dotdLabel = entry.dotdRank === 1 ? '1°' : entry.dotdRank === 2 ? '2°' : entry.dotdRank === 3 ? '3°' : '';
             const dotdColor = entry.dotdRank === 1 ? '#FFD700' : entry.dotdRank === 2 ? '#C0C0C0' : entry.dotdRank === 3 ? '#CD7F32' : C.textSec;
+
+            // Δ grid → arrivo
+            let deltaEmoji = '—';
+            let deltaColor = C.textSec;
+            let deltaText = '';
+            if (entry.dnf) { deltaEmoji = '✕'; deltaColor = C.red; }
+            else if (entry.gridPosition && entry.position > 0) {
+              const d = entry.gridPosition - entry.position; // positivo = ha guadagnato posizioni
+              if (d > 0)      { deltaEmoji = '▲'; deltaColor = C.green;  deltaText = `+${d}`; }
+              else if (d < 0) { deltaEmoji = '▼'; deltaColor = C.red;    deltaText = `${d}`;  }
+              else            { deltaEmoji = '='; deltaColor = C.textSec; deltaText = '0';     }
+            }
+
             return (
               <div key={entry.pilotId} style={{
                 display: 'grid',
-                gridTemplateColumns: '32px 1fr 56px 56px 56px 56px 56px 64px',
-                gap: 8, padding: '10px 12px', alignItems: 'center',
+                gridTemplateColumns: '28px minmax(110px, 1fr) minmax(96px, 1.2fr) 48px 48px 36px 56px 48px 56px 60px',
+                gap: 6, padding: '10px 10px', alignItems: 'center',
                 background: isMyPilot ? C.green + '0E' : 'transparent',
                 borderBottom: `1px solid ${C.border}55`,
                 borderLeft: isMyPilot ? `3px solid ${C.green}` : '3px solid transparent',
               }}>
                 {/* Rank */}
                 <div style={{
-                  width: 26, height: 26, borderRadius: '50%',
+                  width: 24, height: 24, borderRadius: '50%',
                   background: i < 3 ? MEDALS[i] : C.surface2,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 13, fontWeight: 900, color: i < 3 ? '#000' : C.textSec,
@@ -389,12 +426,17 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontWeight: 800, fontSize: 16, color: C.textPri, whiteSpace: 'nowrap' }}>
                       {pilots.find(p => p.id === entry.pilotId)?.abbreviation || entry.pilotName?.substring(0, 3).toUpperCase() || '?'}
-                      {isMyPilot && <span style={{ fontSize: 12, color: C.green, marginLeft: 6, fontWeight: 700 }}>★ MIO</span>}
+                      {isMyPilot && <span style={{ fontSize: 12, color: C.green, marginLeft: 6, fontWeight: 700 }}>★</span>}
                     </div>
                     <div style={{ fontSize: 12, color: C.textSec, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {entry.f1Team}
                     </div>
                   </div>
+                </div>
+
+                {/* Fanta Team (storico per gara) */}
+                <div style={{ minWidth: 0, fontSize: 13, fontWeight: 700, color: fantaTeam ? (isMyPilot ? C.green : C.textPri) : C.textSec, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={fantaTeam?.name || 'Non schierato'}>
+                  {fantaTeam ? fantaTeam.name : <span style={{ opacity: 0.5 }}>—</span>}
                 </div>
 
                 {/* Grid */}
@@ -407,9 +449,10 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                   {entry.dnf ? 'DNF' : (entry.position > 0 ? `P${entry.position}` : '—')}
                 </div>
 
-                {/* Base pts */}
-                <div style={{ textAlign: 'right', fontSize: 14, fontFamily: "'Orbitron', monospace", color: bk.base > 0 ? C.textPri : C.textSec, fontWeight: 700 }}>
-                  {(bk.base ?? 0).toFixed(0)}
+                {/* Δ Emoji */}
+                <div style={{ textAlign: 'center', fontSize: 16, fontWeight: 900, color: deltaColor, lineHeight: 1 }} title={`Variazione grid → arrivo: ${deltaText || '—'}`}>
+                  {deltaEmoji}
+                  {deltaText && <div style={{ fontSize: 10, fontWeight: 700, color: deltaColor, fontFamily: "'Titillium Web', sans-serif" }}>{deltaText}</div>}
                 </div>
 
                 {/* Sorpassi */}
@@ -420,6 +463,11 @@ export default function GaraManager({ races, pilots, teams, lineups, reserves, c
                       ({ovtCapped})
                     </div>
                   )}
+                </div>
+
+                {/* Base pts */}
+                <div style={{ textAlign: 'right', fontSize: 14, fontFamily: "'Orbitron', monospace", color: bk.base > 0 ? C.textPri : C.textSec, fontWeight: 700 }}>
+                  {(bk.base ?? 0).toFixed(0)}
                 </div>
 
                 {/* DOTD */}
