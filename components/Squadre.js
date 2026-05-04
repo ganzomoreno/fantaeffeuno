@@ -344,7 +344,18 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, fontSize: 17, color: C.textPri }}>{t.name}</div>
-                    <div style={{ fontSize: 15, color: C.textSec }}>{t.owner} · {tPilots.length} piloti</div>
+                    <div style={{ fontSize: 15, color: C.textSec, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span>{t.owner} · {tPilots.length} piloti</span>
+                      <span style={{
+                        fontSize: 12, fontWeight: 700, padding: '2px 7px', borderRadius: 100,
+                        background: (t.switchesUsed || 0) >= MAX_SWITCHES ? C.red + '22' : C.surface2,
+                        color: (t.switchesUsed || 0) >= MAX_SWITCHES ? C.red : (t.switchesUsed || 0) > 0 ? C.amber : C.textSec,
+                        border: `1px solid ${(t.switchesUsed || 0) >= MAX_SWITCHES ? C.red + '55' : C.border}`,
+                        whiteSpace: 'nowrap',
+                      }} title={`Switch usati: ${t.switchesUsed || 0} su ${MAX_SWITCHES}`}>
+                        🔄 {t.switchesUsed || 0}/{MAX_SWITCHES}
+                      </span>
+                    </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                     {(() => {
