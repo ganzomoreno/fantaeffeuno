@@ -4,6 +4,12 @@
 App web per gestire una lega di Fantasy Formula 1 tra 6 amici.
 React + Next.js 14 (App Router).
 
+## ⚠️ Pubblicare i risultati di una gara
+Quando l'utente chiede di **calcolare/pubblicare i punteggi di un GP**, segui il
+runbook **[RUNBOOK_RISULTATI_GARA.md](RUNBOOK_RISULTATI_GARA.md)**: dati SEMPRE dai
+canali ufficiali F1 online (griglia, classifica, DOTD), trigger DB per i sorpassi,
+giro veloce MAI conteggiato, DOTD vale anche sui DNF. Decisioni già concordate lì.
+
 ## Tech Stack
 - **Framework**: Next.js 14 (App Router)
 - **Frontend**: React 18, CSS-in-JS inline
