@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { CALENDAR, F1_TEAM_COLORS } from '@/lib/data';
 import * as db from '@/lib/db';
+import { importRaceFromJolpica, findLatestRaceToImport } from '@/lib/f1import';
 import { AdminCard, MiniInput, Chip, selectStyle, inputStyle, btnPrimary, btnSmall } from './ui';
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -164,6 +165,35 @@ function AdminRisultati({ races, pilots, onRefresh }) {
   const [selectedRace, setSelectedRace] = useState("");
   const [results, setResults]           = useState([]);
   const [busy, setBusy]                 = useState(false);
+  const [importMsg, setImportMsg]       = useState(null); // { type:'ok'|'err', text }
+
+  // Importa in automatico da Jolpica (griglia/arrivo/DNF → il trigger calcola i sorpassi).
+  // Il DOTD non è in nessuna API: va impostato/confermato a mano prima di salvare.
+  const handleAutoImport = async () => {
+    setImportMsg(null);
+    const target = findLatestRaceToImport(CALENDAR, races, new Date());
+    if (!target) { setImportMsg({ type: 'err', text: 'Nessuna gara passata da importare.' }); return; }
+    setBusy(true);
+    try {
+      const { results: imported, unmatchedCodes, missingPilots } =
+        await importRaceFromJolpica(target.entry, pilots);
+      setSelectedRace(String(target.index));
+      setResults(imported);
+      const warns = [];
+      if (unmatchedCodes.length) warns.push('codici non riconosciuti: ' + unmatchedCodes.join(', '));
+      if (missingPilots.length)  warns.push('piloti senza risultato: ' + missingPilots.join(', '));
+      const over = target.alreadyHasResults ? ' — sovrascriverà i risultati esistenti al salvataggio' : '';
+      setImportMsg({
+        type: 'ok',
+        text: `✓ Importata ${target.entry.location} (${target.entry.date})${over}. `
+            + `Ora imposta/conferma il DOTD (1°/2°/3°) e premi "Salva Risultati".`
+            + (warns.length ? ' ⚠️ ' + warns.join('; ') : ''),
+      });
+    } catch (e) {
+      setImportMsg({ type: 'err', text: 'Import fallito: ' + e.message + '. Inserisci i risultati a mano.' });
+    }
+    setBusy(false);
+  };
 
   const initResults = (raceIdx) => {
     setSelectedRace(raceIdx);
@@ -205,6 +235,20 @@ function AdminRisultati({ races, pilots, onRefresh }) {
   return (
     <div>
       <AdminCard title="Inserisci/Modifica Risultati Gara">
+        <button onClick={handleAutoImport} disabled={busy}
+          style={{ ...btnPrimary, width: "100%", marginBottom: 10, opacity: busy ? 0.6 : 1 }}>
+          {busy ? "Importazione…" : "📥 Importa ultima gara (auto)"}
+        </button>
+        {importMsg && (
+          <div style={{
+            fontSize: 14, lineHeight: 1.4, marginBottom: 10, padding: "8px 10px", borderRadius: 8,
+            background: importMsg.type === 'ok' ? "rgba(74,222,128,0.08)" : "rgba(225,6,0,0.08)",
+            border: `1px solid ${importMsg.type === 'ok' ? "rgba(74,222,128,0.3)" : "rgba(225,6,0,0.3)"}`,
+            color: importMsg.type === 'ok' ? "#4ade80" : "#ff6b6b",
+          }}>
+            {importMsg.text}
+          </div>
+        )}
         <select value={selectedRace} onChange={e => initResults(e.target.value)} style={selectStyle}>
           <option value="">-- Seleziona gara --</option>
           {raceEvents.map(ev => (
