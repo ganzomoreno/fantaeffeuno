@@ -6,7 +6,18 @@
 
 ---
 
-## TL;DR procedura
+## Metodo rapido (button nel sito) — DEFAULT
+Nell'app, **AdminPanel → Risultati Gara**, c'è il bottone **"📥 Importa ultima gara (auto)"**:
+1. L'admin lo clicca → trova l'ultima gara passata, scarica da **Jolpica** griglia/arrivo/DNF
+   e popola il grid (i **sorpassi** li calcola il trigger DB al salvataggio). Codice: `lib/f1import.js`.
+2. **DOTD**: non è in nessuna API → l'admin **chiede a Claude in chat** di proporre il top-3
+   (Claude cerca le fonti ufficiali F1), poi **imposta/conferma** i campi DOTD (1°/2°/3°) nel grid.
+3. Preme **"Salva Risultati"**. Fine.
+
+Lo script manuale qui sotto resta come **fallback** (se Jolpica non ha ancora i dati, codici non
+combacianti, o per inserimenti speciali).
+
+## TL;DR procedura (manuale / fallback)
 
 1. **Trova la gara** nel DB (race_id) e verifica che ci siano le **formazioni**.
 2. **Cerca i dati ufficiali online** (canali F1): griglia di partenza, classifica finale (post-penalità), lista DNF, Driver of the Day (top 3 fan vote).
