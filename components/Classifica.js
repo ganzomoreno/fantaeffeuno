@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { calculatePilotPoints, calculateRaceTeamScore } from '@/lib/scoring';
-import { MAX_SWITCHES, F1_TEAM_COLORS } from '@/lib/data';
+import { MAX_SWITCHES, F1_TEAM_COLORS, PENALTIES } from '@/lib/data';
 
 const C = {
   surface: '#14151C',
@@ -307,9 +307,14 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
   // Full leaderboard (6 teams with bars)
   const fullLeaderboard = useMemo(() => {
     const maxScore = Math.max(1, ...teams.map(t => scores[t.id] || 0));
-    return teams.map((t, i) => ({
-      ...t, rank: i + 1, score: scores[t.id] || 0, pct: ((scores[t.id] || 0) / maxScore) * 100,
-    }));
+    return teams.map((t, i) => {
+      const pens = (PENALTIES || []).filter(p => p.team === t.name);
+      return {
+        ...t, rank: i + 1, score: scores[t.id] || 0, pct: ((scores[t.id] || 0) / maxScore) * 100,
+        penalty: pens.reduce((s, p) => s + (p.points || 0), 0),
+        penaltyNote: pens.map(p => `${p.location || ''} — ${p.reason}`).join(' · '),
+      };
+    });
   }, [teams, scores]);
 
   return (
@@ -457,6 +462,12 @@ export default function Classifica({ teams, scores, races, pilots, lineups, rese
                       {t.score.toFixed(1)}
                     </span>
                   </div>
+                  {t.penalty > 0 && (
+                    <div style={{ fontSize: 11, color: C.amber, fontWeight: 700, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span>⚠️ −{t.penalty} pt penalità</span>
+                      <span style={{ color: C.textSec, fontWeight: 500 }}>· {t.penaltyNote}</span>
+                    </div>
+                  )}
                   <div style={{ height: 6, background: C.surface2, borderRadius: 6, marginTop: 4, overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${t.pct}%`, background: isMe ? `linear-gradient(90deg, ${C.green}, ${C.green}aa)` : `linear-gradient(90deg, ${C.red}88, ${C.red}44)`, borderRadius: 6 }} />
                   </div>
