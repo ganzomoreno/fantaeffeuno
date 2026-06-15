@@ -13,7 +13,8 @@ giro veloce MAI conteggiato, DOTD vale anche sui DNF. Decisioni già concordate 
 ## Tech Stack
 - **Framework**: Next.js 14 (App Router)
 - **Frontend**: React 18, CSS-in-JS inline
-- **State**: useState + localStorage (hook `useLocalStorage`)
+- **Database & Auth**: Supabase (PostgreSQL + RLS). Client in `lib/db.js`. Auth Supabase in corso.
+- **State**: dati persistiti su Supabase; `useLocalStorage` resta solo per preferenze UI locali
 - **Styling**: Inline styles, dark theme F1 (#e10600 rosso, #0a0a0a sfondo)
 - **Fonts**: Orbitron (display/numeri), Titillium Web (body) via Google Fonts
 
@@ -35,8 +36,13 @@ components/
 
 lib/
   data.js             → Costanti, regole, piloti, squadre, calendario, colori F1
-  scoring.js          → Engine calcolo punteggi (pilota singolo + team totali)
-  useLocalStorage.js  → Hook per persistenza state in localStorage
+  scoring.js          → Engine calcolo punteggi (pilota singolo + team totali) — AUTORITATIVO, calcolo lato client
+  db.js               → Client Supabase + query (teams, pilots, races, lineups, race_results)
+  f1import.js         → Import automatico ultima gara da Jolpica F1 API
+  useLocalStorage.js  → Hook per preferenze UI locali (NON più la persistenza dati)
+
+scripts/              → Script Node one-shot (publish_<gara>_results.js, aste, migrazioni dati)
+supabase/migrations/  → Migrazioni SQL (scoring, trigger, calendari, risultati)
 ```
 
 ## Comandi
@@ -72,11 +78,20 @@ npm start       # Serve la build
 6. Carlo Maria Ferrari → "Scudemaria Ferrari"
 
 ## Persistenza
-I dati sono salvati in localStorage con le chiavi:
-- `ff1_teams` → squadre e budget
-- `ff1_pilots` → piloti con owner e prezzo
-- `ff1_races` → risultati gare
-- `ff1_lineups` → formazioni per gara
+I dati vivono su **Supabase** (PostgreSQL + RLS), accesso via `lib/db.js`. Tabelle principali:
+- `teams` → squadre e budget
+- `pilots` → piloti con owner e prezzo
+- `calendar_events` → calendario gare/sprint/aste (con `location`, `sort_order`, `is_sprint`)
+- `races` → gare collegate a `calendar_events` (colonne reali: `id, calendar_event_id, is_sprint, created_at`)
+- `lineups` → formazioni per gara (`is_reserve=false` = titolari)
+- `race_results` → risultati pilota (griglia, posizione, dotd_rank, dnf; trigger DB calcola sorpassi)
+
+> NB: i punteggi squadra NON sono in tabella — l'app li calcola al volo lato client con `lib/scoring.js`.
+
+## Deploy & Repo
+- **Repo**: GitHub `ganzomoreno/fantaeffeuno`. **App live = branch `master`**, deploy automatico ad ogni push.
+- Il branch `feature/fanta-formula1-app` è un codebase **vecchio da ignorare**. Si lavora su `master`.
+- Vibecoding da qualunque device: Claude Code web + GitHub + Supabase (tutto cloud, niente ambiente locale obbligatorio).
 
 ## MVP Plan - 2026 Q1
 

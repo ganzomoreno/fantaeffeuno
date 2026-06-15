@@ -70,9 +70,9 @@ components/
 
 lib/
   data.js         → Costanti, piloti, calendario
-  db.js           → Supabase client
-  scoring.js      → Engine punteggi
-  useLocalStorage.js → Persistenza state
+  db.js           → Supabase client (persistenza dati)
+  scoring.js      → Engine punteggi (autoritativo, lato client)
+  useLocalStorage.js → Solo preferenze UI locali
 ```
 
 ---
@@ -104,29 +104,28 @@ lib/
    Task: [descrivi cosa vuoi fare]
    ```
 
-### Opzione 2: Web Browser
-Puoi continuare a lavorare direttamente da browser mobile:
-- URL: `localhost:3000` (se dev server è running)
-- Oppure accedi a una build live (deploy pending)
+### Opzione 2: Claude Code Web (consigliato per vibecoding ovunque)
+- Apri **claude.ai/code** da qualsiasi device → collega GitHub `ganzomoreno/fantaeffeuno` → branch `master`.
+- Vibecodi in linguaggio naturale, le modifiche diventano commit/PR. Deploy automatico al push.
 
-### Opzione 3: GitHub (coming soon)
-Quando il repo sarà su GitHub, puoi:
-- Clonare da mobile via Termux (Android)
-- Usare GitHub mobile per PR/issues
+### Opzione 3: GitHub (già attivo ✅)
+Il repo è **già su GitHub**: `ganzomoreno/fantaeffeuno`.
+- Clona da mobile via Termux (Android) o usa GitHub mobile per PR/issues.
+- App live = branch **`master`**, deploy automatico ad ogni push.
 
 ---
 
 ## 💡 Tips per Mobile Development
 
 ✅ **Do**
-- Usa `npm run dev` per hot reload
+- Vibecoda da claude.ai/code (cloud) o `npm run dev` per hot reload in locale
 - Test responsivo: `F12` → Device Toolbar (mobile view)
-- localStorage per debugging: `localStorage.getItem('ff1_teams')`
+- I dati stanno su **Supabase**: ispezionali dalla dashboard Supabase, non da localStorage
 
 ❌ **Don't**
-- Non editare file direttamente da mobile (slow)
 - Non fare `git push --force` senza review
 - Non aggiungere feature non concordate
+- Non lavorare sul branch `feature/fanta-formula1-app` (vecchio): usa `master`
 
 ---
 
