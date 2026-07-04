@@ -10,8 +10,8 @@
 Nell'app, **AdminPanel → Risultati Gara**, c'è il bottone **"📥 Importa ultima gara (auto)"**:
 1. L'admin lo clicca → trova l'ultima gara passata, scarica da **Jolpica** griglia/arrivo/DNF
    e popola il grid (i **sorpassi** li calcola il trigger DB al salvataggio). Codice: `lib/f1import.js`.
-2. **DOTD**: non è in nessuna API → l'admin **chiede a Claude in chat** di proporre il top-3
-   (Claude cerca le fonti ufficiali F1), poi **imposta/conferma** i campi DOTD (1°/2°/3°) nel grid.
+2. **DOTD**: non è in nessuna API → Claude fa **un paio di ricerche online** (2 fonti concordi)
+   e **pubblica direttamente il top-3** (1°/2°/3°) nel grid, senza chiedere conferma all'utente.
 3. Preme **"Salva Risultati"**. Fine.
 
 Lo script manuale qui sotto resta come **fallback** (se Jolpica non ha ancora i dati, codici non
@@ -34,7 +34,7 @@ combacianti, o per inserimenti speciali).
 | **Fonte dati** | Sempre dai **canali ufficiali F1 online** (formula1.com, gpfans, racingnews365, racefans, total-motorsport, crash.net, motorsport.com). Valgono per **griglia, risultati E Driver of the Day**. Mai inventare, mai chiedere all'utente di fornirli. |
 | **Classifica da usare** | La **classifica finale UFFICIALE dopo le penalità** (cercare le pagine "after penalties / final classification"). |
 | **Sorpassi** | Default = **netti**: `posizioni guadagnate = max(0, griglia − arrivo)`, cap 6 (= +3 pt max). Lo calcola **da solo il trigger DB**. **Eccezione**: se nei report ufficiali emerge un caso evidente (recovery drive, partenza dalla pit-lane, incidente al via — es. VER a Miami) → **segnalalo e aggiusta** manualmente quel pilota. |
-| **Driver of the Day** | Top 3 del **fan vote ufficiale**: 1°=+3, 2°=+2, 3°=+1. Se i siti pubblicano solo il vincitore, assegna solo il 1° (+3) e **segnalalo**. |
+| **Driver of the Day** | Fai **un paio di ricerche online** (bastano **2 fonti concordi**, es. total-motorsport, formula1.com, racefans) e **pubblica direttamente il top 3**: 1°=+3, 2°=+2, 3°=+1. **NON chiedere conferma all'utente** e non limitarti al solo vincitore: cerca fin da subito il podio completo del fan vote. Solo se dopo le ricerche il 2°/3° è davvero introvabile, assegna quello che hai e segnalalo. |
 | **DOTD + DNF** | Il DOTD è una **mini-sfida accessoria**: vale **anche se il pilota è DNF**. (Il DNF azzera SOLO piazzamento e sorpassi, non il DOTD.) |
 | **Giro veloce** | ❌ **NON si conteggia MAI.** Non proporlo nemmeno. |
 | **DNF** | 0 punti su piazzamento e sorpassi (il DOTD resta, vedi sopra). |
