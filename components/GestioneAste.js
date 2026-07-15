@@ -618,7 +618,7 @@ export default function GestioneAste({ teams, pilots, auction, onRefresh, onClos
           <div style={{ background: "#111", border: "1px solid #4ade80", borderRadius: 16, padding: 28, width: 360, maxWidth: "calc(100vw - 32px)" }}>
             <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 19, fontWeight: 900, color: "#4ade80", marginBottom: 8 }}>⚡ APRI ASTA {(auction?.auctionNumber ?? 0) + 1}</div>
             <div style={{ fontSize: 16, color: "#aaa", marginBottom: 16, lineHeight: 1.6 }}>
-              Ogni squadra riceverà <strong style={{ color: "#4ade80" }}>+{auction?.budgetAdded ?? 100}M</strong> di FantaMilioni aggiuntivi. I piloti in rosa restano invariati.
+              Ogni squadra riceverà <strong style={{ color: "#4ade80" }}>+{auction?.budgetAdded ?? 100}M</strong> di FantaMilioni aggiuntivi e <strong style={{ color: "#e10600" }}>tutti i piloti verranno liberati</strong> per il nuovo draft (i crediti già spesi non vengono rimborsati).
             </div>
             <div style={{ fontSize: 15, color: "#555", marginBottom: 20, background: "#0a0a0a", borderRadius: 8, padding: "10px 12px" }}>
               {teams.map(t => (
