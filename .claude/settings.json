@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "ganzomoreno": {
+      "source": {
+        "source": "github",
+        "repo": "ganzomoreno/software-house"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "software-house@ganzomoreno": true
+  }
+}
