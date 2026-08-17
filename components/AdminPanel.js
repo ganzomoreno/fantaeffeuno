@@ -460,7 +460,18 @@ function AdminBudget({ teams, onRefresh }) {
     setBusy(false);
   };
 
+  // ⚠️ Correzione manuale, NON è il modo di aprire un'asta.
+  // Aprire l'asta si fa da ASTA LIVE → "APRI ASTA" (che aggiunge il budget UNA
+  // sola volta ed è idempotente). Questo pulsante somma +100M a ogni click, quindi
+  // richiede conferma esplicita per evitare doppi accrediti sui dati live.
   const addBudgetAll = async () => {
+    const recap = teams.map(t => `• ${t.name}: ${t.budget}M → ${t.budget + 100}M`).join('\n');
+    const ok = window.confirm(
+      "ATTENZIONE — accredito manuale di +100M a TUTTE le squadre.\n\n" +
+      "Non serve per aprire una nuova asta: l'apertura da ASTA LIVE aggiunge già il budget.\n" +
+      "Ogni click somma altri +100M.\n\n" + recap + "\n\nConfermi?"
+    );
+    if (!ok) return;
     setBusy(true);
     try {
       await Promise.all(teams.map(t => db.updateTeam(t.id, { budget: t.budget + 100 })));
@@ -472,11 +483,13 @@ function AdminBudget({ teams, onRefresh }) {
   return (
     <AdminCard title="Gestione Budget">
       <p style={{ fontSize: 16, opacity: 0.5, marginBottom: 12 }}>
-        Dopo ogni asta, aggiungi +100 FantaMilioni al budget residuo di ogni squadra.
+        Per aprire una nuova asta usa <strong>ASTA LIVE → APRI ASTA</strong>: aggiunge già
+        i +100M (una sola volta) e libera i piloti. Il pulsante qui sotto è solo una
+        <strong> correzione manuale</strong> e somma +100M a ogni click.
       </p>
       <button onClick={addBudgetAll} disabled={busy}
         style={{ ...btnPrimary, marginBottom: 16, opacity: busy ? 0.6 : 1 }}>
-        +100M a tutte le squadre (Nuova Asta)
+        ⚠️ +100M a tutte le squadre (correzione manuale)
       </button>
       {teams.map(t => (
         <div key={t.id} style={{
