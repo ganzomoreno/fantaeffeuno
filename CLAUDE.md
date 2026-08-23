@@ -67,7 +67,7 @@ npm start       # Serve la build
 - Asta ogni 2 gare (calendario in lib/data.js)
 - Penalità mancato schieramento: -5 punti gara, -2 sprint
 - Switch gratuito in caso di DNF (panchinaro entra automaticamente)
-- Switch obbligatorio ma gratuito per infortunio pilota
+- Pilota sostituito (infortunio/assenza): si può continuare a schierarlo, ma i punti si calcolano col risultato del pilota sostituto (es. HAD → TSU, Zandvoort 2026), con evidenza del cambio nei recap. Switch infortunio facoltativo e gratuito.
 
 ## Partecipanti
 1. Alessandro Zanin → "ZetaRacing" (SuperAdmin)

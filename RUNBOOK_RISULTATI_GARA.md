@@ -39,6 +39,7 @@ combacianti, o per inserimenti speciali).
 | **Giro veloce** | ❌ **NON si conteggia MAI.** Non proporlo nemmeno. |
 | **DNF** | 0 punti su piazzamento e sorpassi (il DOTD resta, vedi sopra). |
 | **Switch DNF (riserva al posto del titolare DNF)** | ❌ **Non lo applico io.** Lo decide il **proprietario dall'app**. Io mi limito a **segnalare** quali squadre potrebbero usarlo (titolare DNF + riserva che ha concluso). Lo switch DNF è gratis e non conta tra i 5 stagionali. |
+| **Pilota sostituito (infortunio/assenza)** | Chi ha in rosa un pilota sostituito (es. HAD a Zandvoort 2026) **continua a schierarlo se vuole**: NESSUNO switch obbligatorio. Nei punteggi però **si conteggia il risultato del pilota sostituto** che ne prende il sedile nel weekend (Zandvoort 2026: HAD → **TSU**; LAW passato sulla Red Bull era già nel roster e conta per sé). Operativamente: scrivere la riga `race_results` del pilota sostituito con **griglia/arrivo/DNF del sostituto**, e **dare SEMPRE evidenza nel riepilogo** del cambio e dei conteggi. |
 | **Workflow** | **Pubblico direttamente nel DB**, poi mostro il riepilogo. Niente conferma preventiva. |
 | **Penalità mancato schieramento** | Se una squadra ha <3 titolari schierati → **−5 pt gara** (−2 sprint). Già gestito da `scoring.js`. |
 
