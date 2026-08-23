@@ -56,10 +56,17 @@ export default function MercatoPage() {
 
     setAllTeams(teamsRes.data ?? [])
     setMyDrivers(myDriversRes.data?.map((td: { driver: Driver }) => td.driver).filter(Boolean) ?? [])
-    setTeamDrivers(allDriversRes.data?.map((td: { team_id: string; driver: Driver }) => ({
-      team_id: td.team_id,
-      driver: td.driver,
-    })).filter((td: TeamDriver) => td.driver) ?? [])
+    // Supabase tipa la relazione innestata come array: la riportiamo alla
+    // forma reale (un solo driver per riga) prima di usarla.
+    const allDriverRows = (allDriversRes.data ?? []) as unknown as {
+      team_id: string
+      driver: Driver | null
+    }[]
+    setTeamDrivers(
+      allDriverRows
+        .filter(td => td.driver)
+        .map(td => ({ team_id: td.team_id, driver: td.driver })) as TeamDriver[]
+    )
 
     const trades = tradesRes.data ?? []
     setIncomingTrades(trades.filter((t: Trade) => t.recipient_team_id === team?.id && t.status === 'pending'))

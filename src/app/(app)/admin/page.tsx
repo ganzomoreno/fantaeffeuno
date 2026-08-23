@@ -19,6 +19,8 @@ type ResultRow = {
   driver_id: string
   position: string
   dnf: boolean
+  sprint_position: string
+  sprint_dnf: boolean
   dotd_position: string
   fastest_lap: boolean
   pole_position: boolean
@@ -78,6 +80,8 @@ export default function AdminPage() {
       driver_id: d.id,
       position: '',
       dnf: false,
+      sprint_position: '',
+      sprint_dnf: false,
       dotd_position: '',
       fastest_lap: false,
       pole_position: false,
@@ -93,13 +97,15 @@ export default function AdminPage() {
             driver_id: d.id,
             position: existing.position?.toString() ?? '',
             dnf: existing.dnf,
+            sprint_position: existing.sprint_position?.toString() ?? '',
+            sprint_dnf: existing.sprint_dnf ?? false,
             dotd_position: existing.dotd_position?.toString() ?? '',
             fastest_lap: existing.fastest_lap,
             pole_position: existing.pole_position,
             overtakes: existing.overtakes?.toString() ?? '0',
           }
         }
-        return { driver_id: d.id, position: '', dnf: false, dotd_position: '', fastest_lap: false, pole_position: false, overtakes: '0' }
+        return { driver_id: d.id, position: '', dnf: false, sprint_position: '', sprint_dnf: false, dotd_position: '', fastest_lap: false, pole_position: false, overtakes: '0' }
       }))
     })
   }, [selectedRace, drivers, supabase])
@@ -109,6 +115,10 @@ export default function AdminPage() {
       r.driver_id === driverId ? { ...r, [field]: value } : r
     ))
   }
+
+  // Su weekend sprint l'admin inserisce anche la posizione Sprint: confluisce
+  // nello stesso punteggio di weekend (docs/REGOLAMENTO.md).
+  const isSprintWeekend = races.find(r => r.id === selectedRace)?.is_sprint ?? false
 
   async function publishResults() {
     if (!selectedRace) return
@@ -121,6 +131,8 @@ export default function AdminPage() {
         driver_id: r.driver_id,
         position: r.dnf ? null : (parseInt(r.position) || null),
         dnf: r.dnf,
+        sprint_position: r.sprint_dnf ? null : (parseInt(r.sprint_position) || null),
+        sprint_dnf: r.sprint_dnf,
         dotd_position: parseInt(r.dotd_position) || null,
         fastest_lap: r.fastest_lap,
         pole_position: r.pole_position,
@@ -144,7 +156,22 @@ export default function AdminPage() {
 
       const race = races.find(r => r.id === selectedRace)
 
-      const scorePayloads = (lineupRes.data ?? []).map((lineup: Lineup) => {
+      // Una riga di punteggio per team per weekend. Su weekend sprint contiene
+      // già la somma sprint + gara: non esiste una riga sprint separata.
+      type ScorePayload = {
+        team_id: string
+        race_id: string
+        driver1_id: string | null
+        driver2_id: string | null
+        driver3_id: string | null
+        driver1_points: number
+        driver2_points: number
+        driver3_points: number
+        total_points: number
+        breakdown: unknown
+      }
+
+      const scorePayloads: ScorePayload[] = (lineupRes.data ?? []).map((lineup: Lineup) => {
         const score = calculateTeamScore(lineup, resultsPayload.map(r => ({
           ...r,
           id: '',
@@ -165,9 +192,11 @@ export default function AdminPage() {
         }
       })
 
-      // Apply missing lineup penalty (-5 race, -2 sprint)
+      // Penalità mancato schieramento: -5 per weekend, sprint o meno.
+      // Su weekend sprint il punteggio è unico (sprint + gara), quindi non
+      // esiste una penalità sprint ridotta. Vedi docs/REGOLAMENTO.md.
       const teamsWithLineup = new Set(lineupRes.data?.map((l: Lineup) => l.team_id))
-      const penalty = race?.is_sprint ? -2 : -5
+      const penalty = -5
 
       for (const team of (teamsRes.data ?? [])) {
         if (!teamsWithLineup.has(team.id)) {
@@ -304,6 +333,12 @@ export default function AdminPage() {
                     <thead>
                       <tr className="border-b border-zinc-800">
                         <th className="text-left text-zinc-400 pb-2 font-medium w-40">Pilota</th>
+                        {isSprintWeekend && (
+                          <>
+                            <th className="text-center text-yellow-500 pb-2 font-medium">SPR</th>
+                            <th className="text-center text-yellow-500 pb-2 font-medium">S-DNF</th>
+                          </>
+                        )}
                         <th className="text-center text-zinc-400 pb-2 font-medium">Pos</th>
                         <th className="text-center text-zinc-400 pb-2 font-medium">DNF</th>
                         <th className="text-center text-zinc-400 pb-2 font-medium">DotD</th>
@@ -321,6 +356,27 @@ export default function AdminPage() {
                               <div className="font-medium text-white">{driver?.name}</div>
                               <div className="text-zinc-500">{driver?.constructor}</div>
                             </td>
+                            {isSprintWeekend && (
+                              <>
+                                <td className="text-center py-1.5">
+                                  <Input
+                                    type="number" min="1" max="20"
+                                    value={row.sprint_position}
+                                    onChange={e => updateRow(row.driver_id, 'sprint_position', e.target.value)}
+                                    disabled={row.sprint_dnf}
+                                    className="w-14 h-7 bg-zinc-800 border-yellow-900/60 text-center text-xs"
+                                  />
+                                </td>
+                                <td className="text-center py-1.5">
+                                  <input
+                                    type="checkbox"
+                                    checked={row.sprint_dnf}
+                                    onChange={e => updateRow(row.driver_id, 'sprint_dnf', e.target.checked)}
+                                    className="accent-yellow-600 w-4 h-4"
+                                  />
+                                </td>
+                              </>
+                            )}
                             <td className="text-center py-1.5">
                               <Input
                                 type="number" min="1" max="20"

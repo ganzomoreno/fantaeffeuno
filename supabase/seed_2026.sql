@@ -99,7 +99,7 @@ INSERT INTO races (name, circuit, date, is_sprint, round, season) VALUES
 
   -- Agosto
   ('Ungheria',         'Hungaroring',                       '2026-08-03', false, 14, 2026),
-  ('Olanda',           'Circuit Zandvoort',                 '2026-08-31', false, 15, 2026),
+  ('Olanda',           'Circuit Zandvoort',                 '2026-08-23', true,  15, 2026),
 
   -- Settembre
   ('Italia',           'Autodromo Nazionale Monza',         '2026-09-07', false, 16, 2026),

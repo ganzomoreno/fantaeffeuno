@@ -85,6 +85,10 @@ export type RaceResult = {
   driver_id: string
   position: number | null
   dnf: boolean
+  // Sprint: valorizzati solo sui weekend con is_sprint = true.
+  // Concorrono allo stesso punteggio di weekend, non a uno separato.
+  sprint_position: number | null
+  sprint_dnf: boolean
   dotd_position: number | null // 1=dotd winner, 2=2nd, 3=3rd
   fastest_lap: boolean
   pole_position: boolean

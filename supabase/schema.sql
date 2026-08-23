@@ -98,6 +98,8 @@ CREATE TABLE IF NOT EXISTS race_results (
   driver_id uuid REFERENCES drivers NOT NULL,
   position integer,         -- null if DNF
   dnf boolean DEFAULT false,
+  sprint_position integer,  -- posizione Sprint (scala top-8), null se non sprint
+  sprint_dnf boolean DEFAULT false,
   dotd_position integer,    -- 1=dotd, 2=2nd, 3=3rd
   fastest_lap boolean DEFAULT false,
   pole_position boolean DEFAULT false,
@@ -256,7 +258,7 @@ INSERT INTO races (name, circuit, date, is_sprint, round, season) VALUES
   ('Gran Bretagna',  'Silverstone Circuit',              '2026-07-06', false, 12, 2026),
   ('Belgio',         'Circuit de Spa-Francorchamps',     '2026-07-27', true,  13, 2026),
   ('Ungheria',       'Hungaroring',                      '2026-08-03', false, 14, 2026),
-  ('Olanda',         'Circuit Zandvoort',                '2026-08-31', false, 15, 2026),
+  ('Olanda',         'Circuit Zandvoort',                '2026-08-23', true , 15, 2026),
   ('Italia',         'Autodromo Nazionale Monza',        '2026-09-07', false, 16, 2026),
   ('Azerbaijan',     'Baku City Circuit',                '2026-09-21', false, 17, 2026),
   ('Singapore',      'Marina Bay Street Circuit',        '2026-10-05', false, 18, 2026),
