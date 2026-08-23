@@ -24,12 +24,11 @@
   Il panchinaro subentra **una sola volta per weekend**: se più titolari sono DNF,
   copre il primo in ordine di schieramento (driver1 → driver2 → driver3),
   gli altri DNF valgono 0.
-- **Penalità mancato schieramento**: **−5** per weekend, sprint o non sprint.
-  > ⚠️ Da confermare con il SuperAdmin. Il codice originale applicava −2 sui
-  > weekend sprint e −5 sugli altri: aveva senso quando la Sprint era un evento
-  > separato e leggero. Con il punteggio unico di weekend un weekend sprint vale
-  > *di più* (sprint + gara), quindi penalizzarlo meno era invertito. Fissato a
-  > −5 uniforme finché non viene deciso diversamente.
+- **Penalità mancato schieramento**: **−2** sui weekend sprint, **−5** sugli
+  altri weekend. (Confermata dal SuperAdmin il 23/08/2026.)
+- **Blocco formazioni**: non esiste. Le formazioni restano modificabili in
+  qualsiasi momento, anche a weekend iniziato — scelta deliberata del
+  SuperAdmin, non una mancanza da "sistemare".
 
 ## Punteggi
 

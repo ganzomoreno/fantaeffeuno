@@ -192,11 +192,10 @@ export default function AdminPage() {
         }
       })
 
-      // Penalità mancato schieramento: -5 per weekend, sprint o meno.
-      // Su weekend sprint il punteggio è unico (sprint + gara), quindi non
-      // esiste una penalità sprint ridotta. Vedi docs/REGOLAMENTO.md.
+      // Penalità mancato schieramento: -2 sui weekend sprint, -5 sugli altri.
+      // Confermata dal SuperAdmin il 23/08/2026. Vedi docs/REGOLAMENTO.md.
       const teamsWithLineup = new Set(lineupRes.data?.map((l: Lineup) => l.team_id))
-      const penalty = -5
+      const penalty = race?.is_sprint ? -2 : -5
 
       for (const team of (teamsRes.data ?? [])) {
         if (!teamsWithLineup.has(team.id)) {
