@@ -72,11 +72,8 @@ async function main() {
     ev.is_sprint === true ||
     /sprint/i.test(ev.event_type || '') ||
     /sprint/i.test(ev.title || ev.name || '')
-  ) || (events.length > 1 ? events[0] : events[0]);
+  ) || events[0];
   console.log(`\n→ Evento scelto: sort_order ${sprintEv.sort_order} (id ${sprintEv.id})`);
-  if (events.length > 1 && sprintEv === events[0] && !events.some(ev => ev.is_sprint || /sprint/i.test(ev.event_type || ev.title || ev.name || ''))) {
-    console.log('  (nessun flag sprint esplicito: preso il primo per sort_order — verifica nel riepilogo)');
-  }
 
   // 2. Ottieni/crea la race sprint
   const { data: existing } = await sb.from('races').select('id, is_sprint')
@@ -106,7 +103,7 @@ async function main() {
   console.log(`✓ Validazione OK (${RESULTS.length} righe risultato, HAD assente per infortunio)`);
 
   // 4. Scrittura
-  if (!DRY) {
+  if (!DRY && raceId) {
     await sb.from('race_results').delete().eq('race_id', raceId);
     const rows = RESULTS.map(r => ({
       race_id: raceId,
