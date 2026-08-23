@@ -16,8 +16,8 @@ const RACE_ID = 'e7bbd74c-8a7a-4127-95f5-3058eaf39b17'; // GP Olanda (domenica)
 // { abbr: [grid, pos, dnf, dotd_rank] } — PER partito dalla pit lane → grid 22
 const DATA = {
   NOR: [1, 1, false, 1], ANT: [3, 2, false, null], RUS: [2, 3, false, null],
-  HAM: [5, 4, false, 2], LEC: [6, 5, false, null], PIA: [4, 6, false, null],
-  LAW: [8, 7, false, null], HUL: [13, 8, false, null], ALO: [18, 9, false, 3],
+  HAM: [5, 4, false, 3], LEC: [6, 5, false, null], PIA: [4, 6, false, null],
+  LAW: [8, 7, false, null], HUL: [13, 8, false, null], ALO: [18, 9, false, 2],
   GAS: [11, 10, false, null], TSU: [12, 11, false, null], LIN: [10, 12, false, null],
   BOR: [9, 13, false, null], COL: [14, 14, false, null], PER: [22, 15, false, null],
   SAI: [17, 16, false, null], ALB: [16, 17, false, null],
