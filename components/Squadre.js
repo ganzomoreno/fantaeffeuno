@@ -212,7 +212,7 @@ export default function Squadre({ teams, pilots, scores, currentUser, lineups, d
 
         {/* Info regola */}
         <div style={{ fontSize: 14, color: C.textSec, marginBottom: 12, padding: '6px 10px', background: C.surface2, borderRadius: 8, lineHeight: 1.5 }}>
-          ⚡ 3 titolari obbligatori · DNF → entra panchina · Mancato schieramento = −5 punti
+          ⚡ 3 titolari obbligatori · DNF → serve uno switch (5 a stagione, nessuno gratis) · Mancato schieramento = −5 punti
         </div>
 
         {lineupConfirmed && !isDBConfirmed && !isLocked && (

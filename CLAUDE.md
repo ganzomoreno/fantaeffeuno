@@ -66,8 +66,9 @@ npm start       # Serve la build
 - 5 switch totali a stagione
 - Asta ogni 2 gare (calendario in lib/data.js)
 - Penalità mancato schieramento: -5 punti gara, -2 sprint
-- Switch gratuito in caso di DNF (panchinaro entra automaticamente)
-- Pilota sostituito (infortunio/assenza): si può continuare a schierarlo, ma i punti si calcolano col risultato del pilota sostituto (es. HAD → TSU, Zandvoort 2026), con evidenza del cambio nei recap. Switch infortunio facoltativo e gratuito.
+- **NON esistono switch gratuiti**: ogni switch si paga e conta sui 5 stagionali, qualunque sia il motivo (DNF, infortunio, scelta tattica). Nessuna eccezione.
+- DNF di un titolare: la panchina NON entra in automatico. Il proprietario decide se usare uno switch (che consuma uno dei 5).
+- Pilota sostituito (infortunio/assenza): si può continuare a schierarlo, ma i punti si calcolano col risultato del pilota sostituto (es. HAD → TSU, Zandvoort 2026), con evidenza del cambio nei recap. Lo switch per infortunio è facoltativo e, se usato, consuma uno dei 5.
 
 ## Partecipanti
 1. Alessandro Zanin → "ZetaRacing" (SuperAdmin)
