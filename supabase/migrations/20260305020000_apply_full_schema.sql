@@ -488,7 +488,7 @@ INSERT INTO calendar_events (sort_order, event_date, event_type, location, round
   (19, '2026-08-23', 'race',    'Paesi Bassi',        14),
   (20, '2026-08-24', 'auction', 'Asta 7',             NULL),
   (21, '2026-09-06', 'race',    'Italia',             15),
-  (22, '2026-09-13', 'race',    'Spagna (Valencia)',  16),
+  (22, '2026-09-13', 'race',    'Spagna (Madrid)',    16),
   (23, '2026-09-14', 'auction', 'Asta 8',             NULL),
   (24, '2026-09-26', 'race',    'Azerbaijan',         17),
   (25, '2026-10-11', 'race',    'Singapore',          18),
