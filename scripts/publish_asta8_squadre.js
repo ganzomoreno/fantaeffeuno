@@ -6,10 +6,11 @@
  * Il costo rosa NON si rimborsa. I budget finali sono espliciti (start - speso).
  *
  * Nota su HAD/LAW (sedili incrociati per l'infortunio di Hadjar):
- *   - Scudemaria compra LAW (Lawson), che occupa il sedile Red Bull di Hadjar.
- *   - ZetaRacing compra lo slot HAD: finche' Hadjar e' infortunato quel sedile
- *     Racing Bulls e' di TSU, quindi HAD rende i punti di Tsunoda (regola
- *     sostituzione pilota, vedi CLAUDE.md e RUNBOOK_RISULTATI_GARA.md).
+ *   - Scudemaria compra LAW (Lawson, 17M), che guida la Red Bull di Hadjar.
+ *   - ZetaRacing compra TSU (38M), che guida la Racing Bulls lasciata da Lawson.
+ *     TSU non ha un record proprio nel roster: e' lo slot HAD, che finche'
+ *     Hadjar e' infortunato rende i punti di Tsunoda (regola sostituzione
+ *     pilota, vedi CLAUDE.md e RUNBOOK_RISULTATI_GARA.md).
  *
  * Uso:
  *   node scripts/publish_asta8_squadre.js --dry   → mostra il diff, NON scrive
