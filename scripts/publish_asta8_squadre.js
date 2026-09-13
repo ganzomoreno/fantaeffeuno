@@ -6,10 +6,10 @@
  * Il costo rosa NON si rimborsa. I budget finali sono espliciti (start - speso).
  *
  * Nota su HAD/LAW (sedili incrociati per l'infortunio di Hadjar):
- *   - Scudemaria compra HAD (Hadjar, 17M): finche' e' infortunato il suo slot
- *     rende i punti di TSU, che corre sulla Racing Bulls (regola sostituzione
- *     pilota, vedi CLAUDE.md e RUNBOOK_RISULTATI_GARA.md).
- *   - ZetaRacing compra LAW (Lawson, 38M), che intanto guida la Red Bull.
+ *   - Scudemaria compra LAW (Lawson), che occupa il sedile Red Bull di Hadjar.
+ *   - ZetaRacing compra lo slot HAD: finche' Hadjar e' infortunato quel sedile
+ *     Racing Bulls e' di TSU, quindi HAD rende i punti di Tsunoda (regola
+ *     sostituzione pilota, vedi CLAUDE.md e RUNBOOK_RISULTATI_GARA.md).
  *
  * Uso:
  *   node scripts/publish_asta8_squadre.js --dry   → mostra il diff, NON scrive
@@ -25,14 +25,14 @@ const BUDGET_ADDED = 100;
 
 // abbreviazione pilota → [nome squadra DB, prezzo]
 const ASSIGN = {
-  // Scudemaria Ferrari (start 100, residuo 25) — HAD = slot che oggi rende i punti di TSU
+  // Scudemaria Ferrari (start 100, residuo 25)
   ANT: ['Scudemaria Ferrari', 4], RUS: ['Scudemaria Ferrari', 51],
-  HAD: ['Scudemaria Ferrari', 17], PER: ['Scudemaria Ferrari', 3],
+  LAW: ['Scudemaria Ferrari', 17], PER: ['Scudemaria Ferrari', 3],
   // SF – Scuderia Fainelli (start 101, residuo 0)
   NOR: ['SF – Scuderia Fainelli', 52], VER: ['SF – Scuderia Fainelli', 48],
   STR: ['SF – Scuderia Fainelli', 1],
-  // ZetaRacing (start 141, residuo 79)
-  GAS: ['ZetaRacing', 5], LAW: ['ZetaRacing', 38], HUL: ['ZetaRacing', 15], ALB: ['ZetaRacing', 4],
+  // ZetaRacing (start 141, residuo 79) — HAD = slot oggi occupato da TSU
+  GAS: ['ZetaRacing', 5], HAD: ['ZetaRacing', 38], HUL: ['ZetaRacing', 15], ALB: ['ZetaRacing', 4],
   // Alpha Chiro Racing (start 117, residuo 71)
   HAM: ['Alpha Chiro Racing', 15], LEC: ['Alpha Chiro Racing', 8],
   BEA: ['Alpha Chiro Racing', 12], OCO: ['Alpha Chiro Racing', 11],
