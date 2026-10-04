@@ -10,7 +10,10 @@ const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
 const POINTS = { 1:25,2:22,3:20,4:18,5:16,6:15,7:14,8:13,9:12,10:11,11:10,12:9,13:8,14:7,15:6,16:5,17:4,18:3,19:2,20:1,21:0,22:0 };
 const SPRINT = { 1:8,2:7,3:6,4:5,5:4,6:3,7:2,8:1 };
 const DOTD = { 1:3, 2:2, 3:1 };
-const PENALTIES = [{ team: 'Abdull Mazzar', points: 5, reason: 'Mancato schieramento in tempo (Monaco)' }];
+const PENALTIES = [
+  { team: 'Abdull Mazzar', points: 5, reason: 'Mancato schieramento in tempo (Monaco)' },
+  { team: 'Ranocchiettos', points: 5, reason: 'Mancato schieramento in tempo (Bahrain/Sepang)' },
+];
 
 function pilotPoints(r, isSprint) {
   let tot = 0;
