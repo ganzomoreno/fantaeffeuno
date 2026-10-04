@@ -470,7 +470,7 @@ INSERT INTO calendar_events (sort_order, event_date, event_type, location, round
   ( 1, '2026-03-15', 'race',    'Cina',               2),
   ( 2, '2026-03-16', 'auction', 'Asta 1',             NULL),
   ( 3, '2026-03-29', 'race',    'Giappone',           3),
-  ( 4, '2026-04-12', 'race',    'Bahrain',            4),
+  ( 4, '2026-10-04', 'race',    'Bahrain (Sepang)',   4),
   ( 5, '2026-04-13', 'auction', 'Asta 2',             NULL),
   ( 6, '2026-04-19', 'race',    'Arabia Saudita',     5),
   ( 7, '2026-05-03', 'race',    'Miami',              6),
