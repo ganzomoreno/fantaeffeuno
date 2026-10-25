@@ -13,6 +13,7 @@ const DOTD = { 1:3, 2:2, 3:1 };
 const PENALTIES = [
   { team: 'Abdull Mazzar', points: 5, reason: 'Mancato schieramento in tempo (Monaco)' },
   { team: 'Ranocchiettos', points: 5, reason: 'Mancato schieramento in tempo (Bahrain/Sepang)' },
+  { team: 'ZetaRacing', points: 5, reason: 'Mancato schieramento (Stati Uniti)' },
 ];
 
 function pilotPoints(r, isSprint) {
