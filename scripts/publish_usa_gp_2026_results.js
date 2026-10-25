@@ -4,7 +4,7 @@
  * Fonti: formula1.com/planetf1/gpblog (griglia FIA: LIN -5, COL -10, BOR -80,
  * STR dalla pit lane), formula1.com/grandepremio/si.com (classifica; RUS +5s
  * per vantaggio fuori pista al via, resta 8°).
- * DOTD: ANT +3, LEC +2, VER +1 su indicazione del SuperAdmin (F1 non l'aveva ancora pubblicato).
+ * DOTD: NON assegnato — nessuna fonte online concorde (decisione del SuperAdmin).
  *
  * ZetaRacing non aveva schierato: formazione inserita d'ufficio su indicazione
  * del SuperAdmin (OCO, NOR, RUS titolari, SAI panchina) con -5 (lib/data.js PENALTIES).
@@ -18,8 +18,8 @@ const DRY = process.argv.includes('--dry');
 
 const RACE_ID = 'fd66aeca-1299-4114-82de-00801078ed63'; // GP Stati Uniti
 
-// DOTD: [1°, 2°, 3°] — indicato dal SuperAdmin (voto F1 non ancora pubblicato online)
-const DOTD = ['ANT', 'LEC', 'VER'];
+// DOTD: [1°, 2°, 3°] — nessuna fonte online concorde trovata: NON assegnato
+const DOTD = [];
 
 // [griglia, arrivo, dnf]
 const RESULTS = {
