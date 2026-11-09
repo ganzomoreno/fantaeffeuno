@@ -2,10 +2,10 @@
  * publish_brazil_gp_2026_results.js — GP San Paolo (Interlagos), 08/11/2026.
  *
  * Griglia (qualifiche formula1.com + penalita' PU: RUS -5, LEC -10, HAM/VER/PER in fondo).
- * Arrivo: classifica a fine gara (giro 71/71) fornita dal SuperAdmin, coincide con planetf1/gpblog.
- * Antonelli sotto indagine per unsafe release: ha ~20s su Piastri, una penalita' di tempo
- * non cambierebbe la posizione.
- * DOTD: non ancora pubblicato → per ora nessuno (da aggiornare).
+ * Arrivo: classifica a fine gara (SuperAdmin) corretta con le penalita' post-gara:
+ *   LEC +5s (contatto con LAW) → scende 8°, LAW sale 7° (grandprix247, grandepremio, the-race);
+ *   ANT +5s unsafe release resta 5°; BEA +5s resta 17°. BOT non partito (DNS = 0 pt).
+ * DOTD (formula1.com): VER +3, NOR +2, LAW +1.
  *
  * SOSTITUZIONE: Ocon fuori per il resto della stagione, al suo posto Rafael Camara (non nel
  * roster): la riga OCO porta il risultato di Camara (11 → P20).
@@ -18,13 +18,13 @@ const DRY = process.argv.includes('--dry');
 
 const RACE_ID = '9442d460-7d38-4045-8803-13aed263ff35'; // GP Brasile
 
-// DOTD: [1°, 2°, 3°] — vuoto finche' F1 non pubblica il voto
-const DOTD = [];
+// DOTD (formula1.com, vincitore confermato da Sky Sports): VER 31.3%, NOR 11.5%, LAW 8.2%
+const DOTD = ['VER', 'NOR', 'LAW'];
 
 // [griglia, arrivo, dnf]
 const RESULTS = {
   NOR: [1, 1, false], VER: [21, 2, false], HAD: [5, 3, false], RUS: [7, 4, false],
-  ANT: [2, 5, false], PIA: [10, 6, false], LEC: [14, 7, false], LAW: [3, 8, false],
+  ANT: [2, 5, false], PIA: [10, 6, false], LAW: [3, 7, false], LEC: [14, 8, false],
   HAM: [20, 9, false], HUL: [4, 10, false], LIN: [12, 11, false], ALO: [8, 12, false],
   COL: [15, 13, false], GAS: [16, 14, false], ALB: [9, 15, false], BOR: [19, 16, false],
   BEA: [6, 17, false], PER: [22, 18, false], SAI: [13, 19, false],
